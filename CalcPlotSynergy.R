@@ -5,7 +5,8 @@
 calcsyn <- compiler::cmpfun(function(scores, drug.pairs)
 {
   scores.dose <- t(scores)  
-  combscores = scores.dose[-1, -1]; combscores[nrow(combscores),ncol(combscores)] <- 'NA'
+  combscores = scores.dose[-1, -1]
+  combscores[nrow(combscores),ncol(combscores)] <- 'NA'
   summary.score <- round(mean(as.numeric(combscores), na.rm = !0), 3)
   x.conc <- as.numeric(rownames(scores.dose))
   y.conc <- as.numeric(colnames(scores.dose))
@@ -13,7 +14,8 @@ calcsyn <- compiler::cmpfun(function(scores, drug.pairs)
   unit.text <- paste0("(", conc.unit, ")")
   drug.row <- paste0(drug.pairs$drug.row, " ", unit.text)
   drug.col <- paste0(drug.pairs$drug.col, " ", unit.text)
-  color.range <- round(max(abs(max(as.numeric(combscores), na.rm = !0)), abs(min(as.numeric(combscores), na.rm = !0))) + 5, -1)
+  color.range <- round(max(abs(max(as.numeric(combscores), na.rm = !0)), 
+                           abs(min(as.numeric(combscores), na.rm = !0))) + 5, -1)
   start.point <- -color.range; end.point <- color.range  
   pixels.num = 5 * (length(x.conc) - 1) + 2;
   
@@ -24,24 +26,25 @@ calcsyn <- compiler::cmpfun(function(scores, drug.pairs)
   
   kriged =  tryCatch({
     tmp <- cbind(expand.grid(c(0:(length(x.conc) - 1)), c(0:(length(y.conc) - 1))), c(as.matrix(scores.dose)))        
-    kriging(tmp[, 1],tmp[, 2], tmp[, 3], lags = ifelse(dim(scores.dose)[1] < 8, 2 ,3), 
+    kriging::kriging(tmp[, 1],tmp[, 2], tmp[, 3], lags = ifelse(dim(scores.dose)[1] < 8, 2 ,3), 
             pixels = pixels.num, model = "spherical")
   },error = function(e){
     appro <- function(x, n) approx(x, n=n)$y
      tryCatch({
         m = apply(t(apply(scores.dose, 1, function(x) appro(x, ncol(scores.dose)*2))), 2, function(x) appro(x, nrow(scores.dose)*2))
         tmp2<- cbind(expand.grid(c(0:(nrow(m)-1)),c(0:(ncol(m)-1))), c(as.matrix(m)))
-        kriging(tmp2[, 1], tmp2[, 2], tmp2[, 3], lags = ifelse(dim(m)[1] < 8, 2 ,3), pixels = pixels.num, model = "spherical")
+        kriging::kriging(tmp2[, 1], tmp2[, 2], tmp2[, 3], lags = ifelse(dim(m)[1] < 8, 2 ,3), pixels = pixels.num, model = "spherical")
       },error = function(e){ 
         m = apply(t(apply(scores.dose, 1, function(x) appro(x, ncol(scores.dose)*3))), 2, function(x) appro(x, nrow(scores.dose)*3))
         tmp2<- cbind(expand.grid(c(0:(nrow(m)-1)),c(0:(ncol(m)-1))), c(as.matrix(m)))
-        kriging(tmp2[, 1], tmp2[, 2], tmp2[, 3], lags = ifelse(dim(m)[1] < 8, 2 ,3), pixels = pixels.num, model = "spherical")
+        kriging::kriging(tmp2[, 1], tmp2[, 2], tmp2[, 3], lags = ifelse(dim(m)[1] < 8, 2 ,3), pixels = pixels.num, model = "spherical")
       })
   })
   
   xseq <- round(kriged[["map"]]$x/kriged$pixel)
   yseq <- round(kriged[["map"]]$y/kriged$pixel)
-  a <- min(xseq):max(xseq); b <- min(yseq):max(yseq)
+  a <- min(xseq):max(xseq)
+  b <- min(yseq):max(yseq)
   na <- length(a); nb <- length(b)
   res1 <- as.double(rep(0, na * nb))
   res2 <- as.integer(rep(0, na * nb))
@@ -88,29 +91,47 @@ calcsyn <- compiler::cmpfun(function(scores, drug.pairs)
 ##### Plot 2D and 3D synergy interaction maps
 ###################################################################################
 
-PlotSynergyShiny <- compiler::cmpfun(function (data, type = "2D", graphnumber = 1, brushx = NULL, brushy = NULL, gridsize = 1, gridsize2 = 0, 
-                              savee2D = NULL, savee3D = NULL, newscore = NULL, name_3D = NULL, method_ = "ZIP", synScoresMtx = NULL, mostsynarea = 1) 
+PlotSynergyShiny <- compiler::cmpfun(function (data, type = "2D", graphnumber = 1, 
+                                               brushx = NULL, brushy = NULL, 
+                                               gridsize = 1, gridsize2 = 0,
+                                               savee2D = NULL, savee3D = NULL, 
+                                               newscore = NULL, name_3D = NULL, 
+                                               method_ = "ZIP", synScoresMtx = NULL, 
+                                               mostsynarea = 1) 
 {
   print("plotinside")
   
   !is.list(data) && {stop("Input data is not a list format!")}
   if (gridsize == -1) {colmap = !0; gridsize = 1} else { colmap = !1 }
   
-  summary.score <- data$summary.score; cMat <- data$c
-  drug.row <- data$drug.row; drug.col <- data$drug.col
-  x.conc <- data$x.conc; y.conc <- data$y.conc
-  start.point <- data$start.point; end.point <- data$end.point
+  summary.score <- data$summary.score
+  cMat <- data$c
+  drug.row <- data$drug.row
+  drug.col <- data$drug.col
+  x.conc <- data$x.conc
+  y.conc <- data$y.conc
+  start.point <- data$start.point
+  end.point <- data$end.point
   
   if (method_ == "ZIP") {
-    if (!is.null(newscore)) {plot.title =  plot.title2 = bquote(~delta ~ " - score: " ~ .(newscore))
-    } else { plot.title <- bquote(~delta ~ " - score: " ~ .(summary.score)); plot.title2 <- paste0("delta score: ", summary.score)}
-    title3D = paste0(drug.row, " & ", drug.col, " <br>\U03B4 - score: ", summary.score)
+    if (!is.null(newscore)) {
+      plot.title <- plot.title2 <- bquote(~delta ~ " - score: " ~ .(newscore))
+    } else { 
+      plot.title <- bquote(~delta ~ " - score: " ~ .(summary.score))
+      plot.title2 <- paste0("delta score: ", summary.score)
+    }
+    title3D <- paste0(drug.row, " & ", drug.col, " <br>\U03B4 - score: ", summary.score)
+    titleZaxis <- "\U03B4 - score"
   }
   else {
-    if (!is.null(newscore)) { plot.title = plot.title2 = paste0(method_, " synergy score: ", newscore)
-    } else { plot.title <- paste0(method_, " synergy score: ", summary.score); 
-             plot.title2 <- paste0(method_, " synergy score: ",  summary.score);}
+    if (!is.null(newscore)) {
+      plot.title = plot.title2 = paste0(method_, " synergy score: ", newscore)
+    } else {
+      plot.title <- paste0(method_, " synergy score: ", summary.score)
+      plot.title2 <- paste0(method_, " synergy score: ",  summary.score)
+    }
     title3D = paste0(drug.row, " & ", drug.col, " <br> ", method_, " synergy score: ", summary.score)
+    titleZaxis <-  paste0(method_, " synergy score")
   }
   print(paste0("size- ", gridsize))
   
@@ -128,7 +149,7 @@ PlotSynergyShiny <- compiler::cmpfun(function (data, type = "2D", graphnumber = 
                   contours = list(y = list(show = !0, width = gridsize, highlightwidth = 2, usecolormap = colmap),  
                                   x = list(show = !0, width = gridsize, highlightwidth = 2, usecolormap = colmap)), 
                   hoverinfo = "z+name", name = "d - score", 
-                  colorbar = list(outlinewidth = 0, title = "\U03B4 - score", len = 0.24, thickness = 19, xpad = 3, showticklabels = !0, 
+                  colorbar = list(outlinewidth = 0, title = titleZaxis, len = 0.24, thickness = 19, xpad = 3, showticklabels = !0, 
                                   titlefont = 9, outlinewidth = 0.3, tickcolor = "#fff", tickfont = list(size = 9), ticks = "inside"), 
                   colorscale = list(c(0, "rgb(0, 247, 0)"), c(0.5, "rgb(247, 247, 247)"), c(1, "rgb(247, 0, 0)")), 
                   cauto = F, cmin = start.point, cmax = end.point, 
@@ -148,26 +169,53 @@ PlotSynergyShiny <- compiler::cmpfun(function (data, type = "2D", graphnumber = 
       # 
       
     } else if (gridsize == 0) {
-      p =  plot_ly(z = rotate(rotate(rotate(cMat))), x = subX, y = subY, type = "surface", hoverinfo = "z+name", name = "d - score", 
+      p =  plot_ly(z = rotate(rotate(rotate(cMat))), x = subX, y = subY, 
+                   type = "surface", hoverinfo = "z+name", name = "d - score", 
                    contours = list(y = list(show = !1), x = list(show = !1)), 
-                   colorbar = list(outlinewidth = 0, title = "\U03B4 - score", len = 0.24, thickness = 19, xpad = 3, showticklabels = !0, 
-                                   titlefont = 9, outlinewidth = 0.3, tickcolor = "#fff", tickfont = list(size = 9), ticks = "inside"), 
-                   colorscale = list(c(0, "rgb(0, 247, 0)"), c(0.5, "rgb(247, 247, 247)"), c(1, "rgb(247, 0, 0)")), 
-                   cauto = F, cmin = start.point, cmax = end.point, contour = list(show = !1, color = "#222")) 
+                   colorbar = list(outlinewidth = 0, title = "\U03B4 - score", 
+                                   len = 0.24, thickness = 19, xpad = 3, 
+                                   showticklabels = !0, titlefont = 9, 
+                                   outlinewidth = 0.3, tickcolor = "#fff", 
+                                   tickfont = list(size = 9), ticks = "inside"), 
+                   colorscale = list(c(0, "rgb(0, 247, 0)"), 
+                                     c(0.5, "rgb(247, 247, 247)"), 
+                                     c(1, "rgb(247, 0, 0)")), 
+                   cauto = F, cmin = start.point, cmax = end.point, 
+                   # contour = list(show = !1, color = "#222")
+                   ) 
       
     }
-    
-    p = p %>% layout(title = "",
-                     scene = list(xaxis = list(title = as.character(""), tickmode = "array",
-                                               tickvals = seq.int(min(x.conc), max(x.conc), length.out = length(x.conc)),
+
+    p = p %>% plotly::layout(title = title3D,
+                     scene = list(xaxis = list(title = drug.col,
+                                               tickmode = "array",
+                                               tickvals = seq.int(min(x.conc),
+                                                                  max(x.conc),
+                                                                  length.out = length(x.conc)),
                                                tickfont = list(family = "serif", size = 12),
-                                               ticktext = rep("", length(x.conc)), ticks = "none"), 
-                                  yaxis = list(title = as.character(""), tickmode = "array",
-                                               tickvals = seq.int(max(y.conc), min(y.conc), length.out = length(y.conc)),
+                                               # ticktext = rep("", length(x.conc)),
+                                               ticktext = round(x.conc, 0), 
+                                               ticks = "none"),
+                                  yaxis = list(title = drug.row,
+                                               tickmode = "array",
+                                               tickvals = seq.int(max(y.conc),
+                                                                  min(y.conc),
+                                                                  length.out = length(y.conc)),
                                                tickfont = list(family = "serif", size = 12),
-                                               ticktext = rep("", length(y.conc)), ticks = "none"),
-                                  zaxis = list(title = "", range = c(-20, 100), 
-                                               tickfont = list(family = "serif", size = 12), ticks = "none",                                                            tickmode = "array", tickvals = seq.int(-20,100,20), ticktext = rep("", 7)),
+                                               # ticktext = rep("", length(y.conc)),
+                                               ticktext = round(y.conc, 0), 
+                                               ticks = "none"),
+                                  zaxis = list(title = titleZaxis, 
+                                               # range = c(-20, 100),
+                                               range = c(start.point, end.point),
+                                               tickfont = list(family = "serif",
+                                                               size = 12),
+                                               ticks = "none", tickmode = "array"
+                                               
+                                               #tickvals = seq.int(- max(), max(x.conc), 
+                                                #                  length.out = length(x.conc)),
+                                               #ticktext = rep("", 7)
+                                               ),
                                   camera = list(eye = list(x = -1.25, y = -1.25, z = 1.25))
                      ))
 
@@ -197,16 +245,16 @@ PlotSynergyShiny <- compiler::cmpfun(function (data, type = "2D", graphnumber = 
     #             cauto = F, cmin = start.point, cmax = end.point, 
     #             contour = list(show = !1, color = "#222"))
     # 
-    # p = p %>% layout(title = title3D, 
-    #                  scene = list(yaxis = list(title = as.character(drug.row), tickmode = "array", 
+    # p = p %>% layout(title = title3D,
+    #                  scene = list(yaxis = list(title = as.character(drug.row), tickmode = "array",
     #                                            tickvals = seq(0, ncol(cMat), length.out = length(y.conc)),
-    #                                            tickfont = list(family = "serif", size = 12), 
+    #                                            tickfont = list(family = "serif", size = 12),
     #                                            ticks = "outside", ticktext = as.character(y.conc)),
-    #                               xaxis = list(title = as.character(drug.col), tickmode = "array", 
+    #                               xaxis = list(title = as.character(drug.col), tickmode = "array",
     #                                            tickvals = seq(0, nrow(cMat), length.out = length(x.conc)),
-    #                                            tickfont = list(family = "serif", size = 12), 
+    #                                            tickfont = list(family = "serif", size = 12),
     #                                            ticks = "outside", ticktext = as.character(x.conc)),
-    #                               #zaxis = list(title = "\U03B4 - score", range = c(start.point, end.point), 
+    #                               #zaxis = list(title = "\U03B4 - score", range = c(start.point, end.point),
     #                               #             tickfont = list(family = "serif", size = 12), ticks = "outside")
     #                               zaxis = list(title = "\U03B4 - scores", tickmode = "array",
     #                                            tickvals = seq(start.point, end.point, length.out = 9),

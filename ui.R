@@ -87,8 +87,7 @@ ui <- dashboardPage(
                       condition = "input.Switch2 == 1",
                       
                       div(selectInput("methods", "Method", choices = list("ZIP" = "ZIP", "Bliss" = "Bliss", "Loewe" = "Loewe", "HSA" = "HSA"), width = '40%'), id = "tourmodels"),
-                      SwitchButtonsmallright(inputId = "Switch3",
-                                             label = "Correction"),
+                      selectInput("correction", "Correction", choices = list("Non" = "non", "Part" = "part", "All" = "all")),
                       tags$div(title="Visualize the synergy scores for drug combinations as 2D or 3D interaction landscape over the dose-response matrix.", id = "tourvizsyn",
                                switchButton(inputId = "Switch4",
                                             label = "Visualize synergy scores"))
