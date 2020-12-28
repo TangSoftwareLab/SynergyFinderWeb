@@ -5,7 +5,8 @@ reportspath <- "~/Desktop/test_synergyfinder/"#"/usr/srv/app/reports" # remember
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
-  
+  # Changing theme ----------------------------------------------------------
+  callModule(module = serverChangeTheme, id = "moduleChangeTheme")
   # reactive variables
   datannot <- reactiveValues(annot = NULL, outList = NULL, type_ = NULL)
   dataReshaped <- reactiveValues(reshapeD = NULL)
@@ -17,12 +18,16 @@ server <- function(input, output, session){
     paste0(x, sapply(LETTERS, function(x) paste0(x, LETTERS)))
     })))
   
+  # Reset the input data file
   output$resettableInput <- renderUI({
     input$inputDatatype
-    fileInput('annotfile', 'Annotation file', 
+    fileInput('annotfile', 'Select a Drug Combination Screen File', 
               accept = c('.csv', '.xlsx', '.txt'))
   })
+  
+  # Open video guid
   observeEvent(input$openmyvideo, toggleModal(session, "VideoTut", "open"))
+  # Open tech document
   observeEvent(input$opentechdoc, toggleModal(session, "TechDocum", "open"))
 
   # toaster welcome
