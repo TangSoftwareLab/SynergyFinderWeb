@@ -1,12 +1,20 @@
-lapply(c("ggplot2", "scales", "gplots", "lattice", "kriging", "plotly", "grid", 
-         "reshape2", "xtable", "synergyfinder"), library, character.only = T)
-sapply(c('CalcPlotSynergy.R', 'CalcPlotDose.R', 'getData.R'),source,.GlobalEnv)
-reportspath <- "~/Desktop/test_synergyfinder/"#"/usr/srv/app/reports" # remember to change this according to environment
+
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
-  # Changing theme ----------------------------------------------------------
-  callModule(module = serverChangeTheme, id = "moduleChangeTheme")
+  # Home page ------------------------------------------------------------------
+  # Guideline button
+  observeEvent(input$toGuide, {
+    updateNavbarPage(session, inputId = "topNavBar",
+                      selected = "USER GUIDE")
+  })
+  # GetStart button
+  observeEvent(input$getStart, {
+    updateNavbarPage(session, inputId = "topNavBar",
+                     selected = "DASHBOARD")
+  })
+  shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+  # Dashboard page -------------------------------------------------------------
   # reactive variables
   datannot <- reactiveValues(annot = NULL, outList = NULL, type_ = NULL)
   dataReshaped <- reactiveValues(reshapeD = NULL)
@@ -17,28 +25,30 @@ server <- function(input, output, session){
   LETTERS <- unique(as.character(sapply(LETTERS, function(x) {
     paste0(x, sapply(LETTERS, function(x) paste0(x, LETTERS)))
     })))
-  
+  shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+  shinyjs::hide(selector = "a[data-value=\"syenrgyTab\"]")
+  shinyjs::hide(selector = "a[data-value=\"downloadTab\"]")
   # Reset the input data file
   output$resettableInput <- renderUI({
     input$inputDatatype
-    fileInput('annotfile', 'Select a Drug Combination Screen File', 
+    fileInput('annotfile', '2. Select a file', 
               accept = c('.csv', '.xlsx', '.txt'))
   })
   
   # Open video guid
-  observeEvent(input$openmyvideo, toggleModal(session, "VideoTut", "open"))
+  #observeEvent(input$openmyvideo, toggleModal(session, "VideoTut", "open"))
   # Open tech document
-  observeEvent(input$opentechdoc, toggleModal(session, "TechDocum", "open"))
+  #observeEvent(input$opentechdoc, toggleModal(session, "TechDocum", "open"))
 
   # toaster welcome
-  toastr_info("The application will be ready in a few seconds",
-              title = "Welcome to SynergyFinder", closeButton = !0,
-              progressBar = !0, position = "top-right", preventDuplicates = !0,
-              showDuration = 300, hideDuration = 1000, timeOut = 6000,
-              extendedTimeOut = 1000, showEasing = "swing",
-              hideEasing = "swing", showMethod = "fadeIn",
-              hideMethod = "fadeOut")
-  shinyjs::runjs("$(\'<style>.toast-top-right{top:75px;right:12px}</style>\').appendTo(\'body\');")
+  # toastr_info("The application will be ready in a few seconds",
+  #             title = "Welcome to SynergyFinder", closeButton = !0,
+  #             progressBar = !0, position = "top-right", preventDuplicates = !0,
+  #             showDuration = 300, hideDuration = 1000, timeOut = 6000,
+  #             extendedTimeOut = 1000, showEasing = "swing",
+  #             hideEasing = "swing", showMethod = "fadeIn",
+  #             hideMethod = "fadeOut")
+  # shinyjs::runjs("$(\'<style>.toast-top-right{top:75px;right:12px}</style>\').appendTo(\'body\');")
   
   annotationex_ = readRDS("./tour/dataOutput.Rds");
   shinyjs::runjs('window.onbeforeunload=function(a){return message="You cannot refresh this page. Please open another tab",a.returnValue=message,message},$("#removeoutliers").prepend(\'<img id="theImg" src="beta2.png" style="position: absolute;top: 0px;right: 0px;" />\'),$("#spanpop").popover({html:!0,title:"Input data structure:",content:"Table format:<br><img src=\'example.png\' /><br><br> Matrix format:<br><img src=\'example2.png\' /> <br><br> For more information about input file format see technical documentation<br>by clicking <b style=\'color:#2fa4e7;\'>User guide</b> button.",trigger:"hover",placement:"auto",container:"body",animation:!0});')
@@ -53,6 +63,9 @@ server <- function(input, output, session){
   })
   
   closeAll <- compiler::cmpfun(function(){
+    shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+    shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+    shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
     dataReshaped$reshapeD <- scores$scores <- scoreofthepart$scores <- NULL
     updateSelectInput(session, "selectInhVia", selected = "")
     updateCheckboxInput(session, "Switch", value = 0)
@@ -66,30 +79,30 @@ server <- function(input, output, session){
   ########################
   ##### Tour
   
-  observeEvent(input$drdatatour,{
-    name_ = "_example.xlsx"
-    datannot$annot <- annotationex_
-    shinyjs::runjs(paste0('$("#annotfile_progress").html(\'<div class="progress-bar" style="width: 100%;">Upload complete</div>\').css("visibility", "visible");
-                   $(".form-control").val("', name_,'");'));})
-  
-  observeEvent(input$endtour,{
-    closeAll();
-    shinyjs::runjs(paste0('$("#annotfile_progress").css("visibility", "hidden"); $(".form-control").val("");'));
-  })
-  
-  observeEvent(input$selInhViatour,{
-    updateSelectInput(session, "selectInhVia", selected = "inhibition")
-    updateCheckboxInput(session, "Switch", value = 0)
-    })
-  observeEvent(input$vizdrdata,{
-    updateCheckboxInput(session, "Switch", value = 1)
-    updateCheckboxInput(session, "Switch2", value = 0)
-    })
-  observeEvent(input$methodstour, updateCheckboxInput(session, "Switch2", value = 1))
-  observeEvent(input$switch2off, updateCheckboxInput(session, "Switch2", value = 0))
-  observeEvent(input$showmaps, updateCheckboxInput(session, "Switch4", value = 1))
-  observeEvent(input$dropselInhViatour, updateSelectInput(session, "selectInhVia", selected = ""))
-  observeEvent(input$closeshowedmaps, updateCheckboxInput(session, "Switch4", value = 0))
+  # observeEvent(input$drdatatour,{
+  #   name_ = "_example.xlsx"
+  #   datannot$annot <- annotationex_
+  #   shinyjs::runjs(paste0('$("#annotfile_progress").html(\'<div class="progress-bar" style="width: 100%;">Upload complete</div>\').css("visibility", "visible");
+  #                  $(".form-control").val("', name_,'");'));})
+  # 
+  # observeEvent(input$endtour,{
+  #   closeAll();
+  #   shinyjs::runjs(paste0('$("#annotfile_progress").css("visibility", "hidden"); $(".form-control").val("");'));
+  # })
+  # 
+  # observeEvent(input$selInhViatour,{
+  #   updateSelectInput(session, "selectInhVia", selected = "inhibition")
+  #   updateCheckboxInput(session, "Switch", value = 0)
+  #   })
+  # observeEvent(input$vizdrdata,{
+  #   updateCheckboxInput(session, "Switch", value = 1)
+  #   updateCheckboxInput(session, "Switch2", value = 0)
+  #   })
+  # observeEvent(input$methodstour, updateCheckboxInput(session, "Switch2", value = 1))
+  # observeEvent(input$switch2off, updateCheckboxInput(session, "Switch2", value = 0))
+  # observeEvent(input$showmaps, updateCheckboxInput(session, "Switch4", value = 1))
+  # observeEvent(input$dropselInhViatour, updateSelectInput(session, "selectInhVia", selected = ""))
+  # observeEvent(input$closeshowedmaps, updateCheckboxInput(session, "Switch4", value = 0))
   
   ########################
 
@@ -215,111 +228,115 @@ server <- function(input, output, session){
   })
   
   # when readout is changed 
-  observeEvent(input$selectInhVia,
-               {
-                 if(input$selectInhVia!="")
-                 {
-                   if(!is.null(datannot$annot) && datannot$annot != "WRONG")
-                   { 
-                     closeAlert(session, "alertPD")
-                     
-                  tryCatch({  
-                     if(inputdatatype$type_ == "Table")
-                        dataReshaped$reshapeD <- transformInputData(datannot$annot, 
-                                                                    input$selectInhVia)
-                     else 
-                       dataReshaped$reshapeD <- transformInputDataMatrix(datannot$annot, 
-                                                                         input$selectInhVia)
-                     
-                   }, error = function(e) {
-                     closeAll();
-                     toastr_error(paste0("Something wrong with your file that ",
-                                         "cannot be handled by application. ",
-                                         "Please check that <b>\"",
-                                         inputdatatype$type_,
-                                         "\"</b> is a correct file format. ",
-                                         "For more information about input data see ",
-                                         "<b>section 3</b> in <a style='cursor: pointer;",
-                                         "' onclick='javascript:techdoc()'>technical documentation</a>",
-                                         " or <a style='cursor: pointer;' ",
-                                         "onclick='javascript:openvideo()'>video tutorial</a>"), 
-                                  title = "Unhandled error occurred!", 
-                                  closeButton = !0, progressBar = !0, 
-                                  position = "top-right", preventDuplicates = !0,
-                                  showDuration = 300, hideDuration = 1000, 
-                                  timeOut = 10000, extendedTimeOut = 1000, 
-                                  showEasing = "swing",  hideEasing = "swing", 
-                                  showMethod = "fadeIn", hideMethod = "fadeOut")
-                   })
-                     
-                     # warnings (returned from transformInputData)
-                     if(any(dataReshaped$reshapeD$warning != "")){
-                       for(i in which(dataReshaped$reshapeD$warning != ""))
-                         toastr_warning(dataReshaped$reshapeD$warning[i], 
-                                        title = "Warning!", closeButton = !0, 
-                                        progressBar = !0, position = "top-right", 
-                                        preventDuplicates = !0, 
-                                        showDuration = 300, hideDuration = 1000, 
-                                        timeOut = 30000, extendedTimeOut = 1000, 
-                                        showEasing = "swing",
-                                        hideEasing = "swing", 
-                                        showMethod = "fadeIn", 
-                                        hideMethod = "fadeOut")
-                     }
-
-                     if (!is.null(dataReshaped$reshapeD)){ 
-                       if (!is.null(input$tabsDR)){
-                         vizDR()
-                         }
-                       if (input$Switch2 == 1){
-                         data_ <- dataReshaped$reshapeD
-                         
-                         if (!is.null(data_)){ 
-                           withProgress({
-                             setProgress(message = 'Calculation in progress...', value=1) 
-                             # scores$scores <- CalculateSynergy(data_, input$methods, correction = ifelse(input$Switch3 == 1, !0, !1))
-                             data_[['adjusted.response.mats']] <- lapply(data_[['dose.response.mats']], 
-                                                                        function(x){CorrectBaseLine(response.mat = x,
-                                                                                                     method = input$correction)})
-                             names(data_[['adjusted.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
-                             names(data_[['dose.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
-                             scores$scores <- CalculateSynergy(data_, input$methods)
-                             
-                             if (input$Switch4 == 1){
-                               vizSyn(scores$scores)
-                             }
-                           })
-                         }
-                       }
-                     }
-                   }
-                   else
-                   {
-                     updateSelectInput(session, "selectInhVia", selected = "")
-                     createAlert(session, "noPDdata", "alertPD", title = "Error", 
-                                 content = "Please load required files first! or upload an example data",
-                                 append = !1, dismiss = !1)
-                   }
-                 }
-               })
-  
-  
-  ##########################################################################################################################################
-  #  CREATE AND OBSERVE DYNAMIC TABS FOR DOSE-RESPONSE
-  ####################################################
-  
-  observeEvent(input$Switch, {
-    if(input$Switch)
-    {
-      if(isolate(input$selectInhVia)!="" & !is.null(datannot$annot) & !is.null(dataReshaped$reshapeD))
+  observeEvent(input$selectInhVia,{
+    if (input$selectInhVia!="") {
+      if (!is.null(datannot$annot) && datannot$annot != "WRONG") {
         closeAlert(session, "alertPD")
-      else {
-        closeAll();
-        createAlert(session, "noPDdata", "alertPD", title = "Error", 
-                    content = "Please choose a readout and upload required files! or use an example data", 
+        tryCatch({
+          if (inputdatatype$type_ == "Table"){
+            dataReshaped$reshapeD <- transformInputData(datannot$annot,
+                                                        input$selectInhVia)
+            # Show data table
+            output$inputData = renderDT(
+              datannot$annot, options = list(lengthChange = FALSE)
+            )
+          } else {
+            dataReshaped$reshapeD <- transformInputDataMatrix(datannot$annot,
+                                                              input$selectInhVia)
+            # Show data table
+            output$inputData = renderDT(
+              dataReshaped$reshapeD$data.table, options = list(lengthChange = FALSE)
+            )
+          }
+          }, error = function(e) {
+            closeAll();
+            toastr_error(paste0("Something wrong with your file that ",
+                                "cannot be handled by application. ",
+                                "Please check that <b>\"",
+                                inputdatatype$type_,
+                                "\"</b> is a correct file format. ",
+                                "For more information about input data see ",
+                                "<b>section 3</b> in <a style='cursor: pointer;",
+                                "' onclick='javascript:techdoc()'>technical documentation</a>",
+                                " or <a style='cursor: pointer;' ",
+                                "onclick='javascript:openvideo()'>video tutorial</a>"),
+                         title = "Unhandled error occurred!",
+                         closeButton = !0, progressBar = !0,
+                         position = "top-right", preventDuplicates = !0,
+                         showDuration = 300, hideDuration = 1000,
+                         timeOut = 10000, extendedTimeOut = 1000,
+                         showEasing = "swing",  hideEasing = "swing",
+                         showMethod = "fadeIn", hideMethod = "fadeOut")
+            })
+        # warnings (returned from transformInputData)
+        if (any(dataReshaped$reshapeD$warning != "")) {
+          for(i in which(dataReshaped$reshapeD$warning != ""))
+            toastr_warning(dataReshaped$reshapeD$warning[i], title = "Warning!",
+                           closeButton = !0, progressBar = !0,
+                           position = "top-right", preventDuplicates = !0,
+                           showDuration = 300, hideDuration = 1000,
+                           timeOut = 30000, extendedTimeOut = 1000,
+                           showEasing = "swing", hideEasing = "swing",
+                           showMethod = "fadeIn", hideMethod = "fadeOut")
+          }
+        if (!is.null(dataReshaped$reshapeD)) {
+          if (!is.null(input$tabsDR)) {
+            vizDR()
+            }
+          if (input$Switch2 == 1){
+            shinyjs::show(selector = "a[data-value=\"synergyTab\"]")
+            data_ <- dataReshaped$reshapeD
+            if (!is.null(data_)){
+              withProgress({
+                setProgress(message = 'Calculation in progress...', value=1)
+                # scores$scores <- CalculateSynergy(data_, input$methods, correction = ifelse(input$Switch3 == 1, !0, !1))
+                data_[['adjusted.response.mats']] <- lapply(data_[['dose.response.mats']],
+                                                            function(x){CorrectBaseLine(response.mat = x,
+                                                                                        method = input$correction)})
+                names(data_[['adjusted.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
+                names(data_[['dose.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
+                scores$scores <- CalculateSynergy(data_, input$methods)
+                if (input$Switch4 == 1){
+                  vizSyn(scores$scores)
+                } else {
+                  shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
+                  }
+                    
+              })
+            }
+          } else {
+            shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+          }
+        }
+      } else {
+        updateSelectInput(session, "selectInhVia", selected = "")
+        createAlert(session, "noPDdata", "alertPD", title = "Error",
+                    content = "Please load required files first! or upload an example data",
                     append = !1, dismiss = !1)
       }
     }
+  })
+  
+
+  ####################################################
+  #  CREATE AND OBSERVE DYNAMIC TABS FOR DOSE-RESPONSE -------------------------
+  ####################################################
+  observeEvent(input$Switch, {
+    if (input$Switch){
+      if(isolate(input$selectInhVia)!="" & !is.null(datannot$annot) & !is.null(dataReshaped$reshapeD)){
+        closeAlert(session, "alertPD")
+        shinyjs::show(selector = "a[data-value=\"doseresponseTab\"]")
+        updateTabItems(session, "menu1", selected = "doseresponseTab")
+      } else {
+        closeAll();
+        createAlert(session, "noPDdata", "alertPD", title = "Error",
+                    content = "Please choose a readout and upload required files! or use an example data",
+                    append = !1, dismiss = !1)
+      }
+    } else {
+      shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+    }
+
   })
   
   #create dynamic tabs for Dose response
@@ -347,10 +364,11 @@ server <- function(input, output, session){
       tabs <- lapply(X = 1:J, function(i){
         tabPanel(tabnames[i],
                  h3(""), 
-                 box(
-                   width = input$width, status = "info", solidHeader = !0,
-                   collapsible = !0, height = input$height+100,
-                   title = "Dose-response data",
+                 # box(
+                 #   width = input$width, status = "info", solidHeader = FALSE,
+                 #   collapsible = FALSE, height = input$height+100,
+                 #   title = "Dose-response data",
+                 fluidRow( width = input$width,
                    column(6,
                           tabsetPanel(
                             tabPanel(head(strsplit(tabnames[i],split=" ")[[1]],1),
@@ -365,7 +383,6 @@ server <- function(input, output, session){
                  ),
                  value=i)
       })
-      
       tabs$id <- "tabsDR"
       do.call(tabsetPanel, c(tabs, selected = curTab)) 
     }
@@ -378,8 +395,8 @@ server <- function(input, output, session){
   })
   
 
-  ##########################################################################################################################################
-  #  VISUALIZE DYNAMIC TABS FOR DOSE-RESPONSE
+  ####################################################
+  #  VISUALIZE DYNAMIC TABS FOR DOSE-RESPONSE ----------------------------------
   ####################################################
   
   vizDR <- compiler::cmpfun(function(){
@@ -496,14 +513,15 @@ server <- function(input, output, session){
        dimnames(drmatr) <- dimna
        updateCheckboxInput(session, "Switch2", value = 0)
        updateCheckboxInput(session, "Switch4", value = 0) 
-       
+       shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+       shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
        dataReshaped$reshapeD$dose.response.mats[[I]] <- drmatr
        vizDR()
      }
    })
   
-  ##########################################################################################################################################
-  #  CREATE AND OBSERVE DYNAMIC TABS FOR SYNERGY PLOTS
+  #######################################################
+  #  CREATE AND OBSERVE DYNAMIC TABS FOR SYNERGY PLOTS -------------------------
   #######################################################
   
   #create dynamic tabs for synergy
@@ -534,11 +552,20 @@ server <- function(input, output, session){
   })
   
   #create dynamic tabs for synergy
-  # observeEvent(input$Switch2,{
-  # })
+  observeEvent(input$Switch2,{
+    if (input$Switch2 == 1){
+      shinyjs::show(selector = "a[data-value=\"synergyTab\"]")
+      updateTabItems(session, "menu1", selected = "synergyTab")
+    } else {
+      shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+    }
+
+  })
   
   redrawSynPlotsMethodOrCorr <- compiler::cmpfun(function(){  
     if (input$Switch2 == 1) {
+      shinyjs::show(selector = "a[data-value=\"synergyTab\"]")
+      updateTabItems(session, "menu1", selected = "synergyTab")
       data_ <- dataReshaped$reshapeD
       if (!is.null(data_)) { 
         withProgress({setProgress(message = 'Calculation in progress...', value=1) 
@@ -549,8 +576,14 @@ server <- function(input, output, session){
           names(data_[['adjusted.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
           names(data_[['dose.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
           scores$scores <- CalculateSynergy(data_, input$methods)
-          if(input$Switch4 == 1) vizSyn(scores$scores)
+          if(input$Switch4 == 1) {
+            vizSyn(scores$scores)
+          } else {
+            shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
+          }
         })
+      } else {
+        shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
       }
     }
   })
@@ -558,7 +591,6 @@ server <- function(input, output, session){
   observeEvent(input$correction, redrawSynPlotsMethodOrCorr())
   observeEvent(input$methods, redrawSynPlotsMethodOrCorr())
   observeEvent(input$Switch4, {
-    
     if (input$Switch2 == 1)
     {
       if(isolate(input$selectInhVia)!="" & !is.null(datannot$annot))
@@ -579,6 +611,8 @@ server <- function(input, output, session){
           })
         }
         vizSyn(scores$scores)
+        shinyjs::show(selector = "a[data-value=\"reportTab\"]")
+        updateTabItems(session, "menu1", selected = "synergyTab")
       }
       else
       {
@@ -586,7 +620,10 @@ server <- function(input, output, session){
         dataReshaped$reshapeD = NULL; scores$scores = NULL
         updateSelectInput(session, "selectInhVia", selected = "")
         updateCheckboxInput(session, "Switch2", value = 0)
-        updateCheckboxInput(session, "Switch4", value = 0) 
+        updateCheckboxInput(session, "Switch4", value = 0)
+        shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+        shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+        shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
         createAlert(session, "noPDdata", "alertPD", title = "Error", 
                     content = "Please choose a readout and upload required files! or use an example data", 
                     append = !1, dismiss = !1)

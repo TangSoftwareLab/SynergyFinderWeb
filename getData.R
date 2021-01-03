@@ -55,7 +55,6 @@ transformInputData <- compiler::cmpfun(function(dataOutput, data_typ = NULL){
               warning = warning_))
 })
 
-
 transformInputDataMatrix <- compiler::cmpfun(function(dataOutput, data_typ = NULL){
   dose.response.mats <- list()
   D1 <- grep("Drug1", dataOutput[,1])
@@ -67,6 +66,7 @@ transformInputDataMatrix <- compiler::cmpfun(function(dataOutput, data_typ = NUL
   error_ <- rep(1, num.pairs) # errors initially 1
   warning_ <- rep("", num.pairs) # warnings initially ""
   #browser();browser();browser();browser();browser();
+  data.table <- NULL
   for(i in 1:length(D1)){
     if(i != length(D1)) tmpMat <- sapply(dataOutput[(CU[i]+1):(D1[i+1]-1),], 
                                          as.numeric) 
@@ -81,8 +81,14 @@ transformInputDataMatrix <- compiler::cmpfun(function(dataOutput, data_typ = NUL
     resp.mat <- resp.mat[order(as.numeric(rownames(resp.mat))),]
     resp.mat <- resp.mat[,order(as.numeric(colnames(resp.mat)))]
     if (data_typ == "viability") resp.mat = 100 - resp.mat
-    
+    df <- reshape2::melt(resp.mat)
+    colnames(df) <- c("Conc1", "Conc2", "Response")
+    df$PairIndex <- i
+    df$Drug1 <- dataOutput[D1[i],2]
+    df$Drug2 <- dataOutput[D2[i],2]
+    df$ConcUnit <- dataOutput[CU[i],2]
     # return data
+    data.table <- rbind.data.frame(data.table, df)
     dose.response.mats[[i]] <- resp.mat;
     drug.pairs[i,]$drug.row <- dataOutput[D1[i],2]
     drug.pairs[i,]$drug.col<- dataOutput[D2[i],2]
@@ -100,7 +106,9 @@ transformInputDataMatrix <- compiler::cmpfun(function(dataOutput, data_typ = NUL
                             " or continue at your own risk" )
   }
   
-  return(list(dose.response.mats = dose.response.mats, 
+  return(list(data.table = data.table[, c("PairIndex", "Drug1", "Drug2", "Conc1", "Conc2",
+                                          "Response", "ConcUnit")],
+              dose.response.mats = dose.response.mats, 
               drug.pairs = drug.pairs, 
               error = error_, 
               warning = warning_))
