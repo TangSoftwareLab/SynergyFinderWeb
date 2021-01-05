@@ -27,7 +27,6 @@ ui <- shinyUI(
                tabPanel("USER GUIDE", fluidRow(style = "margin-top: 15px;",
                                                 column(width = 8, offset = 2, 
                                                        tags$div(class = "textCard", id = "userGuide",
-                                                                tags$h1("USER GUIDE", style="text-align: center; border-bottom: 3px solid #0277bd;"),
                                                          withMathJax(includeMarkdown("./UI/userGuide.Rmd")))
                                                        )
                                                 )

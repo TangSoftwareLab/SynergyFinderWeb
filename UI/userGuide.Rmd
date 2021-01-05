@@ -3,8 +3,6 @@ title: "USER GUIDE"
 output: html_document
 ---
 
-This documentation is a user manual for drug combination data analysis and visualization with SynergyFinder dashboard. If you have any questions after going through it, feel free to contact us.
-
 # UPLOAD DATA
 
 ## 1 Data Format
