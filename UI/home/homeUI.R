@@ -15,7 +15,8 @@ homeUI <- tags$div(id = "home",
              # 3D plot:
              includeHTML("./UI/home/homePlot.html")
              )
-    )
+    ),
+    HTML('<footer>&copy; Copyright <script>document.write((new Date).getFullYear());</script>, <a style="color:#0277bd;" target="_blank" href="https://www.helsinki.fi/en/researchgroups/network-pharmacology-for-precision-medicine">Netphar</a>, Faculty of Medicine, University of Helsinki. All Rights Reserved</footer>')
       ),
     )
 

@@ -3,6 +3,12 @@ body{
   font-weight: 400;
   font-size: 16px;
 }
+footer {
+  position:absolute!important;
+  width:100%!important;
+  bottom:0!important;
+  text-align:center;
+}
 .navbar .navbar-nav {
   float: right;
   background-color: #ffffffd2;

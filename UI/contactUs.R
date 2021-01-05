@@ -11,11 +11,11 @@ contactUs <- fluidRow( style = "margin-top: 15px;",
                  tags$p("Finland")
                  ),
           column(width = 6,
-                 tags$a(icon("users"), "Network Pharmacology for Precision Medicine (Tang Lab)", href="https://www.helsinki.fi/en/researchgroups/network-pharmacology-for-precision-medicine"),
+                 tags$a(icon("users"), "Network Pharmacology for Precision Medicine (Tang Lab)", href="https://www.helsinki.fi/en/researchgroups/network-pharmacology-for-precision-medicine", target='_blank'),
                  br(),
-                 tags$a(icon("twitter"), "@SynergyFinder", target="_blank", href="https://twitter.com/SynergyFinder"),
+                 tags$a(icon("twitter"), "@SynergyFinder", target="_blank", href="https://twitter.com/SynergyFinder", target='_blank'),
                  br(),
-                 tags$a(icon("envelope"), "jingtang@helsinki.fi", href="mailto: jingtang@helsinki.fi"),
+                 tags$p(icon("envelope"), "jing(dot)tang(at)helsinki(dot)fi", style="color:#0277bd"),
                  ),
           ),
           fluidRow(style = "text-align: center;",
@@ -25,3 +25,4 @@ contactUs <- fluidRow( style = "margin-top: 15px;",
           )
   )
 )
+

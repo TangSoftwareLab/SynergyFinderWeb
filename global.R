@@ -12,6 +12,7 @@ source("./UI/dashboard/Dashboard.R", local = TRUE)
 source("./UI/home/homeUI.R", local = TRUE)
 source("./UI/aboutUs.R", local = TRUE)
 source("./UI/contactUs.R", local = TRUE)
+source("./UI/howToCite.R", local = TRUE)
 library(shinydashboard)
 lapply(c("ggplot2", "scales", "gplots", "lattice", "kriging", "plotly", "grid", 
          "reshape2", "xtable", "synergyfinder"), library, character.only = T)

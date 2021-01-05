@@ -18,19 +18,20 @@ ui <- shinyUI(
     ),
     setBackgroundImage("background.jpg"),
     navbarPage(title = img(src="magnifier_i.gif", height="30", width="150"),
+               windowTitle = "SynergyFinder",
                id = "topNavBar",
                # HOME ------------------------------------------------------------
-               tabPanel("HOME", homeUI,
-                        img(src="magnifier.gif")),
+               tabPanel("HOME", homeUI),
                # DASHBOARD ------------------------------------------------------------
                tabPanel("DASHBOARD", dashboardUI),
+               # USER GUIDE ------------------------------------------------------------
+               tabPanel("USER GUIDE"),
+               # USER CITATION ------------------------------------------------------------
+               tabPanel("HOW TO CITE", howToCite),
                # ABOUT US ------------------------------------------------------------
                tabPanel("ABOUT US", aboutUs),
                # CONTACT ------------------------------------------------------------
-               tabPanel("CONTACT", contactUs),
-               # USER GUIDE ------------------------------------------------------------
-               tabPanel("USER GUIDE")
-    )
-    #HTML('<footer style = "position:absolute!important;width:100%!important;bottom:0!important;left:50%!important">&copy; <script>document.write((new Date).getFullYear());</script>, FIMM</footer>')
+               tabPanel("CONTACT", contactUs)
+               )
   )
 )
