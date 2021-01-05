@@ -68,9 +68,9 @@ dashboardUI <- dashboardPage(#skin = "black",
                               conditionalPanel(
                                 condition = "input.Switch == 1",
                                   # dynamically create tabs with content
-                                  box(width = 12, collapsible = TRUE,
-                                      title="Dose Response Map",
-                                      id = "boxDose", solidHeader = !0,
+                                  box(width = 12, collapsible = FALSE,
+                                      #title="Dose Response Map",
+                                      id = "boxDose", solidHeader = FALSE,
                                       fluidRow(
                                         column(10,
                                                uiOutput(outputId='tabs')
@@ -134,8 +134,8 @@ dashboardUI <- dashboardPage(#skin = "black",
                               conditionalPanel(
                                 condition = "input.Switch4 == 1",
                                 fluidRow(
-                                  box(width = 12, collapsible = TRUE, id = "boxSyn", solidHeader = TRUE, #class = "heysyn",
-                                      title = "Synergy Effect Analysis",
+                                  box(width = 12, collapsible = FALSE, id = "boxSyn", solidHeader = FALSE, #class = "heysyn",
+                                      #title = "Synergy Effect Analysis",
                                       fluidRow(uiOutput(outputId='tabs2')),
                                       fluidRow(br(), height = 770,
                                                 # box(
@@ -250,7 +250,7 @@ dashboardUI <- dashboardPage(#skin = "black",
                                     )
                                   )
                               ),
-                              box(width = 12, collapsible = T, collapsed = F, id = "boxSave4", title = "Synergy scores:",
+                              box(width = 12, collapsible = T, collapsed = F, id = "boxSave4", title = "Table for synergy scores",
                                   fluidRow(column(12, offset = 0,
                                                   downloadButton("downloadSynscores1", label = "Download synergy scores(.xlsx)"),
                                                   downloadButton("downloadSynscores2", label = "Download synergy scores(.csv)"),

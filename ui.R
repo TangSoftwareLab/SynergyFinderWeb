@@ -6,7 +6,6 @@ ui <- shinyUI(
       #tags$link(rel = "stylesheet", type = "text/css", href = "allcss.css"),
       tags$link(rel = "stylesheet", type = "text/css", href = "tooltip-curved.css"),
       #tags$link(rel = "stylesheet", type = "text/css", href = "drop.css"),
-      # tags$script(src = "./UI/home/fisheye.js"),
       tags$script(src = "feedback_source.js"),
       tags$script(src = "feedback.js"), #also to top button
       # tags$script(src = "tour.js"),
@@ -25,7 +24,14 @@ ui <- shinyUI(
                # DASHBOARD ------------------------------------------------------------
                tabPanel("DASHBOARD", dashboardUI),
                # USER GUIDE ------------------------------------------------------------
-               tabPanel("USER GUIDE"),
+               tabPanel("USER GUIDE", fluidRow(style = "margin-top: 15px;",
+                                                column(width = 8, offset = 2, 
+                                                       tags$div(class = "textCard", id = "userGuide",
+                                                                tags$h1("USER GUIDE", style="text-align: center; border-bottom: 3px solid #0277bd;"),
+                                                         withMathJax(includeMarkdown("./UI/userGuide.Rmd")))
+                                                       )
+                                                )
+               ),
                # USER CITATION ------------------------------------------------------------
                tabPanel("HOW TO CITE", howToCite),
                # ABOUT US ------------------------------------------------------------

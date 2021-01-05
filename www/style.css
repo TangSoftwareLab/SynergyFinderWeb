@@ -38,7 +38,7 @@ footer {
   line-height: initial;
 }
 
-#home p{
+#home p {
   font-family:  'Roboto', sans-serif;;
   font-weight: 100;
   color: #635F5D;
@@ -58,7 +58,7 @@ footer {
 }
 #homePlot{
   margin-top: -10%;
-  margin-left: -10%;
+  margin-left: -7%;
   cursor: url("Content/xls.png"), auto;	
 }
 
@@ -154,6 +154,31 @@ footer {
   font-size: 1em;
 }
 
+
+/*userGuide*/
+#userGuide {
+  padding-right: 30px;
+  padding-left: 30px;
+}
+#userGuide h1 {
+  border-bottom: 3px solid #A0B700;
+}
+#userGuide p{
+  padding-left: 30px;
+}
+#userGuide ul, #userGuide ol{
+  padding-left: 60px;
+}
+#userGuide .title {
+  text-align: 'center';
+}
+#userGuide img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+}
+
 .textCard {
   background-color: #ffffffd2;
   border-radius: 3px;
@@ -173,6 +198,7 @@ footer {
   border-left: 3px solid #A0B700;
   height: 100%;
 }
+
 /*Switch*/
 .onoffswitch,.onoffswitch2{
   font-family:'Roboto', sans-serif;
