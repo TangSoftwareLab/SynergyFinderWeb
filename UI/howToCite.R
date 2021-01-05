@@ -25,7 +25,10 @@ howToCite <- fluidRow( style = "margin-top: 15px;",
                   tags$h3("For retrieving the most comprehensive drug combination data resources and their sensitivity and synergy results by SynergyFinder, please go to ", tags$a("DrugComb", href="http://drugcomb.org/"), " :"),
                             tags$p("Zagidullin, B.; Aldahdooh, J.; Zheng, S.; Wang, W.; Wang, Y.; Saad, J.; Malyutina, A.; Jafari, M.; Tanoli, Z.; Pessia, A.; Tang, J. DrugComb: An Integrative Cancer Drug Combination Data Portal. Nucleic Acids Res 2019, 47 (W1), W43–W51.",
                                    tags$a("doi:10.1093/nar/gkz337", href="https://doi.org/10.1093/nar/gkz337", target="_blank"))
-                  
+                  ,
+                  tags$h3("For use of combination sensitivity score:"),
+                  tags$p("Malyutina, A.; Majumder, M. M.; Wang, W.; Pessia, A.; Heckman, C. A.; Tang, J. Drug Combination Sensitivity Scoring Facilitates the Discovery of Synergistic and Efficacious Drug Combinations in Cancer. PLOS Computational Biology 2019, 15 (5), e1006752.",
+                    tags$a("10.1371/journal.pcbi.1006752", href="https://doi.org/10.1371/journal.pcbi.1006752", target="_blank"))
                   )
          )
   )
