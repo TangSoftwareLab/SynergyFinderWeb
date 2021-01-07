@@ -51,7 +51,7 @@ server <- function(input, output, session){
   # shinyjs::runjs("$(\'<style>.toast-top-right{top:75px;right:12px}</style>\').appendTo(\'body\');")
   
   annotationex_ = readRDS("./tour/dataOutput.Rds");
-  shinyjs::runjs('window.onbeforeunload=function(a){return message="You cannot refresh this page. Please open another tab",a.returnValue=message,message},$("#removeoutliers").prepend(\'<img id="theImg" src="beta2.png" style="position: absolute;top: 0px;right: 0px;" />\'),$("#spanpop").popover({html:!0,title:"Input data structure:",content:"Table format:<br><img src=\'example.png\' /><br><br> Matrix format:<br><img src=\'example2.png\' /> <br><br> For more information about input file format see technical documentation<br>by clicking <b style=\'color:#2fa4e7;\'>User guide</b> button.",trigger:"hover",placement:"auto",container:"body",animation:!0});')
+  shinyjs::runjs('window.onbeforeunload=function(a){return message="You cannot refresh this page. Please open another tab",a.returnValue=message,message},$("#removeoutliers").prepend(\'<img id="theImg" src="beta2.png" style="position: absolute;top: 0px;right: 0px;" />\'),$("#spanpop").popover({html:!0,title:"Input data structure:",content:"Table format:<br><img src=\'exampleTab.png\' width=\'400\' height=\'200\' /><br><br> Matrix format:<br><img src=\'exampleMat.png\'  width=\'400\' height=\'200\'/> <br><br> For more information about input file format please check the <b style=\'color:#2fa4e7;\'>USER GUIDE</b>.",trigger:"hover",placement:"auto",container:"body",animation:!0});')
   
   # check number of sessions
   isolate(vals$users_ <- vals$users_ + 1)
