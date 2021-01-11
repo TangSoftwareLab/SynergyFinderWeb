@@ -1,15 +1,15 @@
 
 <a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" width="500px"></a>
+<br/>
 
-# a web application for analyzing drug combination dose-response matrix data. 
+a web application for analyzing drug combination dose-response matrix data. 
 
 **Article**: https://doi.org/10.1093/bioinformatics/btx162
 
 **SynergyFinder** front-end web application source code. The public version of web application (http://synergyfinder.org) is hosted by Shiny Server. The R-package and its source-code are freely available at http://bioconductor.org/packages/release/bioc/html/synergyfinder.html.
 
 
-##
-
+## User interface
 
 ![Dose response visualization](./www/visDoseResponse.png)
 ![synergy visualization](./www/visSyn.png)
