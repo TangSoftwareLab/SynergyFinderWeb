@@ -14,7 +14,7 @@
 ![alt text](https://cdn.rawgit.com/AleksandrIanevski/SynergyFinder/3a2b9547/Picture1.png)
 
 
-For any questions please contact **Jing Tang** [@JingTang](Jing.Tang@helsinki.fi)
+For any questions please contact **Jing Tang** [@JingTang](jing.tang@helsinki.fi), or **Shuyu Zheng** [@ShuyuZheng](shuyu.zheng@helsinki.fi)
 
 ## Copyright and license
 
