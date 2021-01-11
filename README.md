@@ -1,5 +1,5 @@
 
-# <a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" width="500px"></a>
+# <a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" width="100px"></a>
 
 <hr/>
 
