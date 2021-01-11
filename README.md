@@ -1,6 +1,6 @@
 # SynergyFinder: a web application for analyzing drug combination dose-response matrix data. 
 
-<a href="http://synergyfinder.org"><img src="https://cdn.rawgit.com/AleksandrIanevski/SynergyFinder/magnifier_i.gif" align="left" hspace="10" vspace="6"></a>
+<a href="http://synergyfinder.org"><img src="https://cdn.rawgit.com/AleksandrIanevski/SynergyFinder/www/magnifier_i.gif" align="left" hspace="10" vspace="6"></a>
 
 **Article**: https://doi.org/10.1093/bioinformatics/btx162
 
