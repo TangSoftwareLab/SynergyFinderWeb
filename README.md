@@ -1,9 +1,9 @@
 
-<a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" hspace="10" width="100px"></a>
+<a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" hspace="10" ></a>
 
-# SynergyFinder: a web application for analyzing drug combination dose-response matrix data. 
+# a web application for analyzing drug combination dose-response matrix data. 
+
 **Article**: https://doi.org/10.1093/bioinformatics/btx162
-
 
 **SynergyFinder** front-end web application source code. The public version of web application (http://synergyfinder.org) is hosted by Shiny Server. The R-package and its source-code are freely available at http://bioconductor.org/packages/release/bioc/html/synergyfinder.html.
 
@@ -11,8 +11,8 @@
 ##
 
 
-![alt text](https://cdn.rawgit.com/AleksandrIanevski/SynergyFinder/3a2b9547/Picture1.png)
-
+![Dose response visualization](./www/visDoseResponse.png)
+![synergy visualization](./www/visSyn.png)
 
 For any questions please contact **Jing Tang** [@JingTang](jing.tang@helsinki.fi), or **Shuyu Zheng** [@ShuyuZheng](shuyu.zheng@helsinki.fi)
 
