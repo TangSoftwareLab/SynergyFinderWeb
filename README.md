@@ -1,9 +1,9 @@
 
 # <a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" width="500px"></a>
 
-## a web application for analyzing drug combination dose-response matrix data. 
-
 <hr/>
+
+**SynergyFinder** a web application for analyzing drug combination dose-response matrix data.
 
 **Article**: https://doi.org/10.1093/bioinformatics/btx162
 
