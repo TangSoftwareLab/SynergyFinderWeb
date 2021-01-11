@@ -1,5 +1,5 @@
 
-<a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" hspace="10" ></a>
+<a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" ></a>
 
 # a web application for analyzing drug combination dose-response matrix data. 
 
