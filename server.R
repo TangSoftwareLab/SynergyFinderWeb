@@ -1127,7 +1127,10 @@ SaveReportFunc <- compiler::cmpfun(function(){
   }
 })
 
-downloadSynScores <- function(){
+
+# Download summarized synergy score table ----------------------------------
+
+downloadSynScores <- function() {
   data_ <- dataReshaped$reshapeD
   # choose pairs for printing
   method <- input$methods
@@ -1182,6 +1185,67 @@ output$downloadSynscores3 <- downloadHandler(
   contentType = NULL
 )
 
+# Download full synergy score table ----------------------------------
+
+downloadSynScoresFull <- function(){
+  # data_ <- dataReshaped$reshapeD
+  # choose pairs for printing
+  method <- input$methods
+  scores_ <- scores$scores$scores
+  data_ <- scores$scores$dose.response.mats
+  pairs_ <- scores$scores$drug.pairs
+  
+  # report table
+  output_table <- NULL
+  
+  for (i in 1:length(scores_)){
+    tmp <- reshape2::melt(data_[[i]])
+    names(tmp) <- c("Conc1", "Conc2", "PercentageInhibition")
+    tmp_score <- reshape2::melt(scores_[[i]])
+    names(tmp_score) <- c("Conc1", "Conc2", paste0("Synergy", method))
+    tmp <- tmp %>% 
+      dplyr::left_join(tmp_score, by = c("Conc1", "Conc2")) %>% 
+      dplyr::mutate(PairIndex = rep(i, dplyr::n()),
+                    Drug1 = rep(pairs_$drug.row[i], dplyr::n()),
+                    Drug2 = rep(pairs_$drug.col[i], dplyr::n()),
+                    concUnit = rep(pairs_$concUnit[i], dplyr::n())) %>% 
+      dplyr::select("PairIndex",	"Drug1", "Drug2", "Conc1", "Conc2", 
+                    "PercentageInhibition", paste0("Synergy", method), 
+                    "concUnit")
+    output_table <- rbind.data.frame(output_table, tmp) 
+  }
+  return(output_table)
+}
+
+output$downloadSynscoresFull1 <- downloadHandler(
+  filename <- function() paste0("result_",input$methods, "_full_matrix_", Sys.Date(),".xlsx"),
+  content <- function(file){
+    outFrame <- downloadSynScoresFull()
+    openxlsx::write.xlsx(outFrame, "./www/synergy_scores_full_table.xlsx", asTable = T)
+    file.copy("./www/synergy_scores_full_table.xlsx", file)
+  },
+  contentType = NULL
+)
+
+output$downloadSynscoresFull2 <- downloadHandler(
+  filename <- function() paste0("result_",input$methods, "_full_matrix_", Sys.Date(),".csv"),
+  content <- function(file){
+    outFrame <- downloadSynScoresFull()
+    write.csv(outFrame, "./www/synergy_scores_full_table.csv")
+    file.copy("./www/synergy_scores_full_table.csv", file)
+  },
+  contentType = NULL
+)
+
+output$downloadSynscoresFull3 <- downloadHandler(
+  filename <- function() paste0("result_",input$methods, "_full_matrix_", Sys.Date(),".txt"),
+  content <- function(file){
+    outFrame <- downloadSynScoresFull()
+    write.table(outFrame, "./www/synergy_scores_full_table.txt")
+    file.copy("./www/synergy_scores_full_table.txt", file)
+  },
+  contentType = NULL
+)
 
 observeEvent(input$Save_report,{SaveReportFunc()})
 }

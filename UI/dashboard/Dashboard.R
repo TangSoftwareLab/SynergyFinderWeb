@@ -252,13 +252,16 @@ dashboardUI <- dashboardPage(#skin = "black",
                               ),
                               box(width = 12, collapsible = T, collapsed = F, id = "boxSave4", title = "Table for synergy scores",
                                   fluidRow(column(12, offset = 0,
-                                                  downloadButton("downloadSynscores1", label = "Download synergy scores(.xlsx)"),
-                                                  downloadButton("downloadSynscores2", label = "Download synergy scores(.csv)"),
-                                                  downloadButton("downloadSynscores3", label = "Download synergy scores(.txt)")#,
-                                                  # HTML(paste0('<a download href="./synergy_scores.xlsx"><img src="xls.png" class = "marleft" alt="Smiley face" height="42" width="42"></a>
-                                                  #              <a download href="./synergy_scores.csv"><img src="csv.png" class = "marleft" alt="Smiley face" height="42" width="42"></a>
-                                                  #              <a download href="./synergy_scores.txt"><img src="txt.png" class = "marleft" alt="Smiley face" height="42" width="42"></a>'))
-                                  )))
+                                                  downloadButton("downloadSynscores1", label = "Download summaried synergy scores(.xlsx)"),
+                                                  downloadButton("downloadSynscores2", label = "Download summaried synergy scores(.csv)"),
+                                                  downloadButton("downloadSynscores3", label = "Download summaried synergy scores(.txt)")
+                                          ),
+                                          column(12, offset = 0,
+                                                 downloadButton("downloadSynscoresFull1", label = "Download synergy scores(.xlsx)"),
+                                                 downloadButton("downloadSynscoresFull2", label = "Download synergy scores(.csv)"),
+                                                 downloadButton("downloadSynscoresFull3", label = "Download synergy scores(.txt)")
+                                          )
+                                          ))
                               )
                       )
                     ),

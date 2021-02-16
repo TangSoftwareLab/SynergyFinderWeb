@@ -1,6 +1,4 @@
-###################################################################################
-##### Calculate synergy surfaces out of scores
-###################################################################################
+# Calculate synergy surfaces out of scores -------------------------------------
 
 calcsyn <- compiler::cmpfun(function(scores, drug.pairs)
 {
@@ -189,21 +187,21 @@ PlotSynergyShiny <- compiler::cmpfun(function (data, type = "2D", graphnumber = 
     p = p %>% plotly::layout(title = title3D,
                      scene = list(xaxis = list(title = drug.col,
                                                tickmode = "array",
-                                               tickvals = seq.int(min(x.conc),
-                                                                  max(x.conc),
+                                               tickvals = seq.int(max(x.conc),
+                                                                  min(x.conc),
                                                                   length.out = length(x.conc)),
                                                tickfont = list(family = "serif", size = 12),
                                                # ticktext = rep("", length(x.conc)),
-                                               ticktext = round(x.conc, 0), 
+                                               ticktext = rev(signif(x.conc, 1)), 
                                                ticks = "none"),
                                   yaxis = list(title = drug.row,
                                                tickmode = "array",
-                                               tickvals = seq.int(max(y.conc),
-                                                                  min(y.conc),
+                                               tickvals = seq.int(min(y.conc),
+                                                                  max(y.conc),
                                                                   length.out = length(y.conc)),
                                                tickfont = list(family = "serif", size = 12),
                                                # ticktext = rep("", length(y.conc)),
-                                               ticktext = round(y.conc, 0), 
+                                               ticktext = signif(y.conc, 1), 
                                                ticks = "none"),
                                   zaxis = list(title = titleZaxis, 
                                                # range = c(-20, 100),
@@ -489,7 +487,7 @@ PlotSynergyReport <- compiler::cmpfun(function(data_, scores_, calcSyn_, method,
 
 
 ###################################################################################
-##### Plot cobined
+##### Plot combined
 ###################################################################################
 
 
