@@ -1,3 +1,0 @@
-"Drug.combination" "Synergy.score" "Most.synergistic.area.score" "Method"
-"1" "Navitoclax - AT-406" -15.774 0.039 "ZIP"
-"2" "Alpelisib - NVP-LGK974" -15.818 -4.347 "ZIP"
