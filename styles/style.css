@@ -2,31 +2,44 @@ body{
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: 16px;
+  //height: 100%;
 }
-footer {
-  position:absolute!important;
+.footer {
   width:100%!important;
-  bottom:0!important;
+  height:24px;
+  background-color: #ffffff;
+  background-image: none;
+  background-repeat: repeat;
+  background-attachment: scroll;
+  background-position: 0% 0%;
+  position: fixed;
+  bottom: 0pt;
+  left: 0pt;
+}
+.footer_contents {
+  height:24px; // Replace with the height your footer should be
+  width: 1000px; // Visible width of footer
+  margin:auto;
   text-align:center;
 }
 .navbar .navbar-nav {
   float: right;
-  background-color: #ffffffd2;
+  background-color: #ffffff;
 }
 .navbar{
   margin-bottom: 0px;
   padding-left: 10px;
 }
 .navbar-default {
-    background-color: #ffffffd2;
-    border-color: #ffffffd2;
+  background-color: #ffffff;
+  border-color: #ffffff;
 }
 .navbar-default .navbar-nav>li>a {
-    color: #625f5d;
+  color: #625f5d;
 }
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
-    color: #0477bd;
-    background-color: #ffffff00;
+  color: #0477bd;
+  background-color: #ffffff;
 }
 
 #home h1{

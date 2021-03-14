@@ -1,20 +1,21 @@
-library(shiny)
-library(shinyjs)
-library(shinytoastr)
-library(shinyWidgets)
-library(shinydashboard)
-library(dashboardthemes)
-library(shinyBS)
-library(plotly)
-library(DT)
-source("MyButtons.R")
-source("./UI/dashboard/Dashboard.R", local = TRUE)
-source("./UI/home/homeUI.R", local = TRUE)
-source("./UI/aboutUs.R", local = TRUE)
-source("./UI/contactUs.R", local = TRUE)
-source("./UI/howToCite.R", local = TRUE)
-library(shinydashboard)
-lapply(c("ggplot2", "scales", "gplots", "lattice", "kriging", "plotly", "grid", 
-         "reshape2", "xtable", "synergyfinder"), library, character.only = T)
-sapply(c('CalcPlotSynergy.R', 'CalcPlotDose.R', 'getData.R'),source,.GlobalEnv)
-reportspath <- "~/Desktop/test_synergyfinder/"#"/usr/srv/app/reports" # remember to change this according to environment
+# Load required packages
+dependency <- c(
+  "shiny", "shinyjs", "shinytoastr", "shinyWidgets", "shinydashboard",
+  "shinyBS", "DT", "synergyfinder", 
+  "dashboardthemes", "ggplot2", "scales", "gplots", "lattice", "plotly", "grid",
+  "xtable")
+sapply(
+  dependency,
+  library,
+  character.only = T
+)
+
+# Load local R scripts
+sapply(
+  list.files("./R", pattern = ".*\\.R$", recursive = TRUE, full.names = TRUE),
+  source,
+  .GlobalEnv
+)
+
+# Path to temporarily store pdf reports.
+reportspath <- "~/Desktop/test_synergyfinder/"

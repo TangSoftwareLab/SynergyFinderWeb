@@ -27,7 +27,7 @@ The orders of rows and columns are arbitrary. The number of drug combinations (P
 file is unlimited. The only restriction is imposed on the size of a dose-response matrix, which should comprise **at least
 three rows and columns**, so that sensible synergy scores can be calculated.
 
-![Fig.1 Input file in Table format.](../www/exampleTab.png)
+![Fig.1 Input file in Table format.](../www/images/exampleTab.png)
 
 <p style="text-align: center;">Fig.1 Input file in Table format.</p>
 
@@ -44,7 +44,7 @@ The three rows should precede each dose-response matrix:
 The drug concentrations should be located at the top and left side of the matrix, where left side concentrations correspond to Drug1 and concentrations shown at the top correspond to the Drug2. The number of drug combinations provided in the input file is unlimited. The only restriction is imposed on the dose-response matrix size, which should comprise at least three rows and columns, so that sensible synergy scores can be calculated.
 
 ![Fig.2 An input file in Matrix format. Two dose-response matrices (for AT-406 & Navitoclax and NVP-LGK974 &
-Alpelisib drug combinations) are provided as an example.](../www/exampleMat.png)
+Alpelisib drug combinations) are provided as an example.](../www/images/exampleMat.png)
 
 <p style="text-align: center;">Fig.2 An input file in Matrix format. Two dose-response matrices are provided as an example.</p>
 
@@ -72,7 +72,7 @@ By switching the "Visualize dose response data" toggle button, users will be dir
 
 This tab will show an overview of the full dose-response matrix, as well as the dose response (%inhibition) curve for the single drugs (i.e. the first column and first row in the dose-response matrix), fitted by four-parameter logistic curves. The tabs named by combination of drug names are design for navigating to maps for different combinations. (Fig.3)
 
-![Fig.3 Visualization of input dose-response data](../www/visDos.png)
+![Fig.3 Visualization of input dose-response data](../www/images/visDos.png)
 
 <p style="text-align: center;">Fig.3 Visualization of input dose-response data</p>
 
@@ -82,7 +82,7 @@ SynergyFinder allows for missing values in the dose-response matrix. They will b
 
 User could also specify the outliers (Fig.4C) by using the ‘Estimate outliers’ widget. In this case the cell specified by users will be imputed by using the same method as that for missing value.
 
-![Fig.4 A. Dose-response matrix with a missing value; B. Dose-response matrix with an outlier; C. SynergyFinder imputation of outliers.](../www/imputation.png)
+![Fig.4 A. Dose-response matrix with a missing value; B. Dose-response matrix with an outlier; C. SynergyFinder imputation of outliers.](../www/images/imputation.png)
 
 <p style="text-align: center;">Fig.4 A. Dose-response matrix with a missing value; B. Dose-response matrix with an outlier;<br/>C. SynergyFinder imputation of outliers.</p>
 
@@ -148,7 +148,7 @@ The synergy score for a drug combination is averaged over all the dose combinati
 
 SynergyFinder also helps to find the most synergistic area in the synergy interaction map. In a 3D synergy map users are provided with possibilities to (i) rotate, (ii) zoom, (iii) hover over to show synergy scores for any part of the synergy map and (iv) save the resulting image as HTML, PNG or SVG. In a 2D synergy map it also allows zooming in specific regions by brushing and double-clicking. After zooming the synergy score will be recalculated for the chosen area.
 
-![Fig.5 Visualization of synergy maps.](../www/visSyn.png)
+![Fig.5 Visualization of synergy maps.](../www/images/visSyn.png)
 <p style="text-align: center;">Fig.5 Visualization of synergy maps.</p>
 
 # Download Report
@@ -161,7 +161,7 @@ SynergyFinder allows saving all the results in one PDF file. There are 4 types o
 
 In addition **the synergy scores** for all the drug combinations could be downloaded in a separate table for further analyses.
 
-![Fig.6 Report Generation](../www/report.png)
+![Fig.6 Report Generation](../www/images/report.png)
 <p style="text-align: center;">Fig.6 Report Generation</p>
 
 # Bibliography

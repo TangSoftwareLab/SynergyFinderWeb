@@ -35,22 +35,6 @@ server <- function(input, output, session){
               accept = c('.csv', '.xlsx', '.txt'))
   })
   
-  # Open video guid
-  #observeEvent(input$openmyvideo, toggleModal(session, "VideoTut", "open"))
-  # Open tech document
-  #observeEvent(input$opentechdoc, toggleModal(session, "TechDocum", "open"))
-
-  # toaster welcome
-  # toastr_info("The application will be ready in a few seconds",
-  #             title = "Welcome to SynergyFinder", closeButton = !0,
-  #             progressBar = !0, position = "top-right", preventDuplicates = !0,
-  #             showDuration = 300, hideDuration = 1000, timeOut = 6000,
-  #             extendedTimeOut = 1000, showEasing = "swing",
-  #             hideEasing = "swing", showMethod = "fadeIn",
-  #             hideMethod = "fadeOut")
-  # shinyjs::runjs("$(\'<style>.toast-top-right{top:75px;right:12px}</style>\').appendTo(\'body\');")
-  
-  annotationex_ = readRDS("./tour/dataOutput.Rds");
   shinyjs::runjs('window.onbeforeunload=function(a){return message="You cannot refresh this page. Please open another tab",a.returnValue=message,message},$("#removeoutliers").prepend(\'<img id="theImg" src="beta2.png" style="position: absolute;top: 0px;right: 0px;" />\'),$("#spanpop").popover({html:!0,title:"Input data structure:",content:"Table format:<br><img src=\'exampleTab.png\' width=\'400\' height=\'200\' /><br><br> Matrix format:<br><img src=\'exampleMat.png\'  width=\'400\' height=\'200\'/> <br><br> For more information about input file format please check the <b style=\'color:#2fa4e7;\'>USER GUIDE</b>.",trigger:"hover",placement:"auto",container:"body",animation:!0});')
   
   # check number of sessions
@@ -76,37 +60,8 @@ server <- function(input, output, session){
     shinyjs::runjs("$('#HowToUse').modal('hide');$('#Save_full_').modal('hide');")
   })
   
-  ########################
-  ##### Tour
-  
-  # observeEvent(input$drdatatour,{
-  #   name_ = "_example.xlsx"
-  #   datannot$annot <- annotationex_
-  #   shinyjs::runjs(paste0('$("#annotfile_progress").html(\'<div class="progress-bar" style="width: 100%;">Upload complete</div>\').css("visibility", "visible");
-  #                  $(".form-control").val("', name_,'");'));})
-  # 
-  # observeEvent(input$endtour,{
-  #   closeAll();
-  #   shinyjs::runjs(paste0('$("#annotfile_progress").css("visibility", "hidden"); $(".form-control").val("");'));
-  # })
-  # 
-  # observeEvent(input$selInhViatour,{
-  #   updateSelectInput(session, "selectInhVia", selected = "inhibition")
-  #   updateCheckboxInput(session, "Switch", value = 0)
-  #   })
-  # observeEvent(input$vizdrdata,{
-  #   updateCheckboxInput(session, "Switch", value = 1)
-  #   updateCheckboxInput(session, "Switch2", value = 0)
-  #   })
-  # observeEvent(input$methodstour, updateCheckboxInput(session, "Switch2", value = 1))
-  # observeEvent(input$switch2off, updateCheckboxInput(session, "Switch2", value = 0))
-  # observeEvent(input$showmaps, updateCheckboxInput(session, "Switch4", value = 1))
-  # observeEvent(input$dropselInhViatour, updateSelectInput(session, "selectInhVia", selected = ""))
-  # observeEvent(input$closeshowedmaps, updateCheckboxInput(session, "Switch4", value = 0))
-  
-  ########################
 
-  # input data type selectbox
+  # input data type select box
   observeEvent(input$inputDatatype, {
     closeAll()
     inputdatatype$type_ <- input$inputDatatype
