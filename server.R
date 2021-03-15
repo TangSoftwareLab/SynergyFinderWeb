@@ -15,12 +15,14 @@ server <- function(input, output, session){
   shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
   
   # Dashboard page -------------------------------------------------------------
-  # reactive variables
+  # Define reactive variables --------------------------------------------------
   datannot <- reactiveValues(annot = NULL, outList = NULL, type_ = NULL)
   dataReshaped <- reactiveValues(reshapeD = NULL)
   scores <- reactiveValues(scores = NULL)
   scoreofthepart <- reactiveValues(scores = NULL)
   inputdatatype <- reactiveValues(type_ = "Table")
+  inputDataTable <- reactiveValues(table = NULL)
+  switches <- reactiveValues(vizDR = 0, visSyn = 0, report = 0)
   
   LETTERS <- unique(as.character(sapply(LETTERS, function(x) {
     paste0(x, sapply(LETTERS, function(x) paste0(x, LETTERS)))
@@ -93,10 +95,12 @@ server <- function(input, output, session){
     dataReshaped$reshapeD <- NULL
     scores$scores <- NULL
     scoreofthepart$scores <- NULL
+    inputDataTable$table <- NULL
     updateSelectInput(session, "selectInhVia", selected = "")
-    updateCheckboxInput(session, "Switch", value = 0)
-    updateCheckboxInput(session, "Switch2", value = 0)
-    updateCheckboxInput(session, "Switch4", value = 0) 
+    switches <- reactiveValues(vizDR = 0, visSyn = 0, report = 0)
+    # updateCheckboxInput(session, "Switch", value = 0)
+    # updateCheckboxInput(session, "Switch2", value = 0)
+    # updateCheckboxInput(session, "Switch4", value = 0) 
     closeAlert(session, "alert1")
     closeAlert(session, "alertPD")
     # shinyjs::runjs("$('#HowToUse').modal('hide');$('#Save_full_').modal('hide');")
@@ -105,139 +109,452 @@ server <- function(input, output, session){
   # inputDataTab ------------------------------------------------------------
   
   # Input data type select box
-  observeEvent(input$inputDatatype, {
-    closeAll()
-    inputdatatype$type_ <- input$inputDatatype
-    })
+  observeEvent(
+    eventExpr = input$inputDatatype,
+    handlerExpr = {
+      closeAll()
+      inputdatatype$type_ <- input$inputDatatype
+    }
+  )
 
   # when annotation file is loaded  
-  observeEvent(input$annotfile, {
-    tryCatch({
-      # if already loaded annotation table, drop all switches and vars
-      if (!is.null(datannot$annot)) {
-        closeAll()
-      }
-      # file extension
-      ext <- toupper(tools::file_ext(input$annotfile$name))
-      annot <- NULL
-      
-      if (!(ext %in% c("TXT", "CSV","XLSX"))) {
-        datannot$annot <- NULL
-        annot <- as.data.frame(c("Error"), stringsAsFactors = FALSE)
-        colnames(annot) <- c("Error")
-        createAlert(
-          session, 
-          anchorId = "alertannotfile",
-          alertId = "alert1",
-          title = "Error",
-          content = "Only .csv, .txt and .xlsx are supported",
-          append = FALSE
-        )
-      } else {
-        if (inputdatatype$type_ == "Table") {
-          if (ext == 'XLSX') {
-            annot <- openxlsx::read.xlsx(
-              input$annotfile$datapath
+  observeEvent(
+    eventExpr = input$annotfile,
+    handlerExpr = {
+      tryCatch({
+        # If already loaded annotation table, drop all switches and vars
+        if (!is.null(datannot$annot)) {
+          closeAll()
+        }
+        # Check file extension
+        ext <- toupper(tools::file_ext(input$annotfile$name))
+        annot <- NULL
+        
+        if (!(ext %in% c("TXT", "CSV","XLSX"))) {
+          datannot$annot <- NULL
+          annot <- as.data.frame(c("Error"), stringsAsFactors = FALSE)
+          colnames(annot) <- c("Error")
+          createAlert(
+            session, 
+            anchorId = "alertannotfile",
+            alertId = "alert1",
+            title = "Error",
+            content = "Only .csv, .txt and .xlsx are supported",
+            append = FALSE
+          )
+        } else {
+          if (inputdatatype$type_ == "Table") {
+            if (ext == 'XLSX') {
+              annot <- openxlsx::read.xlsx(
+                input$annotfile$datapath
+              )
+            } else if (ext %in% c("TXT", "CSV")) {
+              annot <- read.table(
+                file = input$annotfile$datapath,
+                header = TRUE,
+                sep = ",",
+                row.names = NULL,
+                fill = TRUE
+              )
+            }
+            
+            # take care of NA's and empty rows/cols
+            col_string <- sapply(annot, class) == "Character"
+            annot[col_string] <- sapply(
+              annot[col_string], 
+              function(x) gsub("^\\s+|\\s+$", "", x)
             )
-          } else if (ext %in% c("TXT", "CSV")) {
-            annot <- read.table(
-              file = input$annotfile$datapath,
-              header = TRUE,
-              sep = ",",
-              row.names = NULL,
-              fill = TRUE,
-              na.strings = c("NA", "")
+            annot <- annot[!apply(is.na(annot) | annot == "", 2, all), ] # rows with all NA
+            annot <- annot[, !apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
+            annot <- synergyfinder::.AdjustColumnName(annot)
+            cols_num <- c(
+              "block_id",
+              grep("conc\\d+", colnames(annot), value = TRUE),
+              "response"
             )
-          }
-          
-          # take care of NA's and empty rows/cols
-          annot <- sapply(annot, function (x) gsub("^\\s+|\\s+$", "", x))
-          annot <- annot[!apply(is.na(annot) | annot == "", 2, all), ] # rows with all NA
-          annot <- annot[, !apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
-           
-          # check for missing columns
-          # outList.names <- c("PairIndex", "Response", "Drug1", "Drug2", 
-          #                     "Conc1", "Conc2", "ConcUnit")
-          # mismatch = outList.names[!(colnames(annot) %in% outList.names)]
-          #   
-          # if(length(mismatch) == 0){
-            # dataOutput <- data.frame(
-            #   PairIndex = as.integer(annot$PairIndex),
-            #   Response = round(as.numeric(annot$Response),2),
-            #   Drug1 = as.character(annot$Drug1),
-            #   Drug2 = as.character(annot$Drug2),
-            #   Conc1 = round(as.numeric(annot$Conc1),2),
-            #   Conc2 = round(as.numeric(annot$Conc2),2),
-            #   ConcUnit = as.character(annot$ConcUnit), stringsAsFactors=F)
-            datannot$annot <- dataOutput
-            datannot$type_ <- "Table"
-          # } else {
-          #    mismatch <- na.omit(mismatch)
-          #    createAlert(session, "noPDdata", "alertPD", title = "Error",
-          #                content = paste0("Annotation table doesnot contain ",
-          #                                 paste0(mismatch, collapse = ", "), 
-          #                                 " column(s). \n See example data."),
-          #                append = F)
-          #    datannot$annot <- "WRONG"
-          # }
-        } else if (inputdatatype$type_ == "Matrix") {
-          if (ext == 'XLSX') {
-            annot <- openxlsx::read.xlsx(
-              input$annotfile$datapath,
-              colNames = FALSE
-            )
-          } else if (ext %in% c("TXT", "CSV")) {
-            annot <- read.table(
-              file = input$annotfile$datapath,
-              header = FALSE,
-              sep =",",
-              row.names = NULL,
-              fill = TRUE
-            )
-          }
-           
-          # take care of NA's and empty rows/cols       
-          annot <- sapply(annot, function (x) gsub("^\\s+|\\s+$", "", x))
-          annot <- annot[!apply(is.na(annot) | annot == "", 1, all),] # rows with all NA
-          annot <- annot[,!apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
-           
-          D1 <- sum(grepl("Drug1:", annot[,1]))
-          D2 <- sum(grepl("Drug2:", annot[,1]))
-          ConcUn <- sum(grepl("ConcUnit:", annot[,1]))
-          if (D1 != D2 || D1 != ConcUn){
-            createAlert(
-              session,
-              anchorId = "noPDdata",
-              alertId = "alertPD",
-              title = "Error",
-              content = paste0(
-                "The input data contains <b>", D1, "</b> Drug1, <b>",
-                D2, "</b> Drug2, and <b>", ConcUn,"</b> ConcUnit fields.\n",
-                "The numbers are not equal. See example data."
-              ),
-              append = FALSE
-            )
-            datannot$annot <- "WRONG"
-          } else {
+            annot[cols_num] <- sapply(annot[cols_num], as.numeric)
             datannot$annot <- annot
-            datannot$type_ <- "Matrix"
+            datannot$type_ <- "Table"
+          } else if (inputdatatype$type_ == "Matrix") {
+            if (ext == 'XLSX') {
+              annot <- openxlsx::read.xlsx(
+                input$annotfile$datapath,
+                colNames = FALSE
+              )
+            } else if (ext %in% c("TXT", "CSV")) {
+              annot <- read.table(
+                file = input$annotfile$datapath,
+                header = FALSE,
+                sep =",",
+                row.names = NULL,
+                fill = TRUE
+              )
+            }
+             
+            # take care of NA's and empty rows/cols       
+            annot <- sapply(annot, function (x) gsub("^\\s+|\\s+$", "", x))
+            annot <- annot[!apply(is.na(annot) | annot == "", 1, all),] # rows with all NA
+            annot <- annot[,!apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
+             
+            D1 <- sum(grepl("Drug1:", annot[,1]))
+            D2 <- sum(grepl("Drug2:", annot[,1]))
+            ConcUn <- sum(grepl("ConcUnit:", annot[,1]))
+            if (D1 != D2 || D1 != ConcUn){
+              createAlert(
+                session,
+                anchorId = "noPDdata",
+                alertId = "alertPD",
+                title = "Error",
+                content = paste0(
+                  "The input data contains <b>", D1, "</b> Drug1, <b>",
+                  D2, "</b> Drug2, and <b>", ConcUn,"</b> ConcUnit fields.\n",
+                  "The numbers are not equal. See example data."
+                ),
+                append = FALSE
+              )
+              datannot$annot <- "WRONG"
+            } else {
+              datannot$annot <- annot
+              datannot$type_ <- "Matrix"
+            }
           }
         }
+      }, error = function(e) {
+        toastr_error(
+          message = paste0(
+            "Something wrong with your file that cannot be handled by application.",
+            "Following is the original error message:\n",
+            e, "\n", 
+            " Please check that <b>\"", inputdatatype$type_,
+            "\"</b> is a correct file format.",
+            "For more information about input data see <b>section 3</b> in ",
+            "<b>USER GUIDE</b>."
+          ),
+          title = "Unhandled error occurred!",
+          closeButton = TRUE,
+          progressBar = TRUE,
+          position = "top-right",
+          preventDuplicates = TRUE,
+          showDuration = 300,
+          hideDuration = 1000,
+          timeOut = 10000,
+          extendedTimeOut = 1000,
+          showEasing = "swing",
+          hideEasing = "swing",
+          showMethod = "fadeIn",
+          hideMethod = "fadeOut"
+        )
+      }) # tryCatch
+    }# handlerExpr
+  ) # observeEvent
+  
+  # Actions when readout is changed --------------------------------------------
+  observeEvent(
+    eventExpr = input$selectInhVia, 
+    handlerExpr = {
+      if (input$selectInhVia != "") {
+        if (!is.null(datannot$annot) && datannot$annot != "WRONG") {
+          closeAlert(session, "alertPD")
+          tryCatch({
+            if (inputdatatype$type_ == "Table") {
+              dataReshaped$reshapeD <- transformInputData(
+                data = datannot$annot,
+                data_type = input$selectInhVia
+              )
+              inputDataTable$table <- datannot$annot
+
+            } else {
+              dataReshaped$reshapeD <- transformInputDataMatrix(
+                data = datannot$annot,
+                data_type = input$selectInhVia
+              )
+              inputDataTable$table <- dataReshaped$reshapeD$data_table
+            }
+            # Show data table
+            output$inputData = renderDT(
+              inputDataTable$table,
+              options = list(lengthChange = FALSE)
+            )
+          }, error = function(e) {
+            closeAll()
+            toastr_error(
+              message = paste0(
+                "Something wrong with your file that cannot be handled by",
+                "application. Following is the original error message: \n",
+                e,"\n",
+                "Please check the input data formation and columns.",
+                " For more information about input data see USER GUIDE"
+                ),
+              title = "Unhandled error occurred!",
+              closeButton = TRUE,
+              progressBar = TRUE,
+              position = "top-right",
+              preventDuplicates = TRUE,
+              showDuration = 300,
+              hideDuration = 1000,
+              timeOut = 10000,
+              extendedTimeOut = 1000,
+              showEasing = "swing",
+              hideEasing = "swing",
+              showMethod = "fadeIn",
+              hideMethod = "fadeOut"
+            )
+          })
+          # warnings (returned from transformInputData)
+          if (!is.null(dataReshaped$reshapeD$warning)) {
+            toastr_warning(
+              message = dataReshaped$reshapeD$warning,
+              title = "Warning!",
+              closeButton = TRUE,
+              progressBar = TRUE,
+              position = "top-right",
+              preventDuplicates = TRUE,
+              showDuration = 300,
+              hideDuration = 1000,
+              timeOut = 30000,
+              extendedTimeOut = 1000,
+              showEasing = "swing",
+              hideEasing = "swing",
+              showMethod = "fadeIn",
+              hideMethod = "fadeOut"
+            )
+          }
+          if (!is.null(dataReshaped$reshapeD)) {
+            dataReshaped$reshapeD <- dataReshaped$reshapeD$data
+            # visualize dose response
+            switches$vizDR <- 1
+            if (!is.null(input$tabsDR)) { ##### tabsDR????
+              vizDR()
+            }
+            # visualize synergy scores
+            if (switches$visSyn == 1) {
+              shinyjs::show(selector = "a[data-value=\"synergyTab\"]")
+              data_ <- dataReshaped$reshapeD
+              if (!is.null(data_)){
+                withProgress({
+                  setProgress(message = 'Calculation in progress...', value=1)
+                  data_ <- CalculateSynergy(
+                    data_,
+                    method = input$methods,
+                    correct_baseline = input$correction
+                  )
+                  vizSyn(scores$scores)
+                  shinyjs::show(selector = "a[data-value=\"reportTab\"]")
+                })
+              }
+            } else {
+              shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+            }
+          }
+        } else {
+          updateSelectInput(
+            session,
+            "selectInhVia",
+            selected = ""
+          )
+          createAlert(
+            session,
+            "noPDdata",
+            "alertPD",
+            title = "Error",
+            content = "Please load required files first! or upload an example data",
+            append = FALSE,
+            dismiss = FALSE
+          )
+        }
       }
+    } # handlerExpr
+  ) # observeEvent
+  
+  
+
+  #  CREATE AND OBSERVE DYNAMIC TABS FOR DOSE-RESPONSE -------------------------
+  observeEvent(
+    eventExpr = switches$vizDR, 
+    handlerExpr = {
+      if (switches$vizDR == 1) {
+        if (isolate(input$selectInhVia)!="" & 
+            !is.null(datannot$annot) & 
+            !is.null(dataReshaped$reshapeD)){
+          closeAlert(session, "alertPD")
+          shinyjs::show(selector = "a[data-value=\"doseresponseTab\"]")
+          updateTabItems(session, "menu1", selected = "doseresponseTab")
+        } else {
+          closeAll()
+          createAlert(
+            session,
+            "noPDdata",
+            "alertPD",
+            title = "Error",
+            content = paste0(
+              "Please choose a readout and upload required files or use an ",
+              "example data"
+            ),
+            append = FALSE,
+            dismiss = FALSE
+          )
+        }
+      } else {
+        shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+      }
+    } # handlerExpr
+  ) # observeEvent
+  
+  # Create dynamic tabs for Dose response --------------------------------------
+  output$tabs <- renderUI({
+    drug_pairs <- dataReshaped$reshapeD$drug_pairs
+    
+    if (!is.null(drug_pairs)) {
+      print("dyn tabs inside")
+      tabs <- list(NULL)
+      if (!is.null(isolate(input$tabsDR))) {
+        curTab = as.integer(isolate(input$tabsDR))
+      } else {
+        curTab = NULL
+      }
+      #find all drug pairs
+      tabnames <- sapply(
+        1:nrow(drug_pairs),
+        function(i) {
+          paste(
+            as.character(i),
+            drug_pairs[i, grepl("drug\\d+", colnames(drug_pairs))],
+            # collapse = "|",
+            sep = ":"
+          )
+        }
+      )
+      
+      tabs <- lapply(
+        1:nrow(drug_pairs),
+        function(i) {
+          tabPanel(
+            title = paste(
+              sub(paste0(i, ":"), "", tabnames[, i], fixed = TRUE),
+              collapse = " - "
+            ),
+            tags$br(),
+            fluidRow(
+              width = input$width,
+              column(
+                width = 6,
+                tabsetPanel(
+                  lapply(
+                    tabnames[, i],
+                    function(x){
+                      tabPanel(
+                        plotOutput(outputId = x, height = input$height)
+                      )
+                    }
+                  )
+                  # tabPanel(
+                  #   head(strsplit(tabnames[i], split=" ")[[1]], 1),
+                  #   plotOutput(pNames[i], height = input$height)
+                  # ),
+                  # tabPanel(
+                  #   tail(strsplit(tabnames[i], split=" ")[[1]], 1),
+                  #   plotOutput(paste0(pNames[i], "202"), height = input$height)
+                  # )
+                )
+              ),
+              column(
+                width = 6,
+                plotOutput(outputId = i, height = input$height)
+              )
+            ),
+            value = i
+          )
+        }
+      )
+      tabs$id <- "tabsDR"
+      do.call(tabsetPanel, c(tabs, selected = curTab))
+    } # if (!is.null(drug_pairs))
+  })
+  
+  #when dynamic tab is changed/chosen, get data and fill the tab  
+  observeEvent(input$tabsDR ,{ 
+    if (!is.null(dataReshaped$reshapeD)) 
+      vizDR();
+  })
+  
+  #  VISUALIZE DYNAMIC TABS FOR DOSE-RESPONSE ----------------------------------
+  
+  vizDR <- function() {
+    I <- isolate(as.integer(input$tabsDR))
+    data <- isolate(dataReshaped$reshapeD)
+    drug_pairs <- data$drug_pairs
+    tabnames <- sapply(
+      1:nrow(drug_pairs),
+      function(i) {
+        paste(
+          as.character(i),
+          drug_pairs[i, grepl("drug\\d+", colnames(drug_pairs))],
+          # collapse = "|",
+          sep = ":"
+        )
+      }
+    )
+    # Clean the plot area
+    shinyjs::runjs('$("#wraptour").hide();')
+    lapply(
+      1:ncol(tabnames),
+      function(i) {
+        shinyjs::runjs(
+          paste(
+            paste0("$('#", c(i, tabnames[, i]), "').empty();"),
+            collapse = " "
+          )
+        )
+      }
+    )
+    
+    tryCatch({
+        # remove cols from dose-response
+        # output$increase1 <- renderUI(
+        #   selectizeInput(
+        #     "colinput", 
+        #     drug.col, 
+        #     choices = colnames(response.mat)[-1], 
+        #                                             multiple = T, selected = NULL,
+        #                                             options = list(maxItems = 1)))
+        # output$increase2 <- renderUI(selectizeInput("rowinput", drug.row, 
+        #                                             choices = rownames(response.mat)[-1], 
+        #                                             multiple = T, selected = NULL, 
+        #                                             options = list(maxItems = 1)))
+      lapply(
+        1:ncol(tabnames),
+        function(i) {
+          output[[as.character(i)]] <- renderPlot({
+            Plot2DrugHeatmap(
+              data,
+              plot_block =  drug_pairs$block_id[i],
+              plot_value = "response"
+            )
+          })
+          for (n in 1:length(tabnames[, i])){
+            output[[tabnames[n, i]]] <- renderPlot({
+              PlotDoseResponseCurve(
+                data,
+                plot_block = drug_pairs$block_id[i],
+                drug_index = n,
+                grid = NULL
+              )
+            })
+          }
+
+        }
+      )
     }, error = function(e) {
       toastr_error(
         message = paste0(
-          "Something wrong with your file that cannot be handled by application.",
-          " Please check that <b>\"", inputdatatype$type_,
-          "\"</b> is a correct file format.",
-          "For more information about input data see <b>section 3</b> in ",
-          "<b>USER GUIDE</b>."
+          "SynergyFinder cannot display this combination! ",
+          "If you cannot find the error, please contact the app author."
         ),
         title = "Unhandled error occurred!",
-        closeButton = FALSE,
-        progressBar = FALSE,
+        closeButton = TRUE,
+        progressBar = TRUE,
         position = "top-right",
-        preventDuplicates = FAKSE,
+        preventDuplicates = TRUE,
         showDuration = 300,
         hideDuration = 1000,
         timeOut = 10000,
@@ -247,253 +564,8 @@ server <- function(input, output, session){
         showMethod = "fadeIn",
         hideMethod = "fadeOut"
       )
-    }) # tryCatch
-  }) # observeEvent
-  
-  # when readout is changed 
-  observeEvent(input$selectInhVia,{
-    if (input$selectInhVia != "") {
-      if (!is.null(datannot$annot) && datannot$annot != "WRONG") {
-        closeAlert(session, "alertPD")
-        tryCatch({
-          if (inputdatatype$type_ == "Table") {
-            dataReshaped$reshapeD <- transformInputData(
-              data = datannot$annot,
-              data_type = input$selectInhVia
-            )
-            # Show data table
-            output$inputData = renderDT(
-              datannot$annot,
-              options = list(lengthChange = FALSE)
-            )
-          } else {
-            dataReshaped$reshapeD <- transformInputDataMatrix(
-              data = datannot$annot,
-              data_type = input$selectInhVia)
-            # Show data table
-            output$inputData = renderDT(
-              dataReshaped$reshapeD$data.table, options = list(lengthChange = FALSE)
-            )
-          }
-        }, error = function(e) {
-          closeAll()
-          toastr_error(
-            message = paste0(
-              "Something wrong with your file that cannot be handled by",
-              "application. Following is the original error message: \n",
-              e,"\n",
-              "Please check the input data formation and columns.",
-              " For more information about input data see USER GUIDE"
-              ),
-            title = "Unhandled error occurred!",
-            closeButton = !0,
-            progressBar = !0,
-            position = "top-right",
-            preventDuplicates = !0,
-            showDuration = 300,
-            hideDuration = 1000,
-            timeOut = 10000,
-            extendedTimeOut = 1000,
-            showEasing = "swing",
-            hideEasing = "swing",
-            showMethod = "fadeIn",
-            hideMethod = "fadeOut"
-          )
-        })
-        # warnings (returned from transformInputData)
-        if (!is.null(dataReshaped$reshapeD$warning)) {
-          toastr_warning(dataReshaped$reshapeD$warning[i], title = "Warning!",
-                         closeButton = !0, progressBar = !0,
-                         position = "top-right", preventDuplicates = !0,
-                         showDuration = 300, hideDuration = 1000,
-                         timeOut = 30000, extendedTimeOut = 1000,
-                         showEasing = "swing", hideEasing = "swing",
-                         showMethod = "fadeIn", hideMethod = "fadeOut")
-        if (!is.null(dataReshaped$reshapeD)) {
-          if (!is.null(input$tabsDR)) {
-            vizDR()
-            }
-          if (input$Switch2 == 1){
-            shinyjs::show(selector = "a[data-value=\"synergyTab\"]")
-            data_ <- dataReshaped$reshapeD
-            if (!is.null(data_)){
-              withProgress({
-                setProgress(message = 'Calculation in progress...', value=1)
-                # scores$scores <- CalculateSynergy(data_, input$methods, correction = ifelse(input$Switch3 == 1, !0, !1))
-                data_[['adjusted.response.mats']] <- lapply(data_[['dose.response.mats']],
-                                                            function(x){CorrectBaseLine(response.mat = x,
-                                                                                        method = input$correction)})
-                names(data_[['adjusted.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
-                names(data_[['dose.response.mats']]) <- as.character(data_[['drug.pairs']]$PairIndex)
-                scores$scores <- CalculateSynergy(data_, input$methods)
-                if (input$Switch4 == 1){
-                  vizSyn(scores$scores)
-                } else {
-                  shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
-                  }
-                    
-              })
-            }
-          } else {
-            shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
-          }
-        }
-      } else {
-        updateSelectInput(session, "selectInhVia", selected = "")
-        createAlert(session, "noPDdata", "alertPD", title = "Error",
-                    content = "Please load required files first! or upload an example data",
-                    append = !1, dismiss = !1)
-      }
-    }
-  })
-  
-
-  ####################################################
-  #  CREATE AND OBSERVE DYNAMIC TABS FOR DOSE-RESPONSE -------------------------
-  ####################################################
-  observeEvent(input$Switch, {
-    if (input$Switch){
-      if(isolate(input$selectInhVia)!="" & !is.null(datannot$annot) & !is.null(dataReshaped$reshapeD)){
-        closeAlert(session, "alertPD")
-        shinyjs::show(selector = "a[data-value=\"doseresponseTab\"]")
-        updateTabItems(session, "menu1", selected = "doseresponseTab")
-      } else {
-        closeAll();
-        createAlert(session, "noPDdata", "alertPD", title = "Error",
-                    content = "Please choose a readout and upload required files! or use an example data",
-                    append = !1, dismiss = !1)
-      }
-    } else {
-      shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
-    }
-
-  })
-  
-  #create dynamic tabs for Dose response
-  output$tabs <- renderUI({
-    
-    drug.pairs <- dataReshaped$reshapeD$drug.pairs
-    
-    if (!is.null(drug.pairs)) { 
-      print("dyn tabs inside")
-      
-      tabs <- list(NULL)
-      if (!is.null(isolate(input$tabsDR))) {
-        curTab = as.integer(isolate(input$tabsDR))
-      } else {
-          curTab = NULL
-      }
-
-      #find all drug pairs
-      tabnames <- sapply(X = 1:nrow(drug.pairs), 
-                         FUN = function(i){paste0(drug.pairs$drug.col[i], " - ",
-                                                  drug.pairs$drug.row[i])})
-      J <- length(tabnames)
-      pNames <- paste0("plot", LETTERS[1:J])
-      
-      tabs <- lapply(X = 1:J, function(i){
-        tabPanel(tabnames[i],
-                 h3(""), 
-                 # box(
-                 #   width = input$width, status = "info", solidHeader = FALSE,
-                 #   collapsible = FALSE, height = input$height+100,
-                 #   title = "Dose-response data",
-                 fluidRow( width = input$width,
-                   column(6,
-                          tabsetPanel(
-                            tabPanel(head(strsplit(tabnames[i],split=" ")[[1]],1),
-                                     plotOutput(pNames[i], height = input$height)),
-                            tabPanel(tail(strsplit(tabnames[i],split=" ")[[1]],1),
-                                     plotOutput(paste0(pNames[i],"202"),
-                                                height = input$height)))
-                   ),
-                   column(6,
-                          plotOutput(paste0(pNames[i], "102"), height = input$height)
-                   )
-                 ),
-                 value=i)
-      })
-      tabs$id <- "tabsDR"
-      do.call(tabsetPanel, c(tabs, selected = curTab)) 
-    }
-  })
-  
-  #when dynamic tab is changed/chosen, get data and fill the tab  
-  observeEvent(input$tabsDR ,{ 
-    if (!is.null(dataReshaped$reshapeD)) 
-      vizDR();
-  })
-  
-
-  ####################################################
-  #  VISUALIZE DYNAMIC TABS FOR DOSE-RESPONSE ----------------------------------
-  ####################################################
-  
-  vizDR <- compiler::cmpfun(function(){
-    I <- isolate(as.integer(input$tabsDR))
-    dat <- isolate(dataReshaped$reshapeD)
-    pNames <- paste0("plot", LETTERS[1:nrow(dat$drug.pairs)])
-    name1 <- paste0(pNames[I],"102"); name2 <- paste0(pNames[I],"202")
-    
-    shinyjs::runjs('$("#wraptour").hide();');
-    lapply(1:length(pNames), function(i){
-      shinyjs::runjs(paste0("$('#", pNames[i], "').empty(); $('#", name1,
-                            "').empty(); $('#", name2, "').empty();"))
     })
-    
-    tryCatch({
-      
-        dose.response.mats <- dat$dose.response.mats
-        drug.pairs <- dat$drug.pairs
-        response.mat <- dose.response.mats[[I]]
-        unit.text <- paste0("(", drug.pairs$concUnit[I], ")")
-        drug.row <- drug.pairs$drug.row[I]
-        drug.col <- drug.pairs$drug.col[I]
-        # single.fitted <- FittingSingleDrug(response.mat)
-        drug.col.response <- ExtractSingleDrug(response.mat, dim = "col")
-        drug.col.model <- FitDoseResponse(drug.col.response)
-        drug.row.response <- ExtractSingleDrug(response.mat, dim = "row")
-        drug.row.model <- FitDoseResponse(drug.row.response)
-        
-        # remove cols from dose-response
-        output$increase1 <- renderUI(selectizeInput("colinput", drug.col, 
-                                                    choices = colnames(response.mat)[-1], 
-                                                    multiple = T, selected = NULL,
-                                                    options = list(maxItems = 1)))
-        output$increase2 <- renderUI(selectizeInput("rowinput", drug.row, 
-                                                    choices = rownames(response.mat)[-1], 
-                                                    multiple = T, selected = NULL, 
-                                                    options = list(maxItems = 1)))
-        
-        output[[name1]] <- renderPlot({ # plot in each tab
-          PlotDoseResponseShinyDR("inhibition", paramplot = 1, response.mat, 
-                                  unit.text, drug.row, drug.col)
-        })
-        
-        output[[pNames[I]]] <- renderPlot({ # plot in each tab
-          PlotDoseResponseShinyDR("inhibition", paramplot = 3, response.mat, 
-                                  unit.text, drug.row, drug.col,# single.fitted)
-                                  drug.row.model = drug.row.model,
-                                  drug.col.model = drug.col.model)
-        })
-        
-        output[[name2]] <- renderPlot({ # plot in each tab
-          PlotDoseResponseShinyDR("inhibition", paramplot = 2, response.mat, 
-                                  unit.text, drug.row, drug.col,# single.fitted)
-                                  drug.row.model = drug.row.model,
-                                  drug.col.model = drug.col.model)
-        })
-    }, error = function(e) {
-    
-      toastr_error("SynergyFinder cannot display this combination! If you cannot find the error, please contact the app author.", 
-                   title = "Unhandled error occurred!", closeButton = !0, 
-                   progressBar = !0, position = "top-right",
-                   preventDuplicates = !0, showDuration = 300, 
-                   hideDuration = 1000, timeOut = 10000, extendedTimeOut = 1000,
-                   showEasing = "swing",  hideEasing = "swing",
-                   showMethod = "fadeIn", hideMethod = "fadeOut")
-    })
-  })
+  }
 
   
   na.mean <- compiler::cmpfun(function(mat){

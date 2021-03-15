@@ -38,18 +38,18 @@ inputDataTabUI <- function(id) {
             ),
             selected = ""
           )
-        ),
-        column(
-          width = 3,
-          tags$div(
-            title="Move slider to visualize the drug combination dose-response data",
-            id = "toursliderdr",
-            switchButton(
-              inputId = "Switch",
-              label = "4. Visualize dose response data"
-            )
-          )
-        ),
+        )# ,
+        # column(
+        #   width = 3,
+        #   tags$div(
+        #     title="Move slider to visualize the drug combination dose-response data",
+        #     id = "toursliderdr",
+        #     switchButton(
+        #       inputId = "Switch",
+        #       label = "4. Visualize dose response data"
+        #     )
+        #   )
+        # )
       ),
       fluidRow(
         column(
@@ -70,7 +70,8 @@ doseResponseTabUI <- function(id) {
     tabName = id,
     #when slider for PlotDoseresponse is on
     conditionalPanel(
-      condition = "input.Switch == 1",
+      # condition = "input.Switch == 1",
+      condition = "input.selectInhVia != '' && !input.resettableInput",
       # dynamically create tabs with content
       box(
         id = "boxDose", solidHeader = FALSE, width = 12, collapsible = FALSE,
@@ -93,11 +94,11 @@ doseResponseTabUI <- function(id) {
               min = 1, max = 13, value = 12, step = 1
             ),
             hr(),
-            tags$h4("Estimate outliers:"),
-            uiOutput(outputId = 'increase1'),
-            uiOutput(outputId = 'increase2'),
-            actionButton("excludeconc", "Impute"),
-            hr(),
+            # tags$h4("Estimate outliers:"),
+            # uiOutput(outputId = 'increase1'),
+            # uiOutput(outputId = 'increase2'),
+            # actionButton("excludeconc", "Impute"),
+            # hr(),
             tags$div(
               title = "Calculate the synergy scores for drug combinations.",
               id = "tourcalcsyn",
