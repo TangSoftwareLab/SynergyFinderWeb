@@ -1,9 +1,8 @@
-
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
   # Home page ------------------------------------------------------------------
-  # Guideline button
+  # userCuide button
   observeEvent(input$toGuide, {
     updateNavbarPage(session, inputId = "topNavBar",
                       selected = "USER GUIDE")
@@ -14,6 +13,7 @@ server <- function(input, output, session){
                      selected = "DASHBOARD")
   })
   shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+  
   # Dashboard page -------------------------------------------------------------
   # reactive variables
   datannot <- reactiveValues(annot = NULL, outList = NULL, type_ = NULL)
@@ -28,16 +28,56 @@ server <- function(input, output, session){
   shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
   shinyjs::hide(selector = "a[data-value=\"syenrgyTab\"]")
   shinyjs::hide(selector = "a[data-value=\"downloadTab\"]")
+  
   # Reset the input data file
   output$resettableInput <- renderUI({
     input$inputDatatype
-    fileInput('annotfile', '2. Select a file', 
-              accept = c('.csv', '.xlsx', '.txt'))
+    tagList(
+      fileInput(
+        inputId = 'annotfile',
+        label = tags$p(
+          '2. Select a file',
+          bsButton("q1", label = "",
+                   icon = icon("fa-question-circle", lib = "font-awesome",
+                               class="fa fa-question-circle"
+                               ),
+                   style = "link",
+                   size = "small")
+        ),
+        accept = c('.csv', '.xlsx', '.txt'),
+       
+      ),
+      shinyBS::bsPopover(#session,
+        id = "q1",
+        title = "Input data structure:",
+        content = paste0(
+          tags$p("Table format:"),
+          # tags$br(),
+          tags$image(
+            src = 'images/exampleTab.png',
+            width = '400', height = '200'
+          ),
+          tags$br(),
+          tags$br(),
+          tags$p("Matrix format:"),
+          # tags$br(),
+          tags$image(
+            src = 'images/exampleMat.png',
+            width = '400', height = '200'
+          ),
+          tags$br(),
+          tags$br(),
+          tags$p(
+            "For more information about input file format please check the USER GUIDE."
+          )
+        ),
+        placement = "bottom",
+        trigger = "click"
+      )
+    )
   })
-  
-  shinyjs::runjs('window.onbeforeunload=function(a){return message="You cannot refresh this page. Please open another tab",a.returnValue=message,message},$("#removeoutliers").prepend(\'<img id="theImg" src="beta2.png" style="position: absolute;top: 0px;right: 0px;" />\'),$("#spanpop").popover({html:!0,title:"Input data structure:",content:"Table format:<br><img src=\'exampleTab.png\' width=\'400\' height=\'200\' /><br><br> Matrix format:<br><img src=\'exampleMat.png\'  width=\'400\' height=\'200\'/> <br><br> For more information about input file format please check the <b style=\'color:#2fa4e7;\'>USER GUIDE</b>.",trigger:"hover",placement:"auto",container:"body",animation:!0});')
-  
-  # check number of sessions
+
+  # Check number of sessions
   isolate(vals$users_ <- vals$users_ + 1)
   session$onSessionEnded(function(){ 
     isolate(vals$users_ <- vals$users_ - 1)
@@ -46,194 +86,229 @@ server <- function(input, output, session){
     }
   })
   
-  closeAll <- compiler::cmpfun(function(){
+  closeAll <- function() {
     shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
     shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
-    dataReshaped$reshapeD <- scores$scores <- scoreofthepart$scores <- NULL
+    dataReshaped$reshapeD <- NULL
+    scores$scores <- NULL
+    scoreofthepart$scores <- NULL
     updateSelectInput(session, "selectInhVia", selected = "")
     updateCheckboxInput(session, "Switch", value = 0)
     updateCheckboxInput(session, "Switch2", value = 0)
     updateCheckboxInput(session, "Switch4", value = 0) 
     closeAlert(session, "alert1")
     closeAlert(session, "alertPD")
-    shinyjs::runjs("$('#HowToUse').modal('hide');$('#Save_full_').modal('hide');")
-  })
-  
+    # shinyjs::runjs("$('#HowToUse').modal('hide');$('#Save_full_').modal('hide');")
+  }
 
-  # input data type select box
+  # inputDataTab ------------------------------------------------------------
+  
+  # Input data type select box
   observeEvent(input$inputDatatype, {
     closeAll()
     inputdatatype$type_ <- input$inputDatatype
     })
 
   # when annotation file is loaded  
-  observeEvent(input$annotfile,{
-   tryCatch({
-         
-       # if already loaded annotation, drop all switches and vars
-       if (!is.null(datannot$annot)){
-         closeAll()
-       }
-       # file extension
-       ext <- toupper(tools::file_ext(input$annotfile$name))
-       annot <- NULL
-       
-       if (!(ext %in% c("TXT", "CSV","XLSX"))){
-         datannot$annot <- NULL
-         annot <- as.data.frame(c("Error"), stringsAsFactors = F)
-         colnames(annot) <- c("Error")
-         createAlert(session, "alertannotfile", "alert1", title = "Error", 
-                     content = "Only .csv, .txt and .xlsx are supported", 
-                     append = F)
-       }
-       else{
-         if (inputdatatype$type_ == "Table")
-         {
-           if (ext == 'XLSX'){
-             annot <- openxlsx::read.xlsx(input$annotfile$datapath)
-           } else if (ext %in% c("TXT", "CSV")) {
-             annot <- read.table(file = input$annotfile$datapath, header = T, 
-                                 sep=",", row.names = NULL, fill = T)
-           }
+  observeEvent(input$annotfile, {
+    tryCatch({
+      # if already loaded annotation table, drop all switches and vars
+      if (!is.null(datannot$annot)) {
+        closeAll()
+      }
+      # file extension
+      ext <- toupper(tools::file_ext(input$annotfile$name))
+      annot <- NULL
+      
+      if (!(ext %in% c("TXT", "CSV","XLSX"))) {
+        datannot$annot <- NULL
+        annot <- as.data.frame(c("Error"), stringsAsFactors = FALSE)
+        colnames(annot) <- c("Error")
+        createAlert(
+          session, 
+          anchorId = "alertannotfile",
+          alertId = "alert1",
+          title = "Error",
+          content = "Only .csv, .txt and .xlsx are supported",
+          append = FALSE
+        )
+      } else {
+        if (inputdatatype$type_ == "Table") {
+          if (ext == 'XLSX') {
+            annot <- openxlsx::read.xlsx(
+              input$annotfile$datapath
+            )
+          } else if (ext %in% c("TXT", "CSV")) {
+            annot <- read.table(
+              file = input$annotfile$datapath,
+              header = TRUE,
+              sep = ",",
+              row.names = NULL,
+              fill = TRUE,
+              na.strings = c("NA", "")
+            )
+          }
+          
+          # take care of NA's and empty rows/cols
+          annot <- sapply(annot, function (x) gsub("^\\s+|\\s+$", "", x))
+          annot <- annot[!apply(is.na(annot) | annot == "", 2, all), ] # rows with all NA
+          annot <- annot[, !apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
            
-           # take care of NA's and empty rows/cols       
-           annot <- data.frame(lapply(annot, as.character), stringsAsFactors=F)
-           annot <- annot[!apply(is.na(annot) | annot == "", 1, all),] # rows with all NA
-           annot <- annot[,!apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
+          # check for missing columns
+          # outList.names <- c("PairIndex", "Response", "Drug1", "Drug2", 
+          #                     "Conc1", "Conc2", "ConcUnit")
+          # mismatch = outList.names[!(colnames(annot) %in% outList.names)]
+          #   
+          # if(length(mismatch) == 0){
+            # dataOutput <- data.frame(
+            #   PairIndex = as.integer(annot$PairIndex),
+            #   Response = round(as.numeric(annot$Response),2),
+            #   Drug1 = as.character(annot$Drug1),
+            #   Drug2 = as.character(annot$Drug2),
+            #   Conc1 = round(as.numeric(annot$Conc1),2),
+            #   Conc2 = round(as.numeric(annot$Conc2),2),
+            #   ConcUnit = as.character(annot$ConcUnit), stringsAsFactors=F)
+            datannot$annot <- dataOutput
+            datannot$type_ <- "Table"
+          # } else {
+          #    mismatch <- na.omit(mismatch)
+          #    createAlert(session, "noPDdata", "alertPD", title = "Error",
+          #                content = paste0("Annotation table doesnot contain ",
+          #                                 paste0(mismatch, collapse = ", "), 
+          #                                 " column(s). \n See example data."),
+          #                append = F)
+          #    datannot$annot <- "WRONG"
+          # }
+        } else if (inputdatatype$type_ == "Matrix") {
+          if (ext == 'XLSX') {
+            annot <- openxlsx::read.xlsx(
+              input$annotfile$datapath,
+              colNames = FALSE
+            )
+          } else if (ext %in% c("TXT", "CSV")) {
+            annot <- read.table(
+              file = input$annotfile$datapath,
+              header = FALSE,
+              sep =",",
+              row.names = NULL,
+              fill = TRUE
+            )
+          }
            
-           # check for missing columns
-           outList.names <- c("PairIndex", "Response", "Drug1", "Drug2", 
-                              "Conc1", "Conc2", "ConcUnit")
-           mismatch = outList.names[!(colnames(annot) %in% outList.names)]
-            
-           if(length(mismatch) == 0){
-             dataOutput <- data.frame(
-               PairIndex = as.integer(annot$PairIndex), 
-               Response = round(as.numeric(annot$Response),2), 
-               Drug1 = as.character(annot$Drug1), 
-               Drug2 = as.character(annot$Drug2), 
-               Conc1 = round(as.numeric(annot$Conc1),2), 
-               Conc2 = round(as.numeric(annot$Conc2),2), 
-               ConcUnit = as.character(annot$ConcUnit), stringsAsFactors=F)
-             datannot$annot <- dataOutput
-             datannot$type_ <- "Table"
-           }
-           else{
-             mismatch <- na.omit(mismatch)
-             createAlert(session, "noPDdata", "alertPD", title = "Error",
-                         content = paste0("Annotation table doesnot contain ",
-                                          paste0(mismatch, collapse = ", "), 
-                                          " column(s). \n See example data."),
-                         append = F)
-             datannot$annot <- "WRONG"
-           }
-         } else if (inputdatatype$type_ == "Matrix") {
-
-           if (ext == 'XLSX'){
-             annot <- openxlsx::read.xlsx(input$annotfile$datapath, colNames=F)
-           }
-           else if (ext %in% c("TXT", "CSV")){
-             annot <- read.table(file = input$annotfile$datapath, header = F, 
-                                 sep =",",  row.names = NULL, fill = T)
-           }
+          # take care of NA's and empty rows/cols       
+          annot <- sapply(annot, function (x) gsub("^\\s+|\\s+$", "", x))
+          annot <- annot[!apply(is.na(annot) | annot == "", 1, all),] # rows with all NA
+          annot <- annot[,!apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
            
-           # take care of NA's and empty rows/cols       
-           annot <- data.frame(lapply(annot, as.character), stringsAsFactors=F)
-           annot <- annot[!apply(is.na(annot) | annot == "", 1, all),] # rows with all NA
-           annot <- annot[,!apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
-
-           D1 <- sum(grepl("Drug1:", annot[,1]))
-           D2 <- sum(grepl("Drug2:", annot[,1]))
-           ConcUn <- sum(grepl("ConcUnit:", annot[,1]))
-           if (D1 != D2 || D1 != ConcUn){
-             createAlert(session, "noPDdata", "alertPD", title = "Error", 
-                         content = paste0("Annotation file contains <b>",
-                                          D1, "</b> Drug1, <b>",D2, 
-                                          "</b> Drug2, and <b>", ConcUn,
-                                          "</b> ConcUnit fields. \n However,",
-                                          " their number should be equal. ",
-                                          "See example data."), append = F)
-             datannot$annot <- "WRONG"
-           } 
-           else {
-             datannot$annot <- annot
-             datannot$type_ <- "Matrix"
-           }
-         }
-            }
-        }, error = function(e) {
-            toastr_error(paste0("Something wrong with your file that cannot be ",
-                                "handled by application. Please check that <b>\"",
-                                inputdatatype$type_, "\"</b> is a correct file format.",
-                                "For more information about input data see ",
-                                "<b>section 3</b> in <a style='cursor: pointer;'",
-                                " onclick='javascript:techdoc()'>technical documentation</a> ",
-                                "or <a style='cursor: pointer;' onclick='javascript:openvideo()'>",
-                                "video tutorial</a>"), 
-                         title = "Unhandled error occurred!", closeButton = !0, 
-                         progressBar = !0, position = "top-right", 
-                         preventDuplicates = !0,
-                    showDuration = 300, hideDuration = 1000, timeOut = 10000, 
-                    extendedTimeOut = 1000, showEasing = "swing",
-                    hideEasing = "swing", showMethod = "fadeIn", 
-                    hideMethod = "fadeOut")
-        })
-
-  })
+          D1 <- sum(grepl("Drug1:", annot[,1]))
+          D2 <- sum(grepl("Drug2:", annot[,1]))
+          ConcUn <- sum(grepl("ConcUnit:", annot[,1]))
+          if (D1 != D2 || D1 != ConcUn){
+            createAlert(
+              session,
+              anchorId = "noPDdata",
+              alertId = "alertPD",
+              title = "Error",
+              content = paste0(
+                "The input data contains <b>", D1, "</b> Drug1, <b>",
+                D2, "</b> Drug2, and <b>", ConcUn,"</b> ConcUnit fields.\n",
+                "The numbers are not equal. See example data."
+              ),
+              append = FALSE
+            )
+            datannot$annot <- "WRONG"
+          } else {
+            datannot$annot <- annot
+            datannot$type_ <- "Matrix"
+          }
+        }
+      }
+    }, error = function(e) {
+      toastr_error(
+        message = paste0(
+          "Something wrong with your file that cannot be handled by application.",
+          " Please check that <b>\"", inputdatatype$type_,
+          "\"</b> is a correct file format.",
+          "For more information about input data see <b>section 3</b> in ",
+          "<b>USER GUIDE</b>."
+        ),
+        title = "Unhandled error occurred!",
+        closeButton = FALSE,
+        progressBar = FALSE,
+        position = "top-right",
+        preventDuplicates = FAKSE,
+        showDuration = 300,
+        hideDuration = 1000,
+        timeOut = 10000,
+        extendedTimeOut = 1000,
+        showEasing = "swing",
+        hideEasing = "swing",
+        showMethod = "fadeIn",
+        hideMethod = "fadeOut"
+      )
+    }) # tryCatch
+  }) # observeEvent
   
   # when readout is changed 
   observeEvent(input$selectInhVia,{
-    if (input$selectInhVia!="") {
+    if (input$selectInhVia != "") {
       if (!is.null(datannot$annot) && datannot$annot != "WRONG") {
         closeAlert(session, "alertPD")
         tryCatch({
-          if (inputdatatype$type_ == "Table"){
-            dataReshaped$reshapeD <- transformInputData(datannot$annot,
-                                                        input$selectInhVia)
+          if (inputdatatype$type_ == "Table") {
+            dataReshaped$reshapeD <- transformInputData(
+              data = datannot$annot,
+              data_type = input$selectInhVia
+            )
             # Show data table
             output$inputData = renderDT(
-              datannot$annot, options = list(lengthChange = FALSE)
+              datannot$annot,
+              options = list(lengthChange = FALSE)
             )
           } else {
-            dataReshaped$reshapeD <- transformInputDataMatrix(datannot$annot,
-                                                              input$selectInhVia)
+            dataReshaped$reshapeD <- transformInputDataMatrix(
+              data = datannot$annot,
+              data_type = input$selectInhVia)
             # Show data table
             output$inputData = renderDT(
               dataReshaped$reshapeD$data.table, options = list(lengthChange = FALSE)
             )
           }
-          }, error = function(e) {
-            closeAll();
-            toastr_error(paste0("Something wrong with your file that ",
-                                "cannot be handled by application. ",
-                                "Please check that <b>\"",
-                                inputdatatype$type_,
-                                "\"</b> is a correct file format. ",
-                                "For more information about input data see ",
-                                "<b>section 3</b> in <a style='cursor: pointer;",
-                                "' onclick='javascript:techdoc()'>technical documentation</a>",
-                                " or <a style='cursor: pointer;' ",
-                                "onclick='javascript:openvideo()'>video tutorial</a>"),
-                         title = "Unhandled error occurred!",
+        }, error = function(e) {
+          closeAll()
+          toastr_error(
+            message = paste0(
+              "Something wrong with your file that cannot be handled by",
+              "application. Following is the original error message: \n",
+              e,"\n",
+              "Please check the input data formation and columns.",
+              " For more information about input data see USER GUIDE"
+              ),
+            title = "Unhandled error occurred!",
+            closeButton = !0,
+            progressBar = !0,
+            position = "top-right",
+            preventDuplicates = !0,
+            showDuration = 300,
+            hideDuration = 1000,
+            timeOut = 10000,
+            extendedTimeOut = 1000,
+            showEasing = "swing",
+            hideEasing = "swing",
+            showMethod = "fadeIn",
+            hideMethod = "fadeOut"
+          )
+        })
+        # warnings (returned from transformInputData)
+        if (!is.null(dataReshaped$reshapeD$warning)) {
+          toastr_warning(dataReshaped$reshapeD$warning[i], title = "Warning!",
                          closeButton = !0, progressBar = !0,
                          position = "top-right", preventDuplicates = !0,
                          showDuration = 300, hideDuration = 1000,
-                         timeOut = 10000, extendedTimeOut = 1000,
-                         showEasing = "swing",  hideEasing = "swing",
+                         timeOut = 30000, extendedTimeOut = 1000,
+                         showEasing = "swing", hideEasing = "swing",
                          showMethod = "fadeIn", hideMethod = "fadeOut")
-            })
-        # warnings (returned from transformInputData)
-        if (any(dataReshaped$reshapeD$warning != "")) {
-          for(i in which(dataReshaped$reshapeD$warning != ""))
-            toastr_warning(dataReshaped$reshapeD$warning[i], title = "Warning!",
-                           closeButton = !0, progressBar = !0,
-                           position = "top-right", preventDuplicates = !0,
-                           showDuration = 300, hideDuration = 1000,
-                           timeOut = 30000, extendedTimeOut = 1000,
-                           showEasing = "swing", hideEasing = "swing",
-                           showMethod = "fadeIn", hideMethod = "fadeOut")
-          }
         if (!is.null(dataReshaped$reshapeD)) {
           if (!is.null(input$tabsDR)) {
             vizDR()

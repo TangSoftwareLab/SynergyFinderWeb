@@ -19,7 +19,7 @@ inputDataTabUI <- function(id) {
         column(
           width = 3,
           div(
-            id="annotfileid",
+            id = "annotfileid",
             uiOutput('resettableInput'),
             HTML('<div id = "spanpop" class="tooltip-item"></div>')
           ),
@@ -280,7 +280,7 @@ reportTabUI <- function(id) {
             width = 3, offset = 1,
             radioButtons(
               inputId = "synareaRepStat",
-              label = tabs$h4("Most synergistic area:"),
+              label = tags$h4("Most synergistic area:"),
               choices = list("ON" = 1, "OFF" = 0),
               selected = 1,
               inline = !0

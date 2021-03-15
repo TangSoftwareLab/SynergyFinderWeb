@@ -17,8 +17,8 @@ body{
   left: 0pt;
 }
 .footer_contents {
-  height:24px; // Replace with the height your footer should be
-  width: 1000px; // Visible width of footer
+  height:24px; /* Replace with the height your footer should be */
+  width: 1000px; /* Visible width of footer */
   margin:auto;
   text-align:center;
 }
@@ -42,6 +42,7 @@ body{
   background-color: #ffffff;
 }
 
+/* home page */
 #home h1{
   font-family:  'Roboto', sans-serif;
   font-weight: 900;
@@ -148,6 +149,30 @@ body{
 
     color: #9eaab0;
 }
+
+/* inputDataTab */
+.popover{
+  max-width: 500px;
+}
+/* #annotfileid{
+  position:relative
+}
+.tooltip-item{
+  cursor:pointer;
+  cursor:hand;
+  z-index:999;
+  width:15px;
+  height:15px;
+  right:5%;
+  bottom:5%;
+  margin:-15px 0 0 -15px;
+  position:absolute;
+  border-radius:50%;
+  border:2px solid #41ace9;
+  -webkit-animation:pulse .6s infinite alternate;
+  animation:pulse .6s infinite alternate
+}
+*/
 
 /* about us */
 
