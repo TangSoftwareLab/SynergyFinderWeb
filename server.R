@@ -12,7 +12,6 @@ server <- function(input, output, session){
     updateNavbarPage(session, inputId = "topNavBar",
                      selected = "DASHBOARD")
   })
-  shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
   
   # Dashboard page -------------------------------------------------------------
   # Define reactive variables --------------------------------------------------
@@ -24,10 +23,10 @@ server <- function(input, output, session){
   inputDataTable <- reactiveValues(table = NULL)
   switches <- reactiveValues(vizDR = 0, visSyn = 0, report = 0)
   
-  LETTERS <- unique(as.character(sapply(LETTERS, function(x) {
-    paste0(x, sapply(LETTERS, function(x) paste0(x, LETTERS)))
-    })))
-  shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+  # LETTERS <- unique(as.character(sapply(LETTERS, function(x) {
+  #   paste0(x, sapply(LETTERS, function(x) paste0(x, LETTERS)))
+  #   })))
+  shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
   shinyjs::hide(selector = "a[data-value=\"syenrgyTab\"]")
   shinyjs::hide(selector = "a[data-value=\"downloadTab\"]")
   
@@ -89,7 +88,7 @@ server <- function(input, output, session){
   })
   
   closeAll <- function() {
-    shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+    shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
     shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
     dataReshaped$reshapeD <- NULL
@@ -365,8 +364,6 @@ server <- function(input, output, session){
       }
     } # handlerExpr
   ) # observeEvent
-  
-  
 
   #  CREATE AND OBSERVE DYNAMIC TABS FOR DOSE-RESPONSE -------------------------
   observeEvent(
@@ -377,8 +374,8 @@ server <- function(input, output, session){
             !is.null(datannot$annot) & 
             !is.null(dataReshaped$reshapeD)){
           closeAlert(session, "alertPD")
-          shinyjs::show(selector = "a[data-value=\"doseresponseTab\"]")
-          updateTabItems(session, "menu1", selected = "doseresponseTab")
+          shinyjs::show(selector = "a[data-value=\"doseResponseTab\"]")
+          updateTabItems(session, "menu1", selected = "doseResponseTab")
         } else {
           closeAll()
           createAlert(
@@ -395,7 +392,7 @@ server <- function(input, output, session){
           )
         }
       } else {
-        shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+        shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
       }
     } # handlerExpr
   ) # observeEvent
@@ -403,7 +400,6 @@ server <- function(input, output, session){
   # Create dynamic tabs for Dose response --------------------------------------
   output$tabs <- renderUI({
     drug_pairs <- dataReshaped$reshapeD$drug_pairs
-    
     if (!is.null(drug_pairs)) {
       print("dyn tabs inside")
       tabs <- list(NULL)
@@ -413,70 +409,183 @@ server <- function(input, output, session){
         curTab = NULL
       }
       #find all drug pairs
-      tabnames <- sapply(
+      blocks <- sapply(
         1:nrow(drug_pairs),
         function(i) {
-          paste(
+          paste0(
             as.character(i),
-            drug_pairs[i, grepl("drug\\d+", colnames(drug_pairs))],
-            # collapse = "|",
-            sep = ":"
-          )
-        }
-      )
-      
-      tabs <- lapply(
-        1:nrow(drug_pairs),
-        function(i) {
-          tabPanel(
-            title = paste(
-              sub(paste0(i, ":"), "", tabnames[, i], fixed = TRUE),
+            ": ",
+            paste(
+              drug_pairs[i, grepl("drug\\d+", colnames(drug_pairs))],
               collapse = " - "
-            ),
-            tags$br(),
-            fluidRow(
-              width = input$width,
-              column(
-                width = 6,
-                tabsetPanel(
-                  lapply(
-                    tabnames[, i],
-                    function(x){
-                      tabPanel(
-                        plotOutput(outputId = x, height = input$height)
-                      )
-                    }
-                  )
-                  # tabPanel(
-                  #   head(strsplit(tabnames[i], split=" ")[[1]], 1),
-                  #   plotOutput(pNames[i], height = input$height)
-                  # ),
-                  # tabPanel(
-                  #   tail(strsplit(tabnames[i], split=" ")[[1]], 1),
-                  #   plotOutput(paste0(pNames[i], "202"), height = input$height)
-                  # )
-                )
-              ),
-              column(
-                width = 6,
-                plotOutput(outputId = i, height = input$height)
-              )
-            ),
-            value = i
+            )
           )
         }
       )
-      tabs$id <- "tabsDR"
-      do.call(tabsetPanel, c(tabs, selected = curTab))
-    } # if (!is.null(drug_pairs))
+    }
+      
+    ui <- list(fluidRow(
+      column(
+        width = 3,
+        tags$h4("General Setting"),
+        selectInput(
+          inputId = "DR_block",
+          label = "Block ID for plots",
+          choices = blocks,
+          selected = blocks[1]
+        )
+      ),
+      column(
+        width = 3,
+        tags$h4("Dose response curve"),
+        sliderInput(
+          inputId = "DRCheight", label = "Plot height",
+          min = 0, max = 1000, value = 400, step = 1
+        ),
+        sliderInput(
+          inputId = "DRCwidth", label = "Plot width",
+          min = 1, max = 13, value = 12, step = 1
+        ),
+        colourpicker::colourInput(
+          inputId = "curveDotColor",
+          label = "Color for dots",
+          value = "#C24B40"
+        ),
+        colourpicker::colourInput(
+          inputId = "curveColor",
+          label = "Color for curve",
+          value = "black"
+        ),
+        shinyWidgets::materialSwitch(
+          inputId = "curveGrid",
+          label = "Show grids",
+          status = "primary",
+          right = TRUE
+        )
+      ),
+      column(
+        width = 3,
+        tags$h4("Dose response Matrix"),
+        sliderInput(
+          inputId = "DRheight", label = "Plot height",
+          min = 0, max = 1000, value = 400, step = 1
+        ),
+        sliderInput(
+          inputId = "DRwidth", label = "Plot width",
+          min = 1, max = 13, value = 12, step = 1
+        ),
+        shinyWidgets::radioGroupButtons(
+          inputId = "DRPlotType",
+          label = "Plot type",
+          choices = c("HeatMap", "3D surface"),
+          status = "primary"
+        ),
+        colourpicker::colourInput(
+          inputId = "DRHighColor",
+          label = "Color for high expression values",
+          value = "#C24B40"
+        ),
+        colourpicker::colourInput(
+          inputId = "DRLowColor",
+          label = "Color for low expression value",
+          value = "black"
+        ),
+      )
+    ),
+    fluidRow(
+      column(
+        width = 6,
+        renderPlot(
+          replayPlot(
+            PlotDoseResponseCurve(
+              dataReshaped$reshapeD,
+              plot_block = input$DR_block,
+              drug_index = 1
+            )
+          )
+        )
+      ),
+      column(
+        width = 6,
+        renderPlot(
+          Plot2DrugHeatmap(
+            dataReshaped$reshapeD,
+            plot_block = input$DR_block
+          )
+        )
+      )
+    )
+    )
+  return(ui)
   })
+  
+  # output$tabs <- renderUI({
+  #   drug_pairs <- dataReshaped$reshapeD$drug_pairs
+  #   
+  #   if (!is.null(drug_pairs)) {
+  #     print("dyn tabs inside")
+  #     tabs <- list(NULL)
+  #     if (!is.null(isolate(input$tabsDR))) {
+  #       curTab = as.integer(isolate(input$tabsDR))
+  #     } else {
+  #       curTab = NULL
+  #     }
+  #     #find all drug pairs
+  #     tabnames <- sapply(
+  #       1:nrow(drug_pairs),
+  #       function(i) {
+  #         paste(
+  #           as.character(i),
+  #           drug_pairs[i, grepl("drug\\d+", colnames(drug_pairs))],
+  #           # collapse = "|",
+  #           sep = ":"
+  #         )
+  #       }
+  #     )
+  #     
+  #     tabs <- lapply(
+  #       1:nrow(drug_pairs),
+  #       function(i) {
+  #         tabPanel(
+  #           title = paste(
+  #             sub(paste0(i, ":"), "", tabnames[, i], fixed = TRUE),
+  #             collapse = " - "
+  #           ),
+  #           tags$br(),
+  #           fluidRow(
+  #             width = input$width,
+  #             column(
+  #               width = 6,
+  #               tabsetPanel(
+  #                 lapply(
+  #                   tabnames[, i],
+  #                   function(x){
+  #                     tabPanel(
+  #                       plotOutput(outputId = x, height = input$height)
+  #                     )
+  #                   }
+  #                 )
+  #               )
+  #             ),
+  #             column(
+  #               width = 6,
+  #               plotOutput(outputId = as.character(i), height = input$height)
+  #             )
+  #           ),
+  #           value = i
+  #         )
+  #       }
+  #     )
+  #     tabs$id <- "tabsDR"
+  #     do.call(tabsetPanel, list(tabs, selected = curTab))
+  #   } # if (!is.null(drug_pairs))
+  # })
   
   #when dynamic tab is changed/chosen, get data and fill the tab  
   observeEvent(input$tabsDR ,{ 
     if (!is.null(dataReshaped$reshapeD)) 
       vizDR();
   })
-  
   #  VISUALIZE DYNAMIC TABS FOR DOSE-RESPONSE ----------------------------------
   
   vizDR <- function() {
@@ -507,20 +616,8 @@ server <- function(input, output, session){
         )
       }
     )
-    
+    plots <- vector(list())
     tryCatch({
-        # remove cols from dose-response
-        # output$increase1 <- renderUI(
-        #   selectizeInput(
-        #     "colinput", 
-        #     drug.col, 
-        #     choices = colnames(response.mat)[-1], 
-        #                                             multiple = T, selected = NULL,
-        #                                             options = list(maxItems = 1)))
-        # output$increase2 <- renderUI(selectizeInput("rowinput", drug.row, 
-        #                                             choices = rownames(response.mat)[-1], 
-        #                                             multiple = T, selected = NULL, 
-        #                                             options = list(maxItems = 1)))
       lapply(
         1:ncol(tabnames),
         function(i) {
@@ -531,17 +628,20 @@ server <- function(input, output, session){
               plot_value = "response"
             )
           })
-          for (n in 1:length(tabnames[, i])){
+          for (n in 1:length(tabnames[, i])) {
+            p <- PlotDoseResponseCurve(
+              data,
+              plot_block = drug_pairs$block_id[i],
+              drug_index = n,
+              grid = NULL,
+              plot_subtitle = "",
+              plot_new = TRUE,
+              recort_plot = TRUE
+            )
             output[[tabnames[n, i]]] <- renderPlot({
-              PlotDoseResponseCurve(
-                data,
-                plot_block = drug_pairs$block_id[i],
-                drug_index = n,
-                grid = NULL
-              )
+              grDevices::replayPlot(p)
             })
           }
-
         }
       )
     }, error = function(e) {
@@ -566,65 +666,62 @@ server <- function(input, output, session){
       )
     })
   }
-
+  # Impute Missing Value
+  # na.mean <- function(mat) {
+  #   nr_ <- nrow(mat)
+  #   nc_ <- ncol(mat)
+  #   for (i in 1:nr_){
+  #     for (j in 1:nc_){
+  #       if (is.na(mat[i,j])){
+  #         a = b =c = d = 0
+  #         if ((i+1)<=nr_){
+  #           a = mat[i+1,j]
+  #         }
+  #         if ((j+1)<=nc_){
+  #           b = mat[i,j+1]
+  #         }
+  #         if ((i-1)>=1){
+  #           c = mat[i-1,j]
+  #         }
+  #         if ((j-1)>=1){
+  #           d = mat[i,j-1]
+  #         }
+  #         
+  #         sum_ = sum(c(a,b,c,d) != 0)
+  #         
+  #         if (sum_==0){
+  #           mat[i,j] == 0
+  #         } else {
+  #           mat[i,j] = sum(c(a,b,c,d)) / sum_
+  #         }
+  #       }
+  #     }
+  #   }
+  #   mat
+  # }
+  # 
+  # observeEvent(input$excludeconc,{
+  #   rowinp <- isolate(input$rowinput)
+  #   colinp <- isolate(input$colinput)
+  #   
+  #   if(!is.null(colinp) | !is.null(rowinp)){
+  #     I = isolate(as.integer(input$tabsDR))
+  #     drmatr <- isolate(dataReshaped$reshapeD$dose.response.mats[[I]])
+  #     drmatr[(rownames(drmatr) == rowinp),(colnames(drmatr) == colinp)] <- NA
+  #     
+  #     dimna <- dimnames(drmatr)
+  #     drmatr <- na.mean(drmatr)
+  #     dimnames(drmatr) <- dimna
+  #     updateCheckboxInput(session, "Switch2", value = 0)
+  #     updateCheckboxInput(session, "Switch4", value = 0) 
+  #     shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+  #     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
+  #     dataReshaped$reshapeD$dose.response.mats[[I]] <- drmatr
+  #     vizDR()
+  #   }
+  # })
   
-  na.mean <- compiler::cmpfun(function(mat){
-    nr_ <- nrow(mat)
-    nc_ <- ncol(mat)
-    for (i in 1:nr_){
-      for (j in 1:nc_){
-        if (is.na(mat[i,j])){
-          a = b =c = d = 0
-          if ((i+1)<=nr_){
-            a = mat[i+1,j]
-          }
-          if ((j+1)<=nc_){
-            b = mat[i,j+1]
-          }
-          if ((i-1)>=1){
-            c = mat[i-1,j]
-          }
-          if ((j-1)>=1){
-            d = mat[i,j-1]
-          }
-          
-          sum_ = sum(c(a,b,c,d) != 0)
-          
-          if (sum_==0){
-            mat[i,j] == 0
-          } else {
-            mat[i,j] = sum(c(a,b,c,d)) / sum_
-          }
-        }
-      }
-    }
-    mat
-  })
-  
-   observeEvent(input$excludeconc,{
-     rowinp <- isolate(input$rowinput)
-     colinp <- isolate(input$colinput)
-     
-     if(!is.null(colinp) | !is.null(rowinp)){
-       I = isolate(as.integer(input$tabsDR))
-       drmatr <- isolate(dataReshaped$reshapeD$dose.response.mats[[I]])
-       drmatr[(rownames(drmatr) == rowinp),(colnames(drmatr) == colinp)] <- NA
-       
-       dimna <- dimnames(drmatr)
-       drmatr <- na.mean(drmatr)
-       dimnames(drmatr) <- dimna
-       updateCheckboxInput(session, "Switch2", value = 0)
-       updateCheckboxInput(session, "Switch4", value = 0) 
-       shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
-       shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
-       dataReshaped$reshapeD$dose.response.mats[[I]] <- drmatr
-       vizDR()
-     }
-   })
-  
-  #######################################################
   #  CREATE AND OBSERVE DYNAMIC TABS FOR SYNERGY PLOTS -------------------------
-  #######################################################
   
   #create dynamic tabs for synergy
   output$tabs2 <- renderUI({  
@@ -723,7 +820,7 @@ server <- function(input, output, session){
         updateSelectInput(session, "selectInhVia", selected = "")
         updateCheckboxInput(session, "Switch2", value = 0)
         updateCheckboxInput(session, "Switch4", value = 0)
-        shinyjs::hide(selector = "a[data-value=\"doseresponseTab\"]")
+        shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
         shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
         shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
         createAlert(session, "noPDdata", "alertPD", title = "Error", 

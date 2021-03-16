@@ -1,7 +1,7 @@
 # Load required packages
 dependency <- c(
   "shiny", "shinyjs", "shinytoastr", "shinyWidgets", "shinydashboard",
-  "shinyBS", "DT", "synergyfinder", 
+  "shinyBS", "DT", "synergyfinder",
   "dashboardthemes", "ggplot2", "scales", "gplots", "lattice", "plotly", "grid",
   "xtable")
 sapply(

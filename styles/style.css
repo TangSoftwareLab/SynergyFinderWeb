@@ -154,28 +154,8 @@ body{
 .popover{
   max-width: 500px;
 }
-/* #annotfileid{
-  position:relative
-}
-.tooltip-item{
-  cursor:pointer;
-  cursor:hand;
-  z-index:999;
-  width:15px;
-  height:15px;
-  right:5%;
-  bottom:5%;
-  margin:-15px 0 0 -15px;
-  position:absolute;
-  border-radius:50%;
-  border:2px solid #41ace9;
-  -webkit-animation:pulse .6s infinite alternate;
-  animation:pulse .6s infinite alternate
-}
-*/
 
 /* about us */
-
 #aboutUsText h1{
   font-family:  'Roboto', sans-serif;
   color:#35495e;
