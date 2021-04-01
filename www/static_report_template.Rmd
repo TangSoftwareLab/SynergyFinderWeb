@@ -1,0 +1,314 @@
+---
+title: "SynergyFinder Static Report"
+author: "SynergyFinder"
+date: "`r Sys.Date()`"
+output: pdf_document
+params:
+  data: NA
+  blocks: NA
+  correct_baseline: NA
+  DRC_grid: NA
+  DRC_dot_color: NA
+  DRC_curve_color: NA
+  DR_multi_high_value_color: NA
+  DR_multi_low_value_color: NA
+  DR_multi_point: NA
+  DR_multi_point_color: NA
+  DR_plot_type: NA
+  DR_rep_statistic: NA
+  DR_summary_statistic: NA
+  DR_high_value_color: NA
+  DR_low_value_color: NA
+  DR_heatmap_label_color: NA
+  DR_grid: NA
+  syn_multi_high_value_color: NA
+  syn_multi_low_value_color: NA
+  syn_multi_point: NA
+  syn_multi_point_color: NA
+  syn_plot_type: NA
+  syn_summary_statistic: NA
+  syn_high_value_color: NA
+  syn_low_value_color: NA
+  syn_heatmap_label_color: NA
+  syn_rep_statistic: NA
+  syn_grid: NA
+  bb_panel_title_size: NA
+  bb_axis_text_size: NA
+  bb_highlight_label_size: NA
+  bb_highlight_pos_color: NA
+  bb_highlight_neg_color: NA
+  bb_pos_value_color: NA
+  bb_neg_value_color: NA
+  ss_point_color: NA
+  ss_point_size: NA
+  ss_show_label: NA
+  ss_label_color: NA
+  ss_label_size: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{r include=FALSE}
+library(tidyverse)
+library(synergyfinder)
+library(TidyComb)
+synergyfinder_obj <- params$data
+ndrug <- sum(grepl("drug", colnames(synergyfinder_obj$drug_pairs)))
+methods = c("ZIP", "Loewe", "Bliss", "HSA")
+
+# if (is.null(params$DR_multi_high_value_color)) {
+#   params$DR_multi_high_value_color <- "#CC3311"
+# }
+# if (is.null(params$DR_multi_low_value_color)) {
+#   params$DR_multi_high_value_color <- "#448BD4"
+# }
+# if (is.null(params$DR_multi_point_color)) {
+#   params$DR_multi_point_color <- "#DDA137"
+# }
+# if (is.null(params$DR_multi_point)) {
+#   params$DR_multi_point <- TRUE
+# }
+# if (is.null(params$syn_multi_high_value_color)) {
+#   params$syn_multi_high_value_color <- "#CC3311"
+# }
+# if (is.null(params$syn_multi_low_value_color)) {
+#   params$syn_multi_high_value_color <- "#448BD4"
+# }
+# if (is.null(params$syn_multi_point_color)) {
+#   params$syn_multi_point_color <- "#DDA137"
+# }
+# if (is.null(params$syn_multi_point)) {
+#   params$syn_multi_point <- TRUE
+# }
+```
+
+# 1. Data tables
+
+## 1. Meta data table
+
+```{r meta_table}
+synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::starts_with("drug"),
+    dplyr::starts_with("conc_unit"),
+    dplyr::starts_with("cell")) %>% 
+  knitr::kable()
+```
+
+## 2. Synergy socores summary table
+
+```{r synergy_table}
+synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::contains("synergy")) %>% 
+  knitr::kable()
+```
+
+## 3. Sensitivity socores summary table
+
+```{r sensitive_table}
+synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::contains("ri"),
+    dplyr::contains("css")) %>% 
+  knitr::kable()
+```
+
+## 4. Calcuclation setting
+
+```{r calculate_setting}
+cat("Correct Baseline: ", params$correct_baseline)
+```
+
+```{r crop = NULL}
+data("mathews_screening_data")
+data <- ReshapeData(mathews_screening_data)
+p <- PlotDoseResponseCurve(data, grid = NULL)
+png(file = "DRC.png")
+replayPlot(p)
+dev.off
+knitr::include_graphics("./DRC.png")
+```
+
+
+# 2. Dose response Maps
+
+```{r crop = NULL}
+for (b in params$blocks) {
+  for (i in 1:ndrug) {
+    if (params$DRC_grid) {
+      p <- PlotDoseResponseCurve(
+        data = synergyfinder_obj,
+        plot_block = b,
+        drug_index = i,
+        point_color = params$DRC_dot_color,
+        curve_color = params$DRC_curve_color
+      )
+      png(file = paste0("./DRC_block_", b,"_drug_", i, ".png"))
+      replayPlot(p)
+      dev.off
+      knitr::include_graphics(paste0("./DRC_block_", b,"_drug_", i, ".png"))
+    } else {
+      p <- PlotDoseResponseCurve(
+        data = synergyfinder_obj,
+        plot_block = b,
+        drug_index = i,
+        grid = NULL,
+        point_color = params$DRC_dot_color,
+        curve_color = params$DRC_curve_color
+      )
+      png(file = paste0("./DRC_block_", b,"_drug_", i, ".png"))
+      replayPlot(p)
+      dev.off
+      knitr::include_graphics(paste0("./DRC_block_", b,"_drug_", i, ".png"))
+    }
+  }
+}
+
+```
+
+```{r}
+for (b in params$blocks) {
+  if (ndrug > 2) {
+    p <- PlotMultiDrugSurface(
+      data = synergyfinder_obj,
+      plot_block = b,
+      plot_value = "response",
+      high_value_color = params$DR_multi_high_value_color,
+      low_value_color = params$DR_multi_low_value_color,
+      show_data_points = params$DR_multi_point,
+      point_color = params$DR_multi_point_color
+    )
+    print(p)
+  }
+  comb <- combn(1:ndrug, 2)
+  for (c in 1:ncol(comb)) {
+    if (params$DR_plot_type == "heatmap") {
+      p <- Plot2DrugHeatmap(
+        data = synergyfinder_obj,
+        plot_block = b,
+        drugs = c(comb[1, c], comb[2, c]),
+        dynamic = FALSE,
+        statistic = params$DR_rep_statistic,
+        summary_statistic = params$DR_summary_statistic,
+        high_value_color = params$DR_high_value_color,
+        low_value_color = params$DR_low_value_color,
+        # text_label_size_scale = params$DR_heatmap_label_size,
+        text_label_color = params$DR_heatmap_label_color
+        # title_text_size_scale = params$DR_text_size
+      )
+      print(p)
+    } else {
+      p <- Plot2DrugSurface(
+        data = synergyfinder_obj,
+        drugs = c(comb[1, c], comb[2, c]),
+        plot_block = b,
+        dynamic = FALSE,
+        high_value_color = params$DR_high_value_color,
+        low_value_color = params$DR_low_value_color,
+        grid = params$DR_grid
+        # text_size_scale = params$DR_text_size
+      )
+      print(p)
+    }
+  }
+}
+```
+
+# 3. Synergy Scores
+
+```{r, synergy_plots, fig.show="hold", out.width="50%", eval=FALSE}
+for (b in params$blocks) {
+  print(paste0("## Block ", b))
+  # multi-drug dimension reduction surface
+  if (ndrug > 2) {
+    for (m in methods) {
+      p <- PlotMultiDrugSurface(
+        data = synergyfinder_obj,
+        plot_block = b,
+        plot_value = paste0(m, "_synergy"),
+        dynamic = FALSE,
+        high_value_color = params$syn_multi_high_value_color,
+        low_value_color = params$syn_multi_low_value_color,
+        show_data_points = params$syn_multi_point,
+        point_color = params$syn_multi_point_color
+      )
+      plot(p)
+    }
+  }
+  # 2-drug synergy surface
+  for (c in 1:ncol(comb)) {
+    for (m in methods) {
+    p <- PlotSynergy(
+      data = synergyfinder_obj,
+      block_ids = b,
+      drugs = unlist(comb[, c]),
+      type = params$syn_plot_type,
+      method = m,
+      dynamic = FALSE,
+      summary_statistic = params$syn_summary_statistic,
+      high_value_color = params$syn_high_value_color,
+      low_value_color = params$syn_low_value_color,
+      # text_size_scale = params$syn_text_size,
+      heatmap_text_label_color = params$syn_heatmap_label_color,
+      # heatmap_text_label_size_scale = params$syn_heatmap_label_size,
+      statistic = params$syn_rep_statistic,
+      surface_grid = params$syn_grid,
+      display = FALSE
+    )
+    p[[1]]
+    }
+  }
+  # multi-drug bar plot
+  PlotMultiDrugBar(
+    data = synergyfinder_obj,
+    plot_block = b,
+    plot_value = c(
+      "response", "ZIP_synergy", "HSA_synergy",
+      "Bliss_synergy", "Loewe_synergy"
+    ),
+    highlight_row = NULL,
+    sort_by = "response",
+    panel_title_size = params$bb_panel_title_size,
+    axis_text_size = params$bb_axis_text_size,
+    highlight_label_size = params$bb_highlight_label_size,
+    highlight_pos_color = params$bb_highlight_pos_color,
+    highlight_neg_color = params$bb_highlight_neg_color,
+    pos_value_color = params$bb_pos_value_color,
+    neg_value_color = params$bb_neg_value_color,
+    data_table = FALSE
+  )
+}
+```
+
+# 4. S-S plot
+
+```{r, ss_plot, fig.show="hold", out.width="50%", eval=FALSE}
+for (b in params$blocks) {
+  print(paste0("## Block ", b))
+  # multi-drug dimension reduction surface
+  # 2-drug synergy surface
+  comb <- combn(1:length(drugs), 2)
+  for (c in 1:ncol(comb)) {
+    for (m in methods) {
+      PlotSensitiveSynergy(
+        data = synergyfinder_obj,
+        plot_synergy = m,
+        point_color = params$ss_point_color,
+        point_size = params$ss_point_size,
+        show_labels = params$ss_show_label,
+        point_label_color = params$ss_label_color,
+        label_size = params$ss_label_size,
+        dynamic = TRUE
+      )
+    }
+  }
+}
+```

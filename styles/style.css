@@ -324,6 +324,14 @@ body{
 .TrueFalse .onoffswitch-inner:after{
   content:"OFF"
 }
+
+/* Keep the last menuitem at the bottom */
+sidebarItemExpanded > ul > :last-child {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: red;
+      }
 /*
 .butEx{
   padding:0;

@@ -9,7 +9,7 @@ inputDataTabUI <- function(id) {
         column(
           width = 3,
           selectInput(
-            "inputDatatype",
+            inputId = "inputDatatype",
             label = "1. Choose data format:",
             width = '100%',
             choices = list("Table" = "Table", "Matrix" = "Matrix"),
@@ -38,27 +38,14 @@ inputDataTabUI <- function(id) {
             ),
             selected = ""
           )
-        )# ,
-        # column(
-        #   width = 3,
-        #   tags$div(
-        #     title="Move slider to visualize the drug combination dose-response data",
-        #     id = "toursliderdr",
-        #     switchButton(
-        #       inputId = "Switch",
-        #       label = "4. Visualize dose response data"
-        #     )
-        #   )
-        # )
-      ),
-      fluidRow(
+        ),
         column(
           width = 3,
-          #tags$p("Download example data", style = "font-weight: 700;"),
+          br(),
           downloadButton(outputId = "loadExData_small", label = "example data")
-        ),
-        hr()
+        )
       ),
+      hr(),
       DTOutput("inputData")
     )
   ) # tabItem - "inputTab"
@@ -68,46 +55,133 @@ doseResponseTabUI <- function(id) {
   ns <- NS(id)
   tabItem(
     tabName = id,
-    #when slider for PlotDoseresponse is on
-    conditionalPanel(
-      # condition = "input.Switch == 1",
-      condition = "input.selectInhVia != '' && !input.resettableInput",
-      # dynamically create tabs with content
-      box(
-        id = "boxDose", solidHeader = FALSE, width = 12, collapsible = FALSE,
-        #title="Dose Response Map",
-        fluidRow(
-          column(
-            width = 10,
-            uiOutput(outputId='tabs')
+    fluidRow(
+      column(
+        width = 2,
+        uiOutput(outputId = "DR_block_ui")
+        )
+      ),
+    hr(),
+    box(
+      id = "boxDoseResponseCurve",
+      title = "Dose Response Curve",
+      solidHeader = TRUE,
+      width = 5,
+      height = 400,
+      collapsible = TRUE,
+      fluidRow(
+        plotOutput(outputId = "DRC_plot")
+      ),
+      tags$hr(),
+      fluidRow(
+        column(
+          width = 6,
+          uiOutput(outputId = "DRC_drug_ui"),
+          shinyWidgets::materialSwitch(
+            inputId = "DRC_grid",
+            label = "Background grids",
+            status = "primary",
+            right = TRUE
+          )
+        ),
+        column(
+          width = 6,
+          colourpicker::colourInput(
+            inputId = "DRC_dot_color",
+            label = "Color for dots",
+            value = "#C24B40"
           ),
-          column(
-            width = 2,
-            style = "box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.19);",
-            tags$h4("Adjust plot size"),
-            sliderInput(
-              inputId = "height", label = "Height",
-              min = 0, max = 1000, value = 400, step = 1
-            ),
-            sliderInput(
-              inputId = "width", label = "Width",
-              min = 1, max = 13, value = 12, step = 1
-            ),
-            hr(),
-            # tags$h4("Estimate outliers:"),
-            # uiOutput(outputId = 'increase1'),
-            # uiOutput(outputId = 'increase2'),
-            # actionButton("excludeconc", "Impute"),
-            # hr(),
-            tags$div(
-              title = "Calculate the synergy scores for drug combinations.",
-              id = "tourcalcsyn",
-              switchButton(inputId = "Switch2", label = "Calculate synergy")
-            )
+          colourpicker::colourInput(
+            inputId = "DRC_curve_color",
+            label = "Color for curve",
+            value = "black"
           )
         )
       )
-    )
+    ),
+    box(
+      id = "boxDoseResponseMatrix",
+      title = "Dose Response Matrix",
+      solidHeader = TRUE,
+      width = 7, 
+      height = 400,
+      collapsible = TRUE,
+      fluidRow(
+          plotlyOutput(outputId = "DR_plot")
+      ),
+      tags$hr(),
+      fluidRow(
+        uiOutput(outputId = "DR_2_drugs_ui")
+      ),
+      fluidRow(
+        column(
+          width = 6,
+          sliderInput(
+            inputId = "DR_text_size",
+            label = "Texts size scale",
+            value = 1,
+            min = 0.1,
+            max = 2
+          ),
+          sliderInput(
+            inputId = "DR_heatmap_label_size",
+            label = "Heatmap text label size",
+            value = 1,
+            min = 0.1,
+            max = 2
+          ),
+          selectInput(
+            inputId = "DR_rep_statistic",
+            label = "Statistics for Replicates",
+            choices = c("Non" = NULL, "95% confidence interval" = "ci",
+                        "Standard error of mean" = "sem"),
+            selected = NULL
+          ),
+          selectInput(
+            inputId = "DR_summary_statistic",
+            label = "Summary Statistics",
+            choice = c(
+              "None" = NULL,
+              "Mean" = "mean", "Median" = "median",
+              "25% quantile" = "quantile_25",
+              "75% quantile" = "quantile_75"
+            ),
+            selected = NULL
+          ),
+          shinyWidgets::materialSwitch(
+            inputId = "DR_grid",
+            label = "Grids on surface",
+            status = "primary",
+            right = TRUE
+          )
+        ),
+        column(
+          width = 6,
+          shinyWidgets::radioGroupButtons(
+            inputId = "DR_plot_type",
+            label = "Plot type",
+            choices = c("HeatMap", "3D surface"),
+            status = "primary"
+          ),
+          colourpicker::colourInput(
+            inputId = "DR_high_value_color",
+            label = "High response value color",
+            value = "#C24B40"
+          ),
+          colourpicker::colourInput(
+            inputId = "DR_low_value_color",
+            label = "Low response value color",
+            value = "#2166AC"
+          ),
+          colourpicker::colourInput(
+            inputId = "DR_heatmap_label_color",
+            label = "Heatmap text label color",
+            value = "#000000"
+          )
+        )
+      )
+    ),
+    uiOutput(outputId = "multi_drug_DR_plots")
   )
 }
 
@@ -115,120 +189,297 @@ synergyTabUI <- function(id) {
   ns <- NS(id)
   tabItem(
     tabName = id,
-    # when slider for calcuate synergy is on
-    conditionalPanel(
-      condition = "input.Switch2 == 1",
-      fluidRow(
-        column(
-          width = 4,
-          selectInput(
-            inputId = "correction", label = "Correct baseline",
-            choices = list("Non" = "non", "Part" = "part", "All" = "all")
+    fluidRow(
+      # Synergy Score Plot
+      box(
+        id = "BoxSynergyScorePlot",
+        title = "Synergy Scores",
+        solidHeader = TRUE,
+        width = 12, 
+        collapsible = TRUE,
+        fluidRow(
+          column(
+            width = 6,
+            plotlyOutput(outputId = "syn_ZIP_plot"),
+            plotlyOutput(outputId = "syn_Loewe_plot")
+          ),
+          column(
+            width = 6,
+            plotlyOutput(outputId = "syn_HSA_plot"),
+            plotlyOutput(outputId = "syn_Bliss_plot")
           )
         ),
-        column(
-          width = 4,
-          tags$div(
-            # id = "tourmodels",
+        hr(),
+        fluidRow(
+          column(
+            width = 6,
+            uiOutput(outputId = "syn_2_drugs_ui"),
+          ),
+          column(
+            width = 6,
+            shinyWidgets::radioGroupButtons(
+              inputId = "syn_plot_type",
+              label = "Plot type",
+              choices = c(
+                "HeatMap" = "heatmap",
+                "3D Surface" = "3D",
+                "2D Contour" = "2D"),
+              status = "primary",
+              selected = "3D"
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 3,
             selectInput(
-              inputId = "methods", label = "Reference model",
-              choices = list(
-                "ZIP" = "ZIP", "Bliss" = "Bliss",
-                "Loewe" = "Loewe", "HSA" = "HSA")
-              )
+              inputId = "syn_summary_statistic",
+              label = "Summary Statistics",
+              choice = c(
+                "Mean" = "mean", "Median" = "median",
+                "25% quantile" = "quantile_25",
+                "75% quantile" = "quantile_75"
+              ),
+              selected = "mean"
+            )
+          ),
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "syn_text_size",
+              label = "Texts size scale",
+              value = 1,
+              min = 0.1,
+              max = 2
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "syn_high_value_color",
+              label = "Synergy effect color",
+              value = "#C24B40"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "syn_low_value_color",
+              label = "Antagnositic effect color",
+              value = "#2166AC"
+            )
           )
         ),
-        column(
-          width = 4,
-          tags$div(
-            switchButton(
-              inputId = "Switch4",
-              label = "Visualize synergy scores"
+        fluidRow(
+          column(
+            width = 3,
+            shinyWidgets::materialSwitch(
+              inputId = "syn_grid",
+              label = "Grids on surface",
+              status = "primary",
+              right = TRUE
+            ),
+            selectInput(
+              inputId = "syn_rep_statistic",
+              label = "Statistics for Replicates",
+              choices = c("Non" = NULL, "95% confidence interval" = "ci",
+                          "Standard error of mean" = "sem"),
+              selected = NULL
+            )
+          ),
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "syn_heatmap_label_size",
+              label = "Heatmap text label size",
+              value = 1,
+              min = 0.1,
+              max = 2
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "syn_heatmap_label_color",
+              label = "Heatmap text label color",
+              value = "#000000"
             )
           )
         )
-      )
-    ),
-    hr(),
-    # when slider for plot synergy is on
-    conditionalPanel(
-      condition = "input.Switch4 == 1",
-      fluidRow(
-        box(
-          id = "boxSyn", width = 12, collapsible = FALSE, solidHeader = FALSE, 
-          fluidRow(uiOutput(outputId = 'tabs2')),
-          fluidRow(
-            height = 770,
+      ),
+      # Bar Barometer plot
+      box(
+        id = "boxBarPlot",
+        title = "Bar and Barometer Plot",
+        solidHeader = TRUE,
+        width = 12, 
+        collapsible = TRUE,
+        fluidRow(
+          column(
+            width = 4,
+            offset = 4,
+            plotOutput(outputId = "syn_barometer")
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            plotOutput(
+              outputId = "syn_bar_plot",
+              click = "syn_bar_plot_click",
+              dblclick = "syn_bar_plot_dbclick"
+            )
+          )
+        ),
+        hr(),
+        tags$h4("Bar Plot Setting"),
+        fluidRow(
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "bb_panel_title_size",
+              label = "Panel title size",
+              value = 5,
+              min = 0,
+              max = 20
+            )
+          ),
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "bb_axis_text_size",
+              label = "Axis text size",
+              value = 5,
+              min = 0,
+              max = 20
+            )
+          ),
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "bb_highlight_label_size",
+              label = "Highlited label size",
+              value = 5,
+              min = 0,
+              max = 20
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_pos_value_color",
+              label = "Positive bar color",
+              value = "#000000"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_neg_value_color",
+              label = "Negative bar color",
+              value = "#000000"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_highlight_pos_color",
+              label = "Highlighted positive bar color",
+              value = "#000000"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_highlight_neg_color",
+              label = "Highlighted negative bar color",
+              value = "#000000"
+            )
+          )
+        )
+      ),
+      uiOutput(outputId = "multi_drug_syn_plots")
+    )
+  )
+}
+
+sensitivityTabUI <- function(id) {
+  ns <- NS(id)
+  tabItem(
+    tabName = id,
+    fluidRow(
+      DTOutput("summaryTable"),
+      hr(),
+      box(
+        id = "SSPlot",
+        title = "S-S Plot",
+        solidHeader = TRUE,
+        width = 12, 
+        collapsible = TRUE,
+        fluidRow(
+          column(
+            width = 6,
+            plotlyOutput(outputId = "ss_ZIP_plot"),
+            plotlyOutput(outputId = "ss_Loewe_plot")
+          ),
+          column(
+            width = 6,
+            plotlyOutput(outputId = "ss_HSA_plot"),
+            plotlyOutput(outputId = "ss_Bliss_plot")
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "ss_point_color",
+              label = "Point color",
+              value = "#2166AC"
+            )
+          ),
+          column(
+            width = 3,
+            numericInput(
+              inputId = "ss_point_size",
+              label = "Point size (mm)",
+              value = 1,
+              min = 1,
+              max = 10,
+              step = 0.5,
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 3,
             br(),
-            column(
-              width = 6,
-              tags$div(
-                title = "Brush and double-click to zoom",
-                plotOutput(
-                  outputId = "plotsyn1", height = 600,
-                  dblclick = "plot7_dblclick",
-                  brush = brushOpts(
-                    id = "plotincrease_brush7",
-                    resetOnNew = !0
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  downloadButton(
-                    outputId = "download2Dsyn",
-                    label = "Download"
-                  )
-                ),
-                tags$div(
-                  # title = "Show most synergistic area. \n on \n off",
-                  column(
-                    width = 4,
-                    radioButtons(
-                      inputId = "synarea", label = h4("Most synergistic area:"),
-                      choices = list("ON" = 1, "OFF" = 0),
-                      selected = 1,
-                      inline = !0
-                    )
-                  )
-                ),
-                tags$div(
-                  # title = "Adjust 2D surface grid. \n grid on \n grid off",
-                  column(
-                    width = 4,
-                    radioButtons(
-                      inputId = "sizegridsyn", label = h4("Grid:"),
-                      choices = list("ON" = 1, "OFF" = 0),
-                      selected = 1,
-                      inline = !0
-                    )
-                  )
-                )
-              )
-            ),
-            column(
-              width = 6,
-              fluidRow(
-                plotlyOutput(outputId = "plotsyn2", height = 600)
-              ),
-              fluidRow(
-                column(
-                  width = 4, 
-                  downloadButton(outputId = "download3Dsyn", label = "Download")
-                ),
-                tags$div(
-                  # title="Adjust 3D surface grid. \n grid on \n grid off \n transparent grid",
-                  column(
-                    width = 5, offset = 3,
-                    radioButtons(
-                      inputId = "sizegridsyn2", label = h4("Grid:"),
-                      choices = list("ON" = 1, "OFF" = 0, "transparent" = -1),
-                      selected = 1, inline = !0
-                    )
-                  )
-                )
-              )
+            shinyWidgets::materialSwitch(
+              inputId = "ss_show_label",
+              label = "Show labels",
+              status = "primary",
+              right = TRUE
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "ss_label_color",
+              label = "Antagnositic effect color",
+              value = "#2166AC"
+            )
+          ),
+          column(
+            width = 3,
+            numericInput(
+              inputId = "ss_label_size",
+              label = "Label size (pt)",
+              value = 10,
+              min = 1,
+              max = 50,
+              step = 1
             )
           )
         )
@@ -241,181 +492,88 @@ reportTabUI <- function(id) {
   ns <- NS(id)
   tabItem(
     tabName = id,
-    # Save report
-    conditionalPanel(
-      condition = "input.Switch4 == 1",
-      box(
-        id = "boxSyn", width = 12, collapsible = TRUE, collapsed = TRUE,
-        solidHeader = TRUE,
-        # title = "Static (pdf) report",
-        h6("In case of visualisation proplems use Adobe Reader"),
-        fluidRow(
-          column(
-            width = 4,
-            selectInput(
-              inputId = "selectStatic2",
-              label = "Dose response plot type",
-              width = '97%',
-              choices = list(
-                "all" = "all",
-                "heatmap" = "heatmap",
-                "curve" = "curve"
-              )
-            )
-          ),
-          column(
-            width = 4,
-            selectInput(
-              inputId = "selectStatic",
-              label = "Synergy plot type",
-              width = '97%',
-              choices = list(
-                "none" = "none",
-                "all" = "all",
-                "3D" = "3D",
-                "2D" = "2D"
-              )
-            )
-          ),
-          column(
-            width = 3, offset = 1,
-            radioButtons(
-              inputId = "synareaRepStat",
-              label = tags$h4("Most synergistic area:"),
-              choices = list("ON" = 1, "OFF" = 0),
-              selected = 1,
-              inline = !0
-            )
-          )
+    fluidRow(
+      column(
+        width = 6,
+        selectInput(
+          inputId = "DRReport",
+          label = "Dose response plots",
+          choices = c(
+            "All",
+            "HeatMap",
+            "3D surface"),
+          selected = NULL
         ),
-        fluidRow(
-          column(
-            width = 12,
-            uiOutput(outputId = 'selectinputconprints')
-          )
+        selectInput(
+          inputId = "SynReport",
+          label = "Synergy or sensitivity plots",
+          choices = c(
+            "All",
+            "HeatMap",
+            "2D contour",
+            "3D surface"),
+          selected = NULL
         ),
-        downloadButton("downloadData2", label = "Download")
+        tags$p("Note: The surface plot in static report might not be ploted ",
+               "in the expected angle. It's better to download the plots in",
+               " the web page or export dynamic report.")
       ),
-      box(
-        id = "boxSave2",
-        title = "Dynamic (pdf) report",
-        width = 12,
-        collapsible = TRUE,
-        collapsed = TRUE,
-        solidHeader = !0,
-        tags$h6("In case of visualisation proplems use Adobe Reader"),
-        fluidRow(
-          column(
-            width = 4,
-            selectInput(
-              inputId = "selectDynamic2",
-              label = "Dose response plot type",
-              width = '97%',
-              choices = list(
-                "all" = "all",
-                "heatmap" = "heatmap",
-                "curve" = "curve"
-              )
-            )
-          ),
-          column(
-            width = 4,
-            selectInput(
-              inputId = "selectDynamic",
-              label = "Synergy plot type",
-              width = '97%',
-              choices = list("all" = "all", "3D" = "3D")
-            )
-          ),
-          column(
-            width = 3, offset = 1,
-            radioButtons(
-              inputId = "synareaRepDyn",
-              label = h4("Most synergistic area:"),
-              choices = list("ON" = 1, "OFF" = 0),
-              selected = 1,
-              inline = !0
-            )
-          )
+      column(
+        width = 6,
+        uiOutput(outputId = "report_blocks_ui")
+      )
+    ),
+    fluidRow(
+      column(
+        width = 4,
+        tags$h4("Download Reports for Plots"),
+        downloadButton(
+          outputId = "static_report",
+          label = "Download Static PDF Report"
         ),
-        fluidRow(
-          column(
-            width = 12,
-            uiOutput(outputId='selectinputconprintd')
-            )
+        downloadButton(
+          outputId = "dynamic_report",
+          label = "Download Dynamic RNoteBook"
         ),
-        downloadButton(outputId = "downloadData", label = "Download")
-      ),
-      box(
-        id = "boxSave3",
-        title = "Short (pdf) report (HeatMap + 2D Synergy plot)",
-        width = 12,
-        collapsible = T,
-        collapsed = T,
-        solidHeader = !0,
-        tags$h6("In case of visualisation proplems use Adobe Reader"),
-        fluidRow(
-          column(
-            width = 12,
-            uiOutput(outputId='selectinputconprintcomb')
-          )
         ),
-        fluidRow(
-          column(
-            width = 4,
-            downloadButton(outputId = "downloadData3", label = "Download")
-          ),
-          column(
-            width = 4, offset = 4,
-            radioButtons(
-              inputId = "synareaRep",
-              label = tags$h4("Most synergistic area:"),
-              choices = list("ON" = 1, "OFF" = 0),
-              selected = 1,
-              inline = !0
-            )
-          )
+      column(
+        width = 4,
+        tags$h4("Download Data Tables"),
+        selectInput(
+          inputId = "download_table_format",
+          label = "Select output table format",
+          choice = c("CSV", "XLSX", "TXT"),
+          selected = "CSV"
+        ),
+        downloadButton(
+          outputId = "download_summary_table",
+          label = "Download Summary Table"
+        ),
+        downloadButton(
+          outputId = "download_synergy_table",
+          label = "Download Synergy Score Table"
         )
       ),
-      box(
-        id = "boxSave4",
-        title = "Table for synergy scores",
-        width = 12,
-        collapsible = T,
-        collapsed = F,
-        fluidRow(
-          column(
-            width = 12, offset = 0,
-            downloadButton(
-              outputId = "downloadSynscores1",
-              label = "Download summaried synergy scores(.xlsx)"
-            ),
-            downloadButton(
-              outputId = "downloadSynscores2",
-              label = "Download summaried synergy scores(.csv)"
-            ),
-            downloadButton(
-              outputId = "downloadSynscores3",
-              label = "Download summaried synergy scores(.txt)"
-            )
-          ),
-          column(
-            width = 12, offset = 0,
-            downloadButton(
-              outputId = "downloadSynscoresFull1",
-              label = "Download synergy scores(.xlsx)"
-            ),
-            downloadButton(
-              outputId = "downloadSynscoresFull2",
-              label = "Download synergy scores(.csv)"
-            ),
-            downloadButton(
-              outputId = "downloadSynscoresFull3",
-              label = "Download synergy scores(.txt)"
-            )
-          )
+      column(
+        width = 4,
+        tags$h4("Download R Object for SynergyFinder Package"),
+        downloadButton(
+          outputId = "download_r_object",
+          label = "Download R Object"
         )
       )
+    )
+  )
+}
+annotationTabUI <- function(id) {
+  ns <- NS(id)
+  tabItem(
+    tabName = id,
+    fluidRow(
+      tags$h4("Cell Line"),
+      uiOutput(outputId = "cellAnno"),
+      tags$h4("Drugs"),
+      uiOutput(outputId = "drugAnno")
     )
   )
 }

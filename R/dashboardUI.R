@@ -9,11 +9,13 @@ dashboardUI <- function(id) {
       width = "200px",
       # Menu elements
       sidebarMenu(
-        id = "menu1",
-        menuItem("Upload Data", tabName = "inputdataTab"),
-        menuItem("Dose Response Map", tabName = "doseResponseTab"),
-        menuItem("Synergy Map", tabName = "synergyTab"),
-        menuItem("Download Report", tabName = "reportTab")  
+        id = "menu",
+        menuItem("Upload Data", tabName = "inputDataTab"),
+        menuItemOutput("doseResponseMenu"),
+        menuItemOutput("synergyMenu"),
+        menuItemOutput("sensitivityMenu"),
+        menuItemOutput("reportMenu"),
+        menuItemOutput("annotationMenu")
       )         
     ),
     dashboardBody(
@@ -21,13 +23,30 @@ dashboardUI <- function(id) {
       useToastr(),
       shinyjs::useShinyjs(),
       bsAlert("noPDdata"),
-      uiOutput(outputId='exData'),
-      uiOutput(outputId='errorTable'),
+      textOutput("test"),
+      uiOutput(outputId = 'exData'),
+      uiOutput(outputId = 'errorTable'),
+      fluidRow(
+        column(
+          width = 3,
+          selectInput(
+            inputId = "correct_baseline", label = "Correct baseline",
+            choices = list("", "Non" = "non", "Part" = "part", "All" = "all"),
+            selected = ""
+          )
+        ),
+        column(
+          width = 9,
+          uiOutput(outputId = "plot_block")
+        )
+      ),
       tabItems(
-        inputDataTabUI("inputdataTab"),
-        doseResponseTabUI("doseResponseTab"),
-        synergyTabUI("synergyTab"),
-        reportTabUI("reportTab")
+        inputDataTabUI(id = "inputDataTab"),
+        doseResponseTabUI(id = "doseResponseTab"),
+        synergyTabUI(id = "synergyTab"),
+        sensitivityTabUI(id = "sensitivityTab"),
+        reportTabUI(id = "reportTab"),
+        annotationTabUI(id = "annotationTab")
       )
     )
   )
