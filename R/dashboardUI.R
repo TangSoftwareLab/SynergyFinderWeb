@@ -14,8 +14,7 @@ dashboardUI <- function(id) {
         menuItemOutput("doseResponseMenu"),
         menuItemOutput("synergyMenu"),
         menuItemOutput("sensitivityMenu"),
-        menuItemOutput("reportMenu"),
-        menuItemOutput("annotationMenu")
+        menuItemOutput("reportMenu")
       )         
     ),
     dashboardBody(
@@ -45,8 +44,7 @@ dashboardUI <- function(id) {
         doseResponseTabUI(id = "doseResponseTab"),
         synergyTabUI(id = "synergyTab"),
         sensitivityTabUI(id = "sensitivityTab"),
-        reportTabUI(id = "reportTab"),
-        annotationTabUI(id = "annotationTab")
+        reportTabUI(id = "reportTab")
       )
     )
   )

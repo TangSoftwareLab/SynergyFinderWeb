@@ -1,0 +1,376 @@
+---
+title: "SynergyFinder Dynamic Report"
+author: "SynergyFinder"
+date: "`r Sys.Date()`"
+output: html_document
+params:
+  data: NA
+  blocks: NA
+  correct_baseline: NA
+  DRC_plots: NA
+  DR_multi_high_value_color: NA
+  DR_multi_low_value_color: NA
+  DR_multi_point: NA
+  DR_multi_point_color: NA
+  DR_plot_type: NA
+  DR_rep_statistic: NA
+  DR_summary_statistic: NA
+  DR_high_value_color: NA
+  DR_low_value_color: NA
+  DR_heatmap_label_color: NA
+  DR_grid: NA
+  syn_multi_high_value_color: NA
+  syn_multi_low_value_color: NA
+  syn_multi_point: NA
+  syn_multi_point_color: NA
+  syn_plot_type: NA
+  syn_summary_statistic: NA
+  syn_high_value_color: NA
+  syn_low_value_color: NA
+  syn_heatmap_label_color: NA
+  syn_rep_statistic: NA
+  syn_grid: NA
+  bb_panel_title_size: NA
+  bb_axis_text_size: NA
+  bb_highlight_label_size: NA
+  bb_highlight_pos_color: NA
+  bb_highlight_neg_color: NA
+  bb_pos_value_color: NA
+  bb_neg_value_color: NA
+  ss_point_color: NA
+  ss_point_size: NA
+  ss_show_label: NA
+  ss_label_color: NA
+  ss_label_size: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{r include=FALSE}
+library(knitr)
+library(plotly)
+library(tidyverse)
+library(synergyfinder)
+synergyfinder_obj <- params$data
+ndrug <- sum(grepl("drug", colnames(synergyfinder_obj$drug_pairs)))
+methods = c("ZIP", "Loewe", "Bliss", "HSA")
+
+if (is.null(params$DR_multi_high_value_color)) {
+  DR_multi_high_value_color <- "#CC3311"
+} else {
+  DR_multi_high_value_color <- params$DR_multi_high_value_color
+}
+if (is.null(params$DR_multi_low_value_color)) {
+  DR_multi_low_value_color <- "#448BD4"
+} else {
+  DR_multi_low_value_color <- params$DR_multi_low_value_color
+}
+if (is.null(params$DR_multi_point_color)) {
+  DR_multi_point_color <- "#DDA137"
+} else {
+  DR_multi_point_color <- params$DR_multi_point_color
+}
+if (is.null(params$DR_multi_point)) {
+  DR_multi_point <- TRUE
+} else {
+  DR_multi_point <- params$DR_multi_point
+}
+if (is.null(params$syn_multi_high_value_color)) {
+  syn_multi_high_value_color <- "#CC3311"
+} else {
+  syn_multi_high_value_color <- params$syn_multi_high_value_color
+}
+if (is.null(params$syn_multi_low_value_color)) {
+  syn_multi_low_value_color <- "#448BD4"
+} else {
+  syn_multi_low_value_color <- params$syn_multi_low_value_color
+}
+if (is.null(params$syn_multi_point_color)) {
+  syn_multi_point_color <- "#DDA137"
+} else {
+  syn_multi_point_color <- params$syn_multi_point_color
+}
+if (is.null(params$syn_multi_point)) {
+  syn_multi_point <- TRUE
+} else {
+  syn_multi_point <- params$syn_multi_point
+}
+```
+
+# 1. Data tables
+
+## 1. Meta data table
+
+```{r meta_table}
+synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::starts_with("drug"),
+    dplyr::starts_with("conc_unit"),
+    dplyr::starts_with("cell")) %>% 
+  knitr::kable()
+```
+
+## 2. Synergy socores summary table
+
+```{r synergy_table}
+synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::contains("synergy")) %>% 
+  knitr::kable()
+```
+
+## 3. Sensitivity socores summary table
+
+```{r sensitive_table}
+synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::contains("ri"),
+    dplyr::contains("css")) %>% 
+  knitr::kable()
+```
+
+## 4. Calcuclation setting
+
+```{r calculate_setting}
+cat("Correct Baseline: ", params$correct_baseline)
+```
+
+# 2. Dose response curve
+
+```{r load_dose_response_curve, fig.show="hold", out.width="50%"}
+knitr::include_graphics(params$DRC_plots)
+```
+
+# 3. Dose response map
+
+```{r dose_response_map, results="asis"}
+plotlist <- list()
+for (b in params$blocks) {
+  if (ndrug > 2) {
+    plotlist[[length(plotlist) + 1]] <- PlotMultiDrugSurface(
+      data = synergyfinder_obj,
+      plot_block = b,
+      plot_value = "response",
+      plot_title = paste0("Block ", b, " Dose Response Matrix"),
+      high_value_color = DR_multi_high_value_color,
+      low_value_color = DR_multi_low_value_color,
+      show_data_points = DR_multi_point,
+      point_color = DR_multi_point_color
+    )
+  }
+  comb <- combn(1:ndrug, 2)
+  for (c in 1:ncol(comb)) {
+    if (params$DR_plot_type == "heatmap") {
+      plotlist[[length(plotlist) + 1]] <- Plot2DrugHeatmap(
+        data = synergyfinder_obj,
+        plot_block = b,
+        plot_title = paste0("Block ", b, " Dose Response Matrix"),
+        drugs = c(comb[1, c], comb[2, c]),
+        dynamic = TRUE,
+        statistic = params$DR_rep_statistic,
+        summary_statistic = params$DR_summary_statistic,
+        high_value_color = params$DR_high_value_color,
+        low_value_color = params$DR_low_value_color,
+        text_label_color = params$DR_heatmap_label_color
+      )
+    } else {
+      plotlist[[length(plotlist) + 1]] <- Plot2DrugSurface(
+        data = synergyfinder_obj,
+        drugs = c(comb[1, c], comb[2, c]),
+        plot_block = b,
+        plot_title = paste0("Block ", b, " Dose Response Matrix"),
+        dynamic = TRUE,
+        summary_statistic = params$DR_summary_statistic,
+        high_value_color = params$DR_high_value_color,
+        low_value_color = params$DR_low_value_color,
+        grid = params$DR_grid
+      )
+    }
+  }
+}
+
+for(j in 1:length(plotlist)){
+  x <- plotlist[[j]]
+    
+  if(inherits(x, "character")){
+    cat("\n")
+    cat(x)
+  } else if(inherits(x, "knitr_kable")){
+    cat("\n")
+    print(x)
+  } else {
+    # print the html piece of the htmlwidgets
+    cat("\n")
+    cat(htmltools::renderTags(as_widget(x))$html)
+  }
+}
+```
+```{r out.width="50%"}
+# Attach the Dependencies since they do not get included with renderTags(...)$html
+deps <- lapply(
+  Filter(f = function(x){inherits(x,"htmlwidget")}, x = plotlist),
+  function(hw){
+    htmltools::renderTags(hw)$dependencies
+  }
+)
+htmltools::attachDependencies(x = htmltools::tagList(), value = unlist(deps,recursive=FALSE))
+```
+
+# 4. Synergy Scores
+
+```{r synergy_plots, results="asis"}
+plotlist <- list()
+for (b in params$blocks) {
+  plotlist[[length(plotlist) + 1]] <- paste0("## Block ", b, "\n\n")
+  # multi-drug dimension reduction surface
+  if (ndrug > 2) {
+    for (m in methods) {
+      plotlist[[length(plotlist) + 1]] <- PlotMultiDrugSurface(
+        data = synergyfinder_obj,
+        plot_block = b,
+        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        plot_value = paste0(m, "_synergy"),
+        dynamic = TRUE,
+        high_value_color = syn_multi_high_value_color,
+        low_value_color = syn_multi_low_value_color,
+        show_data_points = syn_multi_point,
+        point_color = syn_multi_point_color
+      )
+    }
+  }
+  # 2-drug synergy surface
+  for (c in 1:ncol(comb)) {
+    for (m in methods) {
+      plotlist[[length(plotlist) + 1]] <- PlotSynergy(
+        data = synergyfinder_obj,
+        block_ids = b,
+        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        drugs = c(comb[1, c], comb[2, c]),
+        type = params$syn_plot_type,
+        method = m,
+        dynamic = TRUE,
+        summary_statistic = params$syn_summary_statistic,
+        high_value_color = params$syn_high_value_color,
+        low_value_color = params$syn_low_value_color,
+        # text_size_scale = params$syn_text_size,
+        heatmap_text_label_color = params$syn_heatmap_label_color,
+        # heatmap_text_label_size_scale = params$syn_heatmap_label_size,
+        statistic = params$syn_rep_statistic,
+        surface_grid = params$syn_grid,
+        display = FALSE
+      )[[1]]
+    }
+  }
+}
+
+for(j in 1:length(plotlist)){
+  x <- plotlist[[j]]
+  if(inherits(x, "character")){
+    cat("\n")
+    cat(x)
+  } else if(inherits(x, "knitr_kable")){
+    cat("\n")
+    print(x)
+  } else {
+    # print the html piece of the htmlwidgets
+    cat("\n")
+    cat(htmltools::renderTags(as_widget(x))$html)
+  }
+}
+```
+
+```{r out.width="50%"}
+# Attach the Dependencies since they do not get included with renderTags(...)$html
+deps <- lapply(
+  Filter(f = function(x){inherits(x,"htmlwidget")}, x = plotlist),
+  function(hw){
+    htmltools::renderTags(hw)$dependencies
+  }
+)
+htmltools::attachDependencies(x = htmltools::tagList(), value = unlist(deps,recursive=FALSE))
+```
+
+# 5. Bar plots
+
+```{r results='asis'}
+  # multi-drug bar plot
+for (b in params$blocks) {
+  cat(paste0("## Block ", b, "\n"))
+  p <- PlotMultiDrugBar(
+    data = synergyfinder_obj,
+    plot_block = b,
+    plot_value = c(
+      "response", "ZIP_synergy", "HSA_synergy",
+      "Bliss_synergy", "Loewe_synergy"
+    ),
+    highlight_row = NULL,
+    sort_by = "response",
+    panel_title_size = params$bb_panel_title_size,
+    axis_text_size = params$bb_axis_text_size,
+    highlight_label_size = params$bb_highlight_label_size,
+    highlight_pos_color = params$bb_highlight_pos_color,
+    highlight_neg_color = params$bb_highlight_neg_color,
+    pos_value_color = params$bb_pos_value_color,
+    neg_value_color = params$bb_neg_value_color,
+    data_table = FALSE
+  )
+  print(p)
+  cat("\n")
+}
+```
+
+# 6. S-S plot
+
+```{r ss_plot, results='asis'}
+plotlist <- list()
+for (b in params$blocks) {
+  plotlist[[length(plotlist) + 1]] <- paste0("## Block ", b, "\n\n")
+  # multi-drug dimension reduction surface
+  for (m in methods) {
+    plotlist[[length(plotlist) + 1]] <- PlotSensitiveSynergy(
+      data = synergyfinder_obj,
+      plot_synergy = m,
+      plot_title = paste("Block", b, m, "- CSS", sep = " "),
+      point_color = params$ss_point_color,
+      point_size = 5,
+      show_labels = params$ss_show_label,
+      point_label_color = params$ss_label_color,
+      label_size = 10,
+      dynamic = TRUE
+    )
+  }
+}
+
+for(j in 1:length(plotlist)){
+  x <- plotlist[[j]]
+  if(inherits(x, "character")){
+    cat("\n")
+    cat(x)
+  } else if(inherits(x, "knitr_kable")){
+    cat("\n")
+    print(x)
+  } else {
+    # print the html piece of the htmlwidgets
+    cat("\n")
+    cat(htmltools::renderTags(as_widget(x))$html)
+  }
+}
+```
+
+```{r out.width="50%"}
+# Attach the Dependencies since they do not get included with renderTags(...)$html
+deps <- lapply(
+  Filter(f = function(x){inherits(x,"htmlwidget")}, x = plotlist),
+  function(hw){
+    htmltools::renderTags(hw)$dependencies
+  }
+)
+htmltools::attachDependencies(x = htmltools::tagList(), value = unlist(deps,recursive=FALSE))
+```

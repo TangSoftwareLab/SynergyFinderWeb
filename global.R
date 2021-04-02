@@ -1,7 +1,7 @@
 # Load required packages
 dependency <- c(
   "shiny", "shinyjs", "shinytoastr", "shinyWidgets", "shinydashboard",
-  "shinyBS", "DT", "synergyfinder",
+  "shinyBS", "DT", "synergyfinder", "htmltools", "TidyComb",
   "dashboardthemes", "ggplot2", "scales", "gplots", "lattice", "plotly", "grid",
   "xtable", "shinybusy", "writexl", "dplyr")
 sapply(
@@ -19,3 +19,4 @@ sapply(
 
 # Path to temporarily store pdf reports.
 reportspath <- "~/Desktop/test_synergyfinder/"
+cellosauruspath <- "~/Documents/work/TidyComb_related/cellosaurus.xml"

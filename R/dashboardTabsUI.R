@@ -41,12 +41,27 @@ inputDataTabUI <- function(id) {
         ),
         column(
           width = 3,
+          downloadButton(outputId = "loadExData_small", label = "example data"),
           br(),
-          downloadButton(outputId = "loadExData_small", label = "example data")
+          br(),
+          shinyWidgets::materialSwitch(
+            inputId = "annoSwitch",
+            label = "Annotate Data",
+            status = "primary",
+            right = TRUE
+          )
         )
       ),
       hr(),
-      DTOutput("inputData")
+      fluidRow(
+        DTOutput("inputData"),
+        br(),
+        DTOutput(outputId = "drugAnno"),
+        br(),
+        DTOutput(outputId = "drugAnnoTarget"),
+        br(),
+        DTOutput(outputId = "cellAnno")
+      )
     )
   ) # tabItem - "inputTab"
 }
@@ -371,7 +386,7 @@ synergyTabUI <- function(id) {
             colourpicker::colourInput(
               inputId = "bb_pos_value_color",
               label = "Positive bar color",
-              value = "#000000"
+              value = "#CC3311"
             )
           ),
           column(
@@ -379,7 +394,7 @@ synergyTabUI <- function(id) {
             colourpicker::colourInput(
               inputId = "bb_neg_value_color",
               label = "Negative bar color",
-              value = "#000000"
+              value = "#448BD4"
             )
           ),
           column(
@@ -387,7 +402,7 @@ synergyTabUI <- function(id) {
             colourpicker::colourInput(
               inputId = "bb_highlight_pos_color",
               label = "Highlighted positive bar color",
-              value = "#000000"
+              value = "#A90217"
             )
           ),
           column(
@@ -395,7 +410,7 @@ synergyTabUI <- function(id) {
             colourpicker::colourInput(
               inputId = "bb_highlight_neg_color",
               label = "Highlighted negative bar color",
-              value = "#000000"
+              value = "#2166AC"
             )
           )
         )
@@ -494,51 +509,29 @@ reportTabUI <- function(id) {
     tabName = id,
     fluidRow(
       column(
-        width = 6,
-        selectInput(
-          inputId = "DRReport",
-          label = "Dose response plots",
-          choices = c(
-            "All",
-            "HeatMap",
-            "3D surface"),
-          selected = NULL
-        ),
-        selectInput(
-          inputId = "SynReport",
-          label = "Synergy or sensitivity plots",
-          choices = c(
-            "All",
-            "HeatMap",
-            "2D contour",
-            "3D surface"),
-          selected = NULL
-        ),
-        tags$p("Note: The surface plot in static report might not be ploted ",
-               "in the expected angle. It's better to download the plots in",
-               " the web page or export dynamic report.")
+        width = 3,
+        uiOutput(outputId = "report_blocks_ui")
       ),
       column(
-        width = 6,
-        uiOutput(outputId = "report_blocks_ui")
-      )
-    ),
-    fluidRow(
-      column(
-        width = 4,
-        tags$h4("Download Reports for Plots"),
+        width = 3,
+        tags$h3("Download Reports for Plots"),
         downloadButton(
           outputId = "static_report",
-          label = "Download Static PDF Report"
+          label = "Static PDF Report"
         ),
+        br(),
+        br(),
         downloadButton(
           outputId = "dynamic_report",
-          label = "Download Dynamic RNoteBook"
+          label = "Dynamic HTML Report"
         ),
-        ),
+        br(),
+        tags$p("Note: The dimention reducted multi-drug surface plot will not",
+               "be included in 'static report'.")
+      ),
       column(
-        width = 4,
-        tags$h4("Download Data Tables"),
+        width = 3,
+        tags$h3("Download Data Tables"),
         selectInput(
           inputId = "download_table_format",
           label = "Select output table format",
@@ -547,33 +540,23 @@ reportTabUI <- function(id) {
         ),
         downloadButton(
           outputId = "download_summary_table",
-          label = "Download Summary Table"
+          label = "Summary Table"
         ),
+        br(),
+        br(),
         downloadButton(
           outputId = "download_synergy_table",
-          label = "Download Synergy Score Table"
+          label = "Synergy Score Table"
         )
       ),
       column(
-        width = 4,
-        tags$h4("Download R Object for SynergyFinder Package"),
+        width = 3,
+        tags$h3("Download R Object for SynergyFinder Package"),
         downloadButton(
           outputId = "download_r_object",
-          label = "Download R Object"
+          label = "R Object"
         )
       )
-    )
-  )
-}
-annotationTabUI <- function(id) {
-  ns <- NS(id)
-  tabItem(
-    tabName = id,
-    fluidRow(
-      tags$h4("Cell Line"),
-      uiOutput(outputId = "cellAnno"),
-      tags$h4("Drugs"),
-      uiOutput(outputId = "drugAnno")
     )
   )
 }

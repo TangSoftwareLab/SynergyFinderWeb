@@ -7,9 +7,7 @@ params:
   data: NA
   blocks: NA
   correct_baseline: NA
-  DRC_grid: NA
-  DRC_dot_color: NA
-  DRC_curve_color: NA
+  DRC_plots: NA
   DR_multi_high_value_color: NA
   DR_multi_low_value_color: NA
   DR_multi_point: NA
@@ -57,30 +55,46 @@ synergyfinder_obj <- params$data
 ndrug <- sum(grepl("drug", colnames(synergyfinder_obj$drug_pairs)))
 methods = c("ZIP", "Loewe", "Bliss", "HSA")
 
-# if (is.null(params$DR_multi_high_value_color)) {
-#   params$DR_multi_high_value_color <- "#CC3311"
-# }
-# if (is.null(params$DR_multi_low_value_color)) {
-#   params$DR_multi_high_value_color <- "#448BD4"
-# }
-# if (is.null(params$DR_multi_point_color)) {
-#   params$DR_multi_point_color <- "#DDA137"
-# }
-# if (is.null(params$DR_multi_point)) {
-#   params$DR_multi_point <- TRUE
-# }
-# if (is.null(params$syn_multi_high_value_color)) {
-#   params$syn_multi_high_value_color <- "#CC3311"
-# }
-# if (is.null(params$syn_multi_low_value_color)) {
-#   params$syn_multi_high_value_color <- "#448BD4"
-# }
-# if (is.null(params$syn_multi_point_color)) {
-#   params$syn_multi_point_color <- "#DDA137"
-# }
-# if (is.null(params$syn_multi_point)) {
-#   params$syn_multi_point <- TRUE
-# }
+if (is.null(params$DR_multi_high_value_color)) {
+  DR_multi_high_value_color <- "#CC3311"
+} else {
+  DR_multi_high_value_color <- params$DR_multi_high_value_color
+}
+if (is.null(params$DR_multi_low_value_color)) {
+  DR_multi_low_value_color <- "#448BD4"
+} else {
+  DR_multi_low_value_color <- params$DR_multi_low_value_color
+}
+if (is.null(params$DR_multi_point_color)) {
+  DR_multi_point_color <- "#DDA137"
+} else {
+  DR_multi_point_color <- params$DR_multi_point_color
+}
+if (is.null(params$DR_multi_point)) {
+  DR_multi_point <- TRUE
+} else {
+  DR_multi_point <- params$DR_multi_point
+}
+if (is.null(params$syn_multi_high_value_color)) {
+  syn_multi_high_value_color <- "#CC3311"
+} else {
+  syn_multi_high_value_color <- params$syn_multi_high_value_color
+}
+if (is.null(params$syn_multi_low_value_color)) {
+  syn_multi_low_value_color <- "#448BD4"
+} else {
+  syn_multi_low_value_color <- params$syn_multi_low_value_color
+}
+if (is.null(params$syn_multi_point_color)) {
+  syn_multi_point_color <- "#DDA137"
+} else {
+  syn_multi_point_color <- params$syn_multi_point_color
+}
+if (is.null(params$syn_multi_point)) {
+  syn_multi_point <- TRUE
+} else {
+  syn_multi_point <- params$syn_multi_point
+}
 ```
 
 # 1. Data tables
@@ -127,73 +141,36 @@ synergyfinder_obj$drug_pairs %>%
 cat("Correct Baseline: ", params$correct_baseline)
 ```
 
-```{r crop = NULL}
-data("mathews_screening_data")
-data <- ReshapeData(mathews_screening_data)
-p <- PlotDoseResponseCurve(data, grid = NULL)
-png(file = "DRC.png")
-replayPlot(p)
-dev.off
-knitr::include_graphics("./DRC.png")
+# 2. Dose response curve
+
+```{r load_dose_response_curve, fig.show="hold", out.width="50%"}
+knitr::include_graphics(params$DRC_plots)
 ```
 
+# 3. Dose response map
 
-# 2. Dose response Maps
-
-```{r crop = NULL}
+```{r dose_response_map, fig.show="hold", out.width="50%"}
 for (b in params$blocks) {
-  for (i in 1:ndrug) {
-    if (params$DRC_grid) {
-      p <- PlotDoseResponseCurve(
-        data = synergyfinder_obj,
-        plot_block = b,
-        drug_index = i,
-        point_color = params$DRC_dot_color,
-        curve_color = params$DRC_curve_color
-      )
-      png(file = paste0("./DRC_block_", b,"_drug_", i, ".png"))
-      replayPlot(p)
-      dev.off
-      knitr::include_graphics(paste0("./DRC_block_", b,"_drug_", i, ".png"))
-    } else {
-      p <- PlotDoseResponseCurve(
-        data = synergyfinder_obj,
-        plot_block = b,
-        drug_index = i,
-        grid = NULL,
-        point_color = params$DRC_dot_color,
-        curve_color = params$DRC_curve_color
-      )
-      png(file = paste0("./DRC_block_", b,"_drug_", i, ".png"))
-      replayPlot(p)
-      dev.off
-      knitr::include_graphics(paste0("./DRC_block_", b,"_drug_", i, ".png"))
-    }
-  }
-}
-
-```
-
-```{r}
-for (b in params$blocks) {
-  if (ndrug > 2) {
-    p <- PlotMultiDrugSurface(
-      data = synergyfinder_obj,
-      plot_block = b,
-      plot_value = "response",
-      high_value_color = params$DR_multi_high_value_color,
-      low_value_color = params$DR_multi_low_value_color,
-      show_data_points = params$DR_multi_point,
-      point_color = params$DR_multi_point_color
-    )
-    print(p)
-  }
+  # if (ndrug > 2) {
+  #   p <- PlotMultiDrugSurface(
+  #     data = synergyfinder_obj,
+  #     plot_block = b,
+  #     plot_value = "response",
+  #     plot_title = paste0("Block ", b, " Dose Response Matrix"),
+  #     high_value_color = DR_multi_high_value_color,
+  #     low_value_color = DR_multi_low_value_color,
+  #     show_data_points = DR_multi_point,
+  #     point_color = DR_multi_point_color
+  #   )
+  #   print(p)
+  # }
   comb <- combn(1:ndrug, 2)
   for (c in 1:ncol(comb)) {
     if (params$DR_plot_type == "heatmap") {
       p <- Plot2DrugHeatmap(
         data = synergyfinder_obj,
         plot_block = b,
+        plot_title = paste0("Block ", b, " Dose Response Matrix"),
         drugs = c(comb[1, c], comb[2, c]),
         dynamic = FALSE,
         statistic = params$DR_rep_statistic,
@@ -210,7 +187,9 @@ for (b in params$blocks) {
         data = synergyfinder_obj,
         drugs = c(comb[1, c], comb[2, c]),
         plot_block = b,
+        plot_title = paste0("Block ", b, " Dose Response Matrix"),
         dynamic = FALSE,
+        summary_statistic = params$DR_summary_statistic,
         high_value_color = params$DR_high_value_color,
         low_value_color = params$DR_low_value_color,
         grid = params$DR_grid
@@ -222,34 +201,35 @@ for (b in params$blocks) {
 }
 ```
 
-# 3. Synergy Scores
+# 4. Synergy Scores
 
-```{r, synergy_plots, fig.show="hold", out.width="50%", eval=FALSE}
+```{r, synergy_plots, fig.show="hold", out.width="50%"}
 for (b in params$blocks) {
-  print(paste0("## Block ", b))
   # multi-drug dimension reduction surface
-  if (ndrug > 2) {
-    for (m in methods) {
-      p <- PlotMultiDrugSurface(
-        data = synergyfinder_obj,
-        plot_block = b,
-        plot_value = paste0(m, "_synergy"),
-        dynamic = FALSE,
-        high_value_color = params$syn_multi_high_value_color,
-        low_value_color = params$syn_multi_low_value_color,
-        show_data_points = params$syn_multi_point,
-        point_color = params$syn_multi_point_color
-      )
-      plot(p)
-    }
-  }
+  # if (ndrug > 2) {
+  #   for (m in methods) {
+  #     p <- PlotMultiDrugSurface(
+  #       data = synergyfinder_obj,
+  #       plot_block = b,
+  #       plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+  #       plot_value = paste0(m, "_synergy"),
+  #       dynamic = FALSE,
+  #       high_value_color = syn_multi_high_value_color,
+  #       low_value_color = syn_multi_low_value_color,
+  #       show_data_points = syn_multi_point,
+  #       point_color = syn_multi_point_color
+  #     )
+  #     print(p)
+  #   }
+  # }
   # 2-drug synergy surface
   for (c in 1:ncol(comb)) {
     for (m in methods) {
     p <- PlotSynergy(
       data = synergyfinder_obj,
       block_ids = b,
-      drugs = unlist(comb[, c]),
+      plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+      drugs = c(comb[1, c], comb[2, c]),
       type = params$syn_plot_type,
       method = m,
       dynamic = FALSE,
@@ -263,11 +243,20 @@ for (b in params$blocks) {
       surface_grid = params$syn_grid,
       display = FALSE
     )
-    p[[1]]
+    print(p[[1]])
     }
   }
+}
+```
+
+# 5. Bar plots
+
+```{r results='asis'}
   # multi-drug bar plot
-  PlotMultiDrugBar(
+for (b in params$blocks) {
+  cat("\n")
+  cat("## Block", b, "\n")
+  p <- PlotMultiDrugBar(
     data = synergyfinder_obj,
     plot_block = b,
     plot_value = c(
@@ -285,30 +274,29 @@ for (b in params$blocks) {
     neg_value_color = params$bb_neg_value_color,
     data_table = FALSE
   )
+  cat("\n\n")
+  print(p)
 }
 ```
 
-# 4. S-S plot
+# 6. S-S plot
 
-```{r, ss_plot, fig.show="hold", out.width="50%", eval=FALSE}
+```{r ss_plot, fig.show="hold", out.width="50%"}
 for (b in params$blocks) {
-  print(paste0("## Block ", b))
   # multi-drug dimension reduction surface
-  # 2-drug synergy surface
-  comb <- combn(1:length(drugs), 2)
-  for (c in 1:ncol(comb)) {
-    for (m in methods) {
-      PlotSensitiveSynergy(
-        data = synergyfinder_obj,
-        plot_synergy = m,
-        point_color = params$ss_point_color,
-        point_size = params$ss_point_size,
-        show_labels = params$ss_show_label,
-        point_label_color = params$ss_label_color,
-        label_size = params$ss_label_size,
-        dynamic = TRUE
-      )
-    }
+  for (m in methods) {
+    p <- PlotSensitiveSynergy(
+      data = synergyfinder_obj,
+      plot_synergy = m,
+      plot_title = paste("Block", b, m, "- CSS", sep = " "),
+      point_color = params$ss_point_color,
+      point_size = 5,
+      show_labels = params$ss_show_label,
+      point_label_color = params$ss_label_color,
+      label_size = 10,
+      dynamic = FALSE
+    )
+    print(p)
   }
 }
 ```
