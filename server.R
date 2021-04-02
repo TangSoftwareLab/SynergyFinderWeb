@@ -241,7 +241,8 @@ server <- function(input, output, session){
             scrollX = TRUE,
             scrollCollapse=TRUE,
             lengthChange = FALSE
-          )
+          ),
+          rownames= FALSE
         )
         shinyjs::show(id = "annoSwitch")
       } else {
@@ -282,7 +283,8 @@ server <- function(input, output, session){
               scrollX = TRUE,
               scrollCollapse=TRUE,
               lengthChange = FALSE
-            )
+            ),
+            rownames= FALSE
           )
           output$drugAnnoTarget <- renderDT(
             drug_anno$target,
@@ -290,7 +292,8 @@ server <- function(input, output, session){
               scrollX = TRUE,
               scrollCollapse=TRUE,
               lengthChange = FALSE
-            )
+            ),
+            rownames= FALSE
           )
           # cell lines' annotation
           cells <- grepl("cell", colnames(datannot$annot), fixed = TRUE)
@@ -303,7 +306,8 @@ server <- function(input, output, session){
                 scrollX = TRUE,
                 scrollCollapse=TRUE,
                 lengthChange = FALSE
-              )
+              ),
+              rownames= FALSE
             )
           } else {
           }
@@ -354,7 +358,9 @@ server <- function(input, output, session){
                 "Something wrong with your file that cannot be handled by",
                 "application. Please check the input data formation and ",
                 "content. For more information about input data see ",
-                "<b>USER GUIDE</b>"
+                "<b>USER GUIDE</b>.\n",
+                "R package message:\n",
+                e
                 ),
               title = "Unhandled error occurred!",
               closeButton = TRUE,
@@ -1368,7 +1374,8 @@ server <- function(input, output, session){
             !colnames(dataReshaped$reshapeD$drug_pairs) %in% 
               c("input_type", "replicate", "ZIP_synergy",
                 "Loewe_synergy", "Bliss_synergy", "HSA_synergy")], 
-          options = list(scrollX = TRUE, scrollCollapse=TRUE)
+          options = list(scrollX = TRUE, scrollCollapse=TRUE),
+          rownames= FALSE
         )
       }
     }
