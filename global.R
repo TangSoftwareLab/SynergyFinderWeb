@@ -3,7 +3,7 @@ dependency <- c(
   "shiny", "shinyjs", "shinytoastr", "shinyWidgets", "shinydashboard",
   "shinyBS", "DT", "synergyfinder", "htmltools", "TidyComb",
   "dashboardthemes", "ggplot2", "scales", "gplots", "lattice", "plotly", "grid",
-  "xtable", "shinybusy", "writexl", "dplyr")
+  "xtable", "shinybusy", "writexl", "dplyr", "shinycssloaders")
 sapply(
   dependency,
   library,

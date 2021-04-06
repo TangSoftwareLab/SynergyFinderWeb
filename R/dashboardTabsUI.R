@@ -85,7 +85,8 @@ doseResponseTabUI <- function(id) {
       height = 400,
       collapsible = TRUE,
       fluidRow(
-        plotOutput(outputId = "DRC_plot")
+        plotOutput(outputId = "DRC_plot") %>% 
+          withSpinner(color="#D2D2D2")
       ),
       tags$hr(),
       fluidRow(
@@ -123,7 +124,8 @@ doseResponseTabUI <- function(id) {
       height = 400,
       collapsible = TRUE,
       fluidRow(
-        plotlyOutput(outputId = "DR_plot")
+        plotlyOutput(outputId = "DR_plot") %>% 
+          withSpinner(color="#D2D2D2")
       ),
       tags$hr(),
       fluidRow(
@@ -216,13 +218,17 @@ synergyTabUI <- function(id) {
         fluidRow(
           column(
             width = 6,
-            plotlyOutput(outputId = "syn_ZIP_plot"),
-            plotlyOutput(outputId = "syn_Loewe_plot")
+            plotlyOutput(outputId = "syn_ZIP_plot") %>% 
+              withSpinner(color="#D2D2D2"),
+            plotlyOutput(outputId = "syn_Loewe_plot") %>% 
+              withSpinner(color="#D2D2D2")
           ),
           column(
             width = 6,
-            plotlyOutput(outputId = "syn_HSA_plot"),
-            plotlyOutput(outputId = "syn_Bliss_plot")
+            plotlyOutput(outputId = "syn_HSA_plot") %>% 
+              withSpinner(color="#D2D2D2"),
+            plotlyOutput(outputId = "syn_Bliss_plot") %>% 
+              withSpinner(color="#D2D2D2")
           )
         ),
         hr(),
@@ -343,7 +349,8 @@ synergyTabUI <- function(id) {
         column(
           width = 4,
           # offset = 4,
-          plotOutput(outputId = "syn_barometer")
+          plotOutput(outputId = "syn_barometer") %>% 
+            withSpinner(color="#D2D2D2")
         )
       ),
       fluidRow(
@@ -450,13 +457,17 @@ sensitivityTabUI <- function(id) {
         fluidRow(
           column(
             width = 6,
-            plotlyOutput(outputId = "ss_ZIP_plot"),
-            plotlyOutput(outputId = "ss_Loewe_plot")
+            plotlyOutput(outputId = "ss_ZIP_plot") %>%
+              withSpinner(color="#D2D2D2"),
+            plotlyOutput(outputId = "ss_Loewe_plot") %>% 
+              withSpinner(color="#D2D2D2")
           ),
           column(
             width = 6,
-            plotlyOutput(outputId = "ss_HSA_plot"),
-            plotlyOutput(outputId = "ss_Bliss_plot")
+            plotlyOutput(outputId = "ss_HSA_plot") %>% 
+              withSpinner(color="#D2D2D2"),
+            plotlyOutput(outputId = "ss_Bliss_plot") %>% 
+              withSpinner(color="#D2D2D2")
           )
         ),
         hr(),

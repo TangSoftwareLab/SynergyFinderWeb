@@ -385,12 +385,13 @@ server <- function(input, output, session){
       nDrug$n <- 0
       closeAlert(session, "alert1")
       closeAlert(session, "alertPD")
-      
+      warning_message <- NULL
       if (input$selectInhVia != "") {
         if (!is.null(datannot$annot)) {
           closeAlert(session, "alertPD")
-          tryCatch({
-            dataReshaped$reshapeD <- synergyfinder::ReshapeData(
+          dataReshaped$reshapeD <- tryCatch(
+            withCallingHandlers({
+            synergyfinder::ReshapeData(
               datannot$annot,
               data_type = input$selectInhVia,
               impute = TRUE
@@ -421,24 +422,30 @@ server <- function(input, output, session){
               hideMethod = "fadeOut"
             )
           }, warning = function(w){
-            toastr_warning(
-              message = w$message,
-              title = "Warning!",
-              closeButton = TRUE,
-              progressBar = TRUE,
-              position = "top-right",
-              preventDuplicates = TRUE,
-              showDuration = 300,
-              hideDuration = 1000,
-              timeOut = 30000,
-              extendedTimeOut = 1000,
-              showEasing = "swing",
-              hideEasing = "swing",
-              showMethod = "fadeIn",
-              hideMethod = "fadeOut"
-            )
-          })
+            warning_message <<- w$message
+            invokeRestart("muffleWarning")
+          }))
           
+          if (!is.null(warning_message)){
+          toastr_warning(
+            message = warning_message,
+            title = "Warning!",
+            closeButton = TRUE,
+            progressBar = TRUE,
+            position = "top-right",
+            preventDuplicates = TRUE,
+            showDuration = 300,
+            hideDuration = 1000,
+            timeOut = 30000,
+            extendedTimeOut = 1000,
+            showEasing = "swing",
+            hideEasing = "swing",
+            showMethod = "fadeIn",
+            hideMethod = "fadeOut"
+          )
+          }
+         
+          print(dataReshaped$reshapeD)
           if (!is.null(dataReshaped$reshapeD)) {
             nDrug$n <- sum(
               grepl(
@@ -563,7 +570,8 @@ server <- function(input, output, session){
               height = 400,
               collapsible = TRUE,
               fluidRow(
-                plotlyOutput(outputId = "multi_DR_plot")
+                plotlyOutput(outputId = "multi_DR_plot") %>% 
+                  withSpinner(color="#D2D2D2")
               ),
               tags$hr(),
               fluidRow(
@@ -973,7 +981,8 @@ server <- function(input, output, session){
             dblclick = "syn_bar_plot_dbclick",
             height = paste0(
               as.character(barPlotHeight()), "px")
-          )
+          ) %>% 
+            withSpinner(color="#D2D2D2")
         })
         if (is.null(bb_plot_param$selected_values)) {
           bb_plot_param$selected_values <- plots$bar_plot$data_table[
@@ -1315,13 +1324,17 @@ server <- function(input, output, session){
                 fluidRow(
                   column(
                     width = 6,
-                    plotlyOutput(outputId = "syn_multi_ZIP_plot"),
-                    plotlyOutput(outputId = "syn_multi_Loewe_plot")
+                    plotlyOutput(outputId = "syn_multi_ZIP_plot") %>% 
+                      withSpinner(color="#D2D2D2"),
+                    plotlyOutput(outputId = "syn_multi_Loewe_plot") %>% 
+                      withSpinner(color="#D2D2D2")
                   ),
                   column(
                     width = 6,
-                    plotlyOutput(outputId = "syn_multi_HSA_plot"),
-                    plotlyOutput(outputId = "syn_multi_Bliss_plot")
+                    plotlyOutput(outputId = "syn_multi_HSA_plot") %>% 
+                      withSpinner(color="#D2D2D2"),
+                    plotlyOutput(outputId = "syn_multi_Bliss_plot") %>% 
+                      withSpinner(color="#D2D2D2")
                   )
                 ),
                 hr(),
