@@ -1,11 +1,11 @@
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
-  # Home page ------------------------------------------------------------------
+  # # Home page ----------------------------------------------------------------
   # userCuide button
   observeEvent(input$toGuide, {
     updateNavbarPage(session, inputId = "topNavBar",
-                      selected = "USER GUIDE")
+                     selected = "USER GUIDE")
   })
   # GetStart button
   observeEvent(input$getStart, {
@@ -13,17 +13,32 @@ server <- function(input, output, session){
                      selected = "DASHBOARD")
   })
   
-  # Dashboard page -------------------------------------------------------------
-  # Define reactive variables --------------------------------------------------
+  # # Define reactive variables ------------------------------------------------
   datannot <- reactiveValues(annot = NULL)
   dataReshaped <- reactiveValues(reshapeD = NULL)
   inputdatatype <- reactiveValues(type_ = "Table")
   switches <- reactiveValues(vizDR = 0, vizSyn = 0, report = 0, calSyn = 0)
+  correct_baseline <- reactiveValues(correct_baseline = NULL)
+  observeEvent(
+    eventExpr = input$correct_baseline,
+    handlerExpr = {
+      if (input$correct_baseline == "") {
+        correct_baseline$correct_baseline <- NULL
+      } else {
+        correct_baseline$correct_baseline <- input$correct_baseline
+      }
+    }
+  )
   nDrug <- reactiveValues(n = 0)
   data_output <- reactive({
     isolate({dataReshaped$reshapeD})
   })
-  
+  bb_plot_param <- reactiveValues(
+    conc_unit = NULL,
+    drug_pair = NULL, 
+    selected_panel = "response",
+    selected_conc = NULL,
+    selected_values = NULL)
   shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
   shinyjs::hide(selector = "a[data-value=\"syenrgyTab\"]")
   shinyjs::hide(selector = "a[data-value=\"downloadTab\"]")
@@ -41,12 +56,12 @@ server <- function(input, output, session){
                    icon = icon(
                      "fa-question-circle", lib = "font-awesome",
                      class="fa fa-question-circle"
-                     ),
+                   ),
                    style = "link",
                    size = "extra-small")
         ),
         accept = c('.csv', '.xlsx', '.txt'),
-       
+        
       ),
       shinyBS::bsPopover(#session,
         id = "q1",
@@ -77,16 +92,16 @@ server <- function(input, output, session){
       )
     )
   })
-
-  # Check number of sessions
-  isolate(vals$users_ <- vals$users_ + 1)
-  session$onSessionEnded(function(){ 
-    isolate(vals$users_ <- vals$users_ - 1)
-    if(isolate(vals$users_ ) == 0){
-      #delCommand = paste0("rm -r ", getwd()); system(delCommand)
-    }
-  })
   
+  # Check number of sessions
+  # isolate(vals$users_ <- vals$users_ + 1)
+  # session$onSessionEnded(function(){ 
+  #   isolate(vals$users_ <- vals$users_ - 1)
+  #   if(isolate(vals$users_ ) == 0){
+  #     delCommand = paste0("rm -r ", getwd()); system(delCommand)
+  #   }
+  # })
+  # 
   closeAll <- function() {
     shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
     shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
@@ -94,10 +109,18 @@ server <- function(input, output, session){
     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
     shinyjs::hide(selector = "a[data-value=\"annotationTab\"]")
     shinyjs::hide(id = "annoSwitch")
+    bb_plot_param <- reactiveValues(
+      conc_unit = NULL,
+      drug_pair = NULL, 
+      selected_panel = "response",
+      selected_conc = NULL,
+      selected_values = NULL)
     dataReshaped$reshapeD <- NULL
     datannot$annot <- NULL
+    correct_baseline$correct_baseline <- NULL
     updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
     updateSelectInput(session, "selectInhVia", selected = "")
+    updateSelectInput(session, inputId = "correct_baseline", selected = "")
     switches$vizDR <- 0
     switches$vizSyn <- 0
     switches$report <- 0
@@ -106,10 +129,10 @@ server <- function(input, output, session){
     closeAlert(session, "alert1")
     closeAlert(session, "alertPD")
   }
-
-  # inputDataTab ------------------------------------------------------------
-
-  # Input data type select box
+  
+  # # inputDataTab ------------------------------------------------------------
+  
+  # Input data type select box ------------------------------------------------
   observeEvent(
     eventExpr = input$inputDatatype,
     handlerExpr = {
@@ -117,8 +140,8 @@ server <- function(input, output, session){
       # inputdatatype$type_ <- input$inputDatatype
     }
   )
-
-  # when annotation file is loaded  
+  
+  # File is loaded ------------------------------------------------------------
   observeEvent(
     eventExpr = input$annotfile,
     handlerExpr = {
@@ -191,7 +214,7 @@ server <- function(input, output, session){
                 fill = TRUE
               )
             }
-             
+            
             # take care of NA's and empty rows/cols       
             annot <- sapply(annot, function (x) gsub("^\\s+|\\s+$", "", x))
             annot <- annot[!apply(is.na(annot) | annot == "", 1, all),] # rows with all NA
@@ -228,6 +251,7 @@ server <- function(input, output, session){
     }# handlerExpr
   ) # observeEvent
   
+  # Render data table ---------------------------------------------------------
   observeEvent(
     eventExpr = {
       datannot$annot
@@ -255,7 +279,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Annotation tab
+  # Annotation switch ---------------------------------------------------------
   observeEvent(
     eventExpr = {
       datannot$annot
@@ -338,12 +362,32 @@ server <- function(input, output, session){
       }
     }
   )
-  # selectInhVia
+  # selectInhVia --------------------------------------------------------------
   observeEvent(
     eventExpr = input$selectInhVia, 
     handlerExpr = {
+      # clean settings
+      shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+      shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
+      shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
+      bb_plot_param <- reactiveValues(
+        conc_unit = NULL,
+        drug_pair = NULL,
+        selected_panel = "response",
+        selected_conc = NULL,
+        selected_values = NULL)
+      updateSelectInput(session, inputId = "correct_baseline", selected = "")
+      correct_baseline$correct_baseline <- NULL
+      switches$vizDR <- 0
+      switches$vizSyn <- 0
+      switches$report <- 0
+      switches$calSyn <- 0
+      nDrug$n <- 0
+      closeAlert(session, "alert1")
+      closeAlert(session, "alertPD")
+      
       if (input$selectInhVia != "") {
-        if (!is.null(datannot$annot) && datannot$annot != "WRONG") {
+        if (!is.null(datannot$annot)) {
           closeAlert(session, "alertPD")
           tryCatch({
             dataReshaped$reshapeD <- synergyfinder::ReshapeData(
@@ -361,7 +405,7 @@ server <- function(input, output, session){
                 "<b>USER GUIDE</b>.\n",
                 "R package message:\n",
                 e
-                ),
+              ),
               title = "Unhandled error occurred!",
               closeButton = TRUE,
               progressBar = TRUE,
@@ -405,6 +449,7 @@ server <- function(input, output, session){
             )
             # visualize dose response
             switches$vizDR <- 1
+            switches$calSyn <- 1
             output$doseResponseMenu <- renderMenu({
               menuItem("Dose Response Map", tabName = "doseResponseTab")
             })
@@ -422,8 +467,7 @@ server <- function(input, output, session){
             "alertPD",
             title = "Error",
             content = paste0(
-              "Please load required files first!",
-              " or upload an example data"
+              "Please load required files first! or upload an example data"
             ),
             append = FALSE,
             dismiss = FALSE
@@ -433,9 +477,7 @@ server <- function(input, output, session){
     } # handlerExpr
   ) # observeEvent
   
-  
-  
-  #  Render plot block selector ------------------------------------------------
+  # # Render plot block selector ----------------------------------------------
   observeEvent(
     eventExpr = {
       switches$vizDR
@@ -515,13 +557,13 @@ server <- function(input, output, session){
           output$multi_drug_DR_plots <- renderUI(
             box(
               id = "boxDoseResponseMultiDrug",
-              title = "Dose Response Curve",
+              title = "Dose Response Matrix (Dimention Reduced)",
               solidHeader = TRUE,
               width = 6,
               height = 400,
               collapsible = TRUE,
               fluidRow(
-                addSpinner(plotlyOutput(outputId = "multi_DR_plot"), spin = "circle", color = "#E41A1C")
+                plotlyOutput(outputId = "multi_DR_plot")
               ),
               tags$hr(),
               fluidRow(
@@ -565,8 +607,8 @@ server <- function(input, output, session){
     }
   )
   
-  # Dose response tab ----------------------------------------------------------
-  # Render drug pair selectors
+  # # Dose response tab -------------------------------------------------------
+  # Render drug pair selectors ------------------------------------------------
   observeEvent(
     eventExpr = input$viz_block,
     handlerExpr = {
@@ -625,7 +667,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Plot: Dose-response curve
+  # Plot: Dose-response curve -------------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -645,6 +687,8 @@ server <- function(input, output, session){
               data = dataReshaped$reshapeD,
               plot_block = input$viz_block,
               drug_index = input$DRC_drug,
+              plot_title = "",
+              plot_subtitle = "",
               point_color = input$DRC_dot_color,
               curve_color = input$DRC_curve_color
             )
@@ -657,6 +701,8 @@ server <- function(input, output, session){
               plot_block = input$viz_block,
               drug_index = input$DRC_drug,
               grid = NULL,
+              plot_title = "",
+              plot_subtitle = "",
               point_color = input$DRC_dot_color,
               curve_color = input$DRC_curve_color
             )
@@ -666,7 +712,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Plot: Heatmap or 3D surface for dose-response
+  # Plot: Dose-response map ---------------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -690,8 +736,8 @@ server <- function(input, output, session){
           param$drugs <- unlist(strsplit(input$DR_2_drugs, "-"))
         }
         if(dataReshaped$reshapeD$drug_pairs[
-            which(dataReshaped$reshapeD$drug_pairs$block_id == input$viz_block),
-            "replicate"] & input$DR_plot_type == "heatmap"){
+          which(dataReshaped$reshapeD$drug_pairs$block_id == input$viz_block),
+          "replicate"] & input$DR_plot_type == "heatmap"){
           shinyjs::show(id = "DR_rep_statistic")
           shinyjs::show(id = "DR_heatmap_label_size")
           shinyjs::show(id = "DR_heatmap_label_color")
@@ -731,6 +777,7 @@ server <- function(input, output, session){
                 drugs = param$drugs,
                 dynamic = TRUE,
                 statistic = NULL,
+                plot_title = "",
                 summary_statistic = input$DR_summary_statistic,
                 high_value_color = input$DR_high_value_color,
                 low_value_color = input$DR_low_value_color,
@@ -746,6 +793,7 @@ server <- function(input, output, session){
                 drugs = param$drugs,
                 plot_block = input$viz_block,
                 dynamic = TRUE,
+                plot_title = "",
                 summary_statistic = input$DR_summary_statistic,
                 high_value_color = input$DR_high_value_color,
                 low_value_color = input$DR_low_value_color,
@@ -759,8 +807,8 @@ server <- function(input, output, session){
     }
   )
   
- 
-  # Plot multi drug dose response
+  
+  # Plot: Multi-drug dose-response --------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -779,6 +827,7 @@ server <- function(input, output, session){
             data = dataReshaped$reshapeD,
             plot_block = input$viz_block,
             plot_value = "response",
+            plot_title = "",
             high_value_color = input$DR_multi_high_value_color,
             low_value_color = input$DR_multi_low_value_color,
             show_data_points = input$DR_multi_point,
@@ -791,44 +840,45 @@ server <- function(input, output, session){
     }
   )
   
-  # Calculate synergy scores and sensitivity score --------------------------
+  # # Calculate synergy scores and sensitivity score --------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
+      switches$calSyn
     },
     handlerExpr = {
-      if (!is.null(input$correct_baseline) &
-          !is.null(dataReshaped$reshapeD)) {
+      if (!is.null(correct_baseline$correct_baseline) &
+          switches$calSyn == 1 & !is.null(dataReshaped$reshapeD)) {
         show_modal_spinner(spin = "fading-circle") 
         withCallingHandlers({
           dataReshaped$reshapeD <- CalculateSynergy(
             dataReshaped$reshapeD,
-            correct_baseline = input$correct_baseline,
+            correct_baseline = correct_baseline$correct_baseline,
             method = c("ZIP", "HSA", "Loewe", "Bliss")
           )
           dataReshaped$reshapeD <- CalculateSensitivity(
             dataReshaped$reshapeD,
-            correct_baseline = input$correct_baseline
+            correct_baseline = correct_baseline$correct_baseline
           )
         },
-          message = function(m) {
-            shinyjs::html(
-              selector = ".modal-body div:eq(14)",
-              html = m$message,
-              add = FALSE)
-          }
+        message = function(m) {
+          shinyjs::html(
+            selector = ".modal-body div:eq(14)",
+            html = m$message,
+            add = FALSE)
+        }
         )
         remove_modal_spinner()
         
         switches$vizSyn <- 1
-        switches$calSyn <- 0
+        # switches$calSyn <- 0
       } else {
         shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
       }
     }
   )
   
-  # synergyTab --------------------------------------------------------------
+  # # synergyTab --------------------------------------------------------------
   observeEvent(
     eventExpr = {
       switches$vizSyn
@@ -855,7 +905,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Bar barometer plots
+  # Plot: Bar barometer plots -------------------------------------------------
   observeEvent(
     eventExpr = {
       switches$vizSyn
@@ -869,30 +919,34 @@ server <- function(input, output, session){
       input$bb_highlight_label_size
       input$bb_highlight_pos_color
       input$bb_highlight_neg_color
-      },
+      input$bb_barometer_color
+    },
     handlerExpr = {
       if ("synergy_scores" %in% names(dataReshaped$reshapeD) & 
           switches$vizSyn == 1 &
           !is.null(input$viz_block)) {
         data <- dataReshaped$reshapeD
-        param <- reactiveValues(
-          block = input$viz_block,
-          drug_pair = NULL, 
-          selected_panel = "response",
-          selected_conc = NULL)
         plots <- reactiveValues(bar_plot = NULL, barometer = NULL)
-        param$drug_pair <- dataReshaped$reshapeD$drug_pairs[
-          dataReshaped$reshapeD$drug_pairs$block_id == input$viz_block,
-          grepl(
-            "drug",
-            colnames(dataReshaped$reshapeD$drug_pairs),
-            fixed = TRUE
-          )
-        ]
-        param$selected_conc <- rep(
-          0,
-          sum(grepl("drug", colnames(param$drug_pair)))
-        )
+        if (is.null(bb_plot_param$drug_pair)) {
+          bb_plot_param$drug_pair <- dataReshaped$reshapeD$drug_pairs[
+            dataReshaped$reshapeD$drug_pairs$block_id == input$viz_block,
+            grepl(
+              "drug",
+              colnames(dataReshaped$reshapeD$drug_pairs),
+              fixed = TRUE
+            )
+          ]
+        }
+        if (is.null(bb_plot_param$conc_unit)) {
+          bb_plot_param$conc_unit <- dataReshaped$reshapeD$drug_pairs[
+            dataReshaped$reshapeD$drug_pairs$block_id == input$viz_block,
+            grepl(
+              "conc_unit",
+              colnames(dataReshaped$reshapeD$drug_pairs),
+              fixed = TRUE
+            )
+          ]
+        }
         plots$bar_plot <- PlotMultiDrugBar(
           data,
           plot_block = input$viz_block,
@@ -900,8 +954,8 @@ server <- function(input, output, session){
             "response", "ZIP_synergy", "HSA_synergy",
             "Bliss_synergy", "Loewe_synergy"
           ),
-          highlight_row = param$selected_conc,
-          sort_by = param$selected_panel,
+          highlight_row = bb_plot_param$selected_conc,
+          sort_by = bb_plot_param$selected_panel,
           panel_title_size = input$bb_panel_title_size,
           axis_text_size = input$bb_axis_text_size,
           highlight_label_size = input$bb_highlight_label_size,
@@ -911,12 +965,32 @@ server <- function(input, output, session){
           neg_value_color = input$bb_neg_value_color,
           data_table = TRUE
         )
-
+        barPlotHeight <- reactive(length(unique(plots$bar_plot$data_table$id)) * 10)
+        output$syn_bar_plot_ui <- renderUI({
+          plotOutput(
+            outputId = "syn_bar_plot",
+            click = "syn_bar_plot_click",
+            dblclick = "syn_bar_plot_dbclick",
+            height = paste0(
+              as.character(barPlotHeight()), "px")
+          )
+        })
+        if (is.null(bb_plot_param$selected_values)) {
+          bb_plot_param$selected_values <- plots$bar_plot$data_table[
+            plots$bar_plot$data_table$id == 1,
+          ]
+        }
+        if (is.null(bb_plot_param$selected_conc)) {
+          bb_plot_param$selected_conc <- unlist(bb_plot_param$selected_values[,
+            sort(grep("conc", colnames(bb_plot_param$selected_values), value = TRUE))
+          ])
+        }
         plots$barometer <- PlotBarometer(
           data,
           plot_block = input$viz_block,
-          plot_concs = param$selected_conc,
-          needle_text_offset = 5
+          plot_concs = bb_plot_param$selected_conc,
+          needle_text_offset = 5,
+          show_concs = FALSE
         )
         # Double click to sort
         observeEvent(input$syn_bar_plot_dbclick, {
@@ -928,8 +1002,8 @@ server <- function(input, output, session){
                 "response", "ZIP_synergy", "HSA_synergy",
                 "Bliss_synergy", "Loewe_synergy"
               ),
-              highlight_row = param$selected_conc,
-              sort_by = param$selected_panel,
+              highlight_row = bb_plot_param$selected_conc,
+              sort_by = bb_plot_param$selected_panel,
               panel_title_size = input$bb_panel_title_size,
               axis_text_size = input$bb_axis_text_size,
               highlight_label_size = input$bb_highlight_label_size,
@@ -938,20 +1012,21 @@ server <- function(input, output, session){
               pos_value_color = input$bb_pos_value_color,
               neg_value_color = input$bb_neg_value_color,
               data_table = TRUE
-              )
+            )
             plots$barometer <- PlotBarometer(
               data,
               plot_block = input$viz_block,
-              plot_concs = param$selected_conc,
-              needle_text_offset = 5
+              plot_concs = bb_plot_param$selected_conc,
+              needle_text_offset = 5,
+              show_concs = FALSE
             )
           } else {
             d <- grepl(sub("\n.*", "", input$syn_bar_plot_dbclick$panelvar1),
-                       param$drug_pair)
+                       bb_plot_param$drug_pair)
             if (sum(d) > 0) {
-              param$selected_panel <- sub("drug", "conc", names(param$drug_pair)[d])
+              bb_plot_param$selected_panel <- sub("drug", "conc", names(bb_plot_param$drug_pair)[d])
             } else {
-              param$selected_panel <- switch(
+              bb_plot_param$selected_panel <- switch(
                 input$syn_bar_plot_dbclick$panelvar1,
                 "Response\n(% inhibition)" = "response",
                 "ZIP Synergy Score" = "ZIP_synergy",
@@ -960,7 +1035,6 @@ server <- function(input, output, session){
                 "Bliss Synergy Score" = "Bliss_synergy"
               )
             }
-
             plots$bar_plot <- PlotMultiDrugBar(
               data,
               plot_block = input$viz_block,
@@ -968,40 +1042,8 @@ server <- function(input, output, session){
                 "response", "ZIP_synergy", "HSA_synergy",
                 "Bliss_synergy", "Loewe_synergy"
               ),
-              highlight_row = param$selected_conc,
-              sort_by = param$selected_panel,
-              panel_title_size = input$bb_panel_title_size,
-              axis_text_size = input$bb_axis_text_size,
-              highlight_label_size = input$bb_highlight_label_size,
-              highlight_pos_color = input$bb_highlight_pos_color,
-              highlight_neg_color = input$bb_highlight_neg_color,
-              pos_value_color = input$bb_pos_value_color,
-              neg_value_color = input$bb_neg_value_color,
-              data_table = TRUE,
-            )
-            plots$barometer <- PlotBarometer(
-              data,
-              plot_block = input$viz_block,
-              plot_concs = param$selected_conc,
-              needle_text_offset = 5
-            )
-          }
-        })
-        # Click to highlight
-        observeEvent(input$syn_bar_plot_click, {
-          param$selected_conc <- unlist(plots$bar_plot$data_table[
-            plots$bar_plot$data_table$id == round(input$syn_bar_plot_click$y),
-            sort(grep("conc", colnames(plots$bar_plot$data_table), value = TRUE))
-          ])
-          plots$bar_plot <- PlotMultiDrugBar(
-              data,
-              plot_block = input$viz_block,
-              plot_value = c(
-                "response", "ZIP_synergy", "HSA_synergy",
-                "Bliss_synergy", "Loewe_synergy"
-              ),
-              highlight_row = param$selected_conc,
-              sort_by = param$selected_panel,
+              highlight_row = bb_plot_param$selected_conc,
+              sort_by = bb_plot_param$selected_panel,
               panel_title_size = input$bb_panel_title_size,
               axis_text_size = input$bb_axis_text_size,
               highlight_label_size = input$bb_highlight_label_size,
@@ -1011,24 +1053,105 @@ server <- function(input, output, session){
               neg_value_color = input$bb_neg_value_color,
               data_table = TRUE
             )
+            plots$barometer <- PlotBarometer(
+              data,
+              plot_block = input$viz_block,
+              plot_concs = bb_plot_param$selected_conc,
+              needle_text_offset = 5,
+              show_concs = FALSE
+            )
+          }
+        })
+        # Click to highlight
+        observeEvent(input$syn_bar_plot_click, {
+          bb_plot_param$selected_values <- plots$bar_plot$data_table[
+            plots$bar_plot$data_table$id == round(input$syn_bar_plot_click$y),
+          ]
+          bb_plot_param$selected_conc <- unlist(bb_plot_param$selected_values[,
+            sort(grep("conc", colnames(bb_plot_param$selected_values), value = TRUE))
+          ])
+          
+          plots$bar_plot <- PlotMultiDrugBar(
+            data,
+            plot_block = input$viz_block,
+            plot_value = c(
+              "response", "ZIP_synergy", "HSA_synergy",
+              "Bliss_synergy", "Loewe_synergy"
+            ),
+            highlight_row = bb_plot_param$selected_conc,
+            sort_by = bb_plot_param$selected_panel,
+            panel_title_size = input$bb_panel_title_size,
+            axis_text_size = input$bb_axis_text_size,
+            highlight_label_size = input$bb_highlight_label_size,
+            highlight_pos_color = input$bb_highlight_pos_color,
+            highlight_neg_color = input$bb_highlight_neg_color,
+            pos_value_color = input$bb_pos_value_color,
+            neg_value_color = input$bb_neg_value_color,
+            data_table = TRUE
+          )
           plots$barometer <- PlotBarometer(
             data,
             plot_block = input$viz_block,
-            plot_concs = param$selected_conc,
-            needle_text_offset = 5
+            plot_concs = bb_plot_param$selected_conc,
+            needle_text_offset = 5,
+            color_bar_color = input$bb_barometer_color,
+            show_concs = FALSE
           )
         })
         
-      observe({
-        output$syn_bar_plot <- renderPlot(
-          {plots$bar_plot$plot})
-        output$syn_barometer <- renderPlot({plots$barometer})
-      })
+        observe({
+          output$syn_bar_plot <- renderPlot(
+            {plots$bar_plot$plot})
+          output$syn_barometer <- renderPlot({plots$barometer})
+          headerCallback <- c(
+            "function(thead, data, start, end, display){",
+            "  $('th', thead).css('border-bottom', 'none');",
+            "}"
+          )
+          output$syn_barometer_values <- renderDT(
+            { 
+              df <- bb_plot_param$selected_values %>% 
+                dplyr::select(
+                  dplyr::starts_with("conc"),
+                  "ZIP Synergy Score:" = "ZIP_synergy",
+                  "Loewe Synergy Score:" = "Loewe_synergy",
+                  "Bliss Synergy Score:" = "Bliss_synergy",
+                  "HSA Synergy Score:" = "HSA_synergy"
+                  ) %>% 
+                round(digits = 2)
+              
+              for (i in 1:ncol(bb_plot_param$drug_pair)) {
+                df[, which(colnames(df) == paste0("conc", i))] <- paste(
+                  as.character(df[, which(colnames(df) == paste0("conc", i))]),
+                  bb_plot_param$conc_unit[, paste0("conc_unit", i)]
+                )
+                colnames(df)[which(colnames(df) == paste0("conc", i))] <- paste0(
+                  bb_plot_param$drug_pair[1, paste0("drug", i)],
+                  ":")
+              }
+              
+              DT::datatable(
+                data = t(df),
+                class = "compact",
+                rownames = TRUE,
+                colnames = c(""),
+                callback = JS("$('table.dataTable.no-footer').css('border-bottom', 'none');"),
+                options = list(
+                  dom = 't',
+                  ordering = FALSE,
+                  paging = FALSE,
+                  searching = FALSE,
+                  headerCallback = JS(headerCallback)
+                )
+              )
+            }
+          )
+        })
       }
     }
   )
-
-  # Synergy Score plot
+  
+  # # Plot: Synergy Map -------------------------------------------------------
   # Plot: Heatmap or 3D surface
   observeEvent(
     eventExpr = {
@@ -1084,6 +1207,7 @@ server <- function(input, output, session){
             type = input$syn_plot_type,
             method = "ZIP",
             dynamic = TRUE,
+            plot_title = "ZIP",
             summary_statistic = input$syn_summary_statistic,
             high_value_color = input$syn_high_value_color,
             low_value_color = input$syn_low_value_color,
@@ -1105,6 +1229,7 @@ server <- function(input, output, session){
             type = input$syn_plot_type,
             method = "Loewe",
             dynamic = TRUE,
+            plot_title = "Loewe",
             summary_statistic = input$syn_summary_statistic,
             high_value_color = input$syn_high_value_color,
             low_value_color = input$syn_low_value_color,
@@ -1130,6 +1255,7 @@ server <- function(input, output, session){
             type = input$syn_plot_type,
             method = "Bliss",
             dynamic = TRUE,
+            plot_title = "Bliss",
             summary_statistic = input$syn_summary_statistic,
             high_value_color = input$syn_high_value_color,
             low_value_color = input$syn_low_value_color,
@@ -1151,6 +1277,7 @@ server <- function(input, output, session){
             type = input$syn_plot_type,
             method = "HSA",
             dynamic = TRUE,
+            plot_title = "HSA",
             summary_statistic = input$syn_summary_statistic,
             high_value_color = input$syn_high_value_color,
             low_value_color = input$syn_low_value_color,
@@ -1167,7 +1294,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Dimension reduction plot for multiple drug combo
+  # Plot: Multi-drug Synergy Map ----------------------------------------------
   observeEvent(
     eventExpr = {
       input$viz_block
@@ -1177,11 +1304,11 @@ server <- function(input, output, session){
     handlerExpr = {
       if (switches$vizSyn == 1 & !is.null(input$viz_block)) {
         if (nDrug$n> 2) { # Two drug combination
-          output$multi_drug_DR_plots <- renderUI(
+          output$multi_drug_syn_plots <- renderUI(
             tagList(
               box(
                 id = "BoxMultiSynergyScorePlot",
-                title = "Dimention Reduction Synergy Scores Plot",
+                title = "Synergy Map (Dimention Reduction)",
                 solidHeader = TRUE,
                 width = 12,
                 collapsible = TRUE,
@@ -1196,40 +1323,41 @@ server <- function(input, output, session){
                     plotlyOutput(outputId = "syn_multi_HSA_plot"),
                     plotlyOutput(outputId = "syn_multi_Bliss_plot")
                   )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 3,
-                  shinyWidgets::materialSwitch(
-                    inputId = "syn_multi_point",
-                    label = "Show data points",
-                    status = "primary",
-                    right = TRUE
-                  )
                 ),
-                column(
-                  width = 3,
-                  colourpicker::colourInput(
-                    inputId = "syn_multi_point_color",
-                    label = "Color for data points",
-                    value = "#DDA137"
-                  )
-                ),
-                column(
-                  width = 3,
-                  colourpicker::colourInput(
-                    inputId = "syn_multi_high_value_color",
-                    label = "Synergy effect color",
-                    value = "#C24B40"
-                  )
-                ),
-                column(
-                  width = 3,
-                  colourpicker::colourInput(
-                    inputId = "syn_multi_low_value_color",
-                    label = "Antagnositic effect color",
-                    value = "#2166AC"
+                hr(),
+                fluidRow(
+                  column(
+                    width = 3,
+                    shinyWidgets::materialSwitch(
+                      inputId = "syn_multi_point",
+                      label = "Show data points",
+                      status = "primary",
+                      right = TRUE
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    colourpicker::colourInput(
+                      inputId = "syn_multi_point_color",
+                      label = "Color for data points",
+                      value = "#DDA137"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    colourpicker::colourInput(
+                      inputId = "syn_multi_high_value_color",
+                      label = "Synergy effect color",
+                      value = "#C24B40"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    colourpicker::colourInput(
+                      inputId = "syn_multi_low_value_color",
+                      label = "Antagnositic effect color",
+                      value = "#2166AC"
+                    )
                   )
                 )
               )
@@ -1243,7 +1371,7 @@ server <- function(input, output, session){
       }
     }
   )
-
+  
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -1262,6 +1390,7 @@ server <- function(input, output, session){
             data = dataReshaped$reshapeD,
             plot_block = input$viz_block,
             plot_value = "ZIP_synergy",
+            plot_title = "ZIP",
             high_value_color = input$syn_multi_high_value_color,
             low_value_color = input$syn_multi_low_value_color,
             show_data_points = input$syn_multi_point,
@@ -1273,6 +1402,7 @@ server <- function(input, output, session){
             data = dataReshaped$reshapeD,
             plot_block = input$viz_block,
             plot_value = "Loewe_synergy",
+            plot_title = "Loewe",
             high_value_color = input$syn_multi_high_value_color,
             low_value_color = input$syn_multi_low_value_color,
             show_data_points = input$syn_multi_point,
@@ -1284,6 +1414,7 @@ server <- function(input, output, session){
             data = dataReshaped$reshapeD,
             plot_block = input$viz_block,
             plot_value = "Bliss_synergy",
+            plot_title = "Bliss",
             high_value_color = input$syn_multi_high_value_color,
             low_value_color = input$syn_multi_low_value_color,
             show_data_points = input$syn_multi_point,
@@ -1295,6 +1426,7 @@ server <- function(input, output, session){
             data = dataReshaped$reshapeD,
             plot_block = input$viz_block,
             plot_value = "HSA_synergy",
+            plot_title = "HSA",
             high_value_color = input$syn_multi_high_value_color,
             low_value_color = input$syn_multi_low_value_color,
             show_data_points = input$syn_multi_point,
@@ -1304,8 +1436,8 @@ server <- function(input, output, session){
       }
     }
   )
-
-  # sensitivity Tab ---------------------------------------------------------
+  
+  # # sensitivity Tab ---------------------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -1370,246 +1502,248 @@ server <- function(input, output, session){
           )
         })
         output$summaryTable <- renderDT(
-          dataReshaped$reshapeD$drug_pairs[, 
-            !colnames(dataReshaped$reshapeD$drug_pairs) %in% 
-              c("input_type", "replicate", "ZIP_synergy",
-                "Loewe_synergy", "Bliss_synergy", "HSA_synergy")], 
+          {dataReshaped$reshapeD$drug_pairs%>% 
+              dplyr::select(
+                -input_type, -replicate, # -ZIP_synergy, -Loewe_synergy, -Bliss_synergy, -HSA_synergy,
+                -dplyr::contains("synergy")) %>%
+              dplyr::mutate_if(is.numeric, round, 2)
+          }, 
           options = list(scrollX = TRUE, scrollCollapse=TRUE),
           rownames= FALSE
         )
       }
     }
   )
-  # report Tab ---------------------------------------------------------
-  # Static PDF report
+  # # report Tab --------------------------------------------------------------
+  # Static PDF report ---------------------------------------------------------
   output$static_report <- downloadHandler(
-    filename = "SynergyFinder_static_report.pdf",
+    filename = "SynergyFinder_report.pdf",
     content = function(file) {
       shiny::withProgress(
         message = paste0("Generating report ..."),
         value = 0,
         {
-      subdir <- gsub(":","",gsub("-", "", gsub("\\s", "", paste0(Sys.time()))))
-      dir.create(file.path(reportspath, subdir), recursive = TRUE)
-      tempReport <- file.path(
-        reportspath, 
-        subdir,
-        "static_report_template.Rmd")
-      file.copy(
-        "./doc/static_report_template.Rmd",
-        tempReport,
-        overwrite = TRUE)
-      shiny::incProgress(1/10)
-      # Rmarkdown can't render plots from recordPlot function
-      # Here we write png for dose-response curve and then read them to
-      # Rmarkdown
-      ndrug <- sum(grepl("drug", colnames(dataReshaped$reshapeD$drug_pairs)))
-      nblock <- length(input$report_block)
-      plots <- c()
-      for (b in input$report_block) {
-        shiny::incProgress(8/(10 * nblock))
-        for (i in 1:ndrug) {
-          if (input$DRC_grid) {
-            p <- PlotDoseResponseCurve(
-              data =dataReshaped$reshapeD,
-              plot_block = b,
-              drug_index = i,
-              point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color
-            )
-            f <- paste0("DRC_block_", b,"_drug_", i, ".png")
-            plots <- c(plots, f)
-            png(
-              filename = paste0(reportspath, subdir, "/", f),
-              height = 600,
-              width = 600
-            )
-            replayPlot(p)
-            dev.off()
-          } else {
-            p <- PlotDoseResponseCurve(
-              data =dataReshaped$reshapeD,
-              plot_block = b,
-              drug_index = i,
-              grid = NULL,
-              point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color
-            )
-            f <- paste0("DRC_block_", b,"_drug_", i, ".png")
-            plots <- c(plots, f)
-            png(
-              filename = paste0(reportspath, subdir, "/", f),
-              height = 600,
-              width = 600
-            )
-            replayPlot(p)
-            dev.off()
+          subdir <- gsub(":","",gsub("-", "", gsub("\\s", "", paste0(Sys.time()))))
+          dir.create(file.path(reportspath, subdir), recursive = TRUE)
+          tempReport <- file.path(
+            reportspath, 
+            subdir,
+            "static_report_template.Rmd")
+          file.copy(
+            "./doc/static_report_template.Rmd",
+            tempReport,
+            overwrite = TRUE)
+          shiny::incProgress(1/10)
+          # Rmarkdown can't render plots from recordPlot function
+          # Here we write png for dose-response curve and then read them to
+          # Rmarkdown
+          ndrug <- sum(grepl("drug", colnames(dataReshaped$reshapeD$drug_pairs)))
+          nblock <- length(input$report_block)
+          plots <- c()
+          for (b in input$report_block) {
+            shiny::incProgress(8/(10 * nblock))
+            for (i in 1:ndrug) {
+              if (input$DRC_grid) {
+                p <- PlotDoseResponseCurve(
+                  data =dataReshaped$reshapeD,
+                  plot_block = b,
+                  drug_index = i,
+                  point_color = input$DRC_dot_color,
+                  curve_color = input$DRC_curve_color
+                )
+                f <- paste0("DRC_block_", b,"_drug_", i, ".png")
+                plots <- c(plots, f)
+                png(
+                  filename = paste0(reportspath, subdir, "/", f),
+                  height = 600,
+                  width = 600
+                )
+                replayPlot(p)
+                dev.off()
+              } else {
+                p <- PlotDoseResponseCurve(
+                  data =dataReshaped$reshapeD,
+                  plot_block = b,
+                  drug_index = i,
+                  grid = NULL,
+                  point_color = input$DRC_dot_color,
+                  curve_color = input$DRC_curve_color
+                )
+                f <- paste0("DRC_block_", b,"_drug_", i, ".png")
+                plots <- c(plots, f)
+                png(
+                  filename = paste0(reportspath, subdir, "/", f),
+                  height = 600,
+                  width = 600
+                )
+                replayPlot(p)
+                dev.off()
+              }
+            }
           }
+          rmarkdown::render(
+            tempReport,
+            output_file = file,
+            params = list(
+              data = dataReshaped$reshapeD,
+              blocks = input$report_block,
+              correct_baseline = input$correct_baseline,
+              DRC_plots = plots,
+              DR_multi_high_value_color = input$DR_multi_high_value_color,
+              DR_multi_low_value_color = input$DR_multi_low_value_color,
+              DR_multi_point = input$DR_multi_point,
+              DR_multi_point_color = input$DR_multi_point_color,
+              DR_plot_type = input$DR_plot_type,
+              DR_rep_statistic = input$DR_rep_statistic,
+              DR_summary_statistic = input$DR_summary_statistic,
+              DR_high_value_color = input$DR_high_value_color,
+              DR_low_value_color = input$DR_low_value_color,
+              DR_heatmap_label_color = input$DR_heatmap_label_color,
+              DR_grid = input$DR_grid,
+              syn_multi_high_value_color = input$syn_multi_high_value_color,
+              syn_multi_low_value_color = input$syn_multi_low_value_color,
+              syn_multi_point = input$syn_multi_point,
+              syn_multi_point_color = input$syn_multi_point_color,
+              syn_plot_type = input$syn_plot_type,
+              syn_summary_statistic = input$syn_summary_statistic,
+              syn_high_value_color = input$syn_high_value_color,
+              syn_low_value_color = input$syn_low_value_color,
+              syn_heatmap_label_color = input$syn_heatmap_label_color,
+              syn_rep_statistic = input$syn_rep_statistic,
+              syn_grid = input$syn_grid,
+              bb_panel_title_size = input$bb_panel_title_size,
+              bb_axis_text_size = input$bb_axis_text_size,
+              bb_highlight_label_size = input$bb_highlight_label_size,
+              bb_highlight_pos_color = input$bb_highlight_pos_color,
+              bb_highlight_neg_color = input$bb_highlight_neg_color,
+              bb_pos_value_color = input$bb_pos_value_color,
+              bb_neg_value_color = input$bb_neg_value_color,
+              ss_point_color = input$ss_point_color,
+              ss_point_size = input$ss_point_size,
+              ss_show_label = input$ss_show_label,
+              ss_label_color = input$ss_label_color,
+              ss_label_size = input$ss_label_size),
+            envir = new.env(parent = globalenv())
+          )
         }
-      }
-      rmarkdown::render(
-        tempReport,
-        output_file = file,
-        params = list(
-          data = dataReshaped$reshapeD,
-          blocks = input$report_block,
-          correct_baseline = input$correct_baseline,
-          DRC_plots = plots,
-          DR_multi_high_value_color = input$DR_multi_high_value_color,
-          DR_multi_low_value_color = input$DR_multi_low_value_color,
-          DR_multi_point = input$DR_multi_point,
-          DR_multi_point_color = input$DR_multi_point_color,
-          DR_plot_type = input$DR_plot_type,
-          DR_rep_statistic = input$DR_rep_statistic,
-          DR_summary_statistic = input$DR_summary_statistic,
-          DR_high_value_color = input$DR_high_value_color,
-          DR_low_value_color = input$DR_low_value_color,
-          DR_heatmap_label_color = input$DR_heatmap_label_color,
-          DR_grid = input$DR_grid,
-          syn_multi_high_value_color = input$syn_multi_high_value_color,
-          syn_multi_low_value_color = input$syn_multi_low_value_color,
-          syn_multi_point = input$syn_multi_point,
-          syn_multi_point_color = input$syn_multi_point_color,
-          syn_plot_type = input$syn_plot_type,
-          syn_summary_statistic = input$syn_summary_statistic,
-          syn_high_value_color = input$syn_high_value_color,
-          syn_low_value_color = input$syn_low_value_color,
-          syn_heatmap_label_color = input$syn_heatmap_label_color,
-          syn_rep_statistic = input$syn_rep_statistic,
-          syn_grid = input$syn_grid,
-          bb_panel_title_size = input$bb_panel_title_size,
-          bb_axis_text_size = input$bb_axis_text_size,
-          bb_highlight_label_size = input$bb_highlight_label_size,
-          bb_highlight_pos_color = input$bb_highlight_pos_color,
-          bb_highlight_neg_color = input$bb_highlight_neg_color,
-          bb_pos_value_color = input$bb_pos_value_color,
-          bb_neg_value_color = input$bb_neg_value_color,
-          ss_point_color = input$ss_point_color,
-          ss_point_size = input$ss_point_size,
-          ss_show_label = input$ss_show_label,
-          ss_label_color = input$ss_label_color,
-          ss_label_size = input$ss_label_size),
-        envir = new.env(parent = globalenv())
       )
     }
-    )
-    }
   )
-  # Dynamic PDF report
+  # Dynamic PDF report --------------------------------------------------------
   output$dynamic_report <- downloadHandler(
-    filename = "SynergyFinder_dynamic_report.html",
+    filename = "SynergyFinder_report.html",
     content = function(file) {
       shiny::withProgress(
         message = paste0("Generating report ..."),
         value = 0,
         {
-      show_modal_spinner(spin = "fading-circle", text = "Generating report ...")
-      subdir <- gsub(":","",gsub("-", "", gsub("\\s", "", paste0(Sys.time()))))
-      dir.create(file.path(reportspath, subdir), recursive = TRUE)
-      tempReport <- file.path(
-        reportspath, 
-        subdir,
-        "dynamic_report_template.Rmd")
-      file.copy(
-        "./doc/dynamic_report_template.Rmd",
-        tempReport,
-        overwrite = TRUE)
-      shiny::incProgress(1/10)
-      # Rmarkdown can't render plots from recordPlot function
-      # Here we write png for dose-response curve and then read them to
-      # Rmarkdown
-      ndrug <- sum(grepl("drug", colnames(dataReshaped$reshapeD$drug_pairs)))
-      nblock <- length(input$report_block)
-      plots <- c()
-      for (b in input$report_block) {
-        shiny::incProgress(8/(10 * nblock))
-        for (i in 1:ndrug) {
-          if (input$DRC_grid) {
-            p <- PlotDoseResponseCurve(
-              data =dataReshaped$reshapeD,
-              plot_block = b,
-              drug_index = i,
-              point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color
-            )
-            f <- paste0("DRC_block_", b,"_drug_", i, ".png")
-            plots <- c(plots, f)
-            png(
-              filename = paste0(reportspath, subdir, "/", f),
-              height = 600,
-              width = 600
-            )
-            replayPlot(p)
-            dev.off()
-          } else {
-            p <- PlotDoseResponseCurve(
-              data =dataReshaped$reshapeD,
-              plot_block = b,
-              drug_index = i,
-              grid = NULL,
-              point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color
-            )
-            f <- paste0("DRC_block_", b,"_drug_", i, ".png")
-            plots <- c(plots, f)
-            png(
-              filename = paste0(reportspath, subdir, "/", f),
-              height = 600,
-              width = 600
-            )
-            replayPlot(p)
-            dev.off()
+          subdir <- gsub(":","",gsub("-", "", gsub("\\s", "", paste0(Sys.time()))))
+          dir.create(file.path(reportspath, subdir), recursive = TRUE)
+          tempReport <- file.path(
+            reportspath, 
+            subdir,
+            "dynamic_report_template.Rmd")
+          file.copy(
+            "./doc/dynamic_report_template.Rmd",
+            tempReport,
+            overwrite = TRUE)
+          shiny::incProgress(1/10)
+          # Rmarkdown can't render plots from recordPlot function
+          # Here we write png for dose-response curve and then read them to
+          # Rmarkdown
+          ndrug <- sum(grepl("drug", colnames(dataReshaped$reshapeD$drug_pairs)))
+          nblock <- length(input$report_block)
+          plots <- c()
+          for (b in input$report_block) {
+            shiny::incProgress(8/(10 * nblock))
+            for (i in 1:ndrug) {
+              if (input$DRC_grid) {
+                p <- PlotDoseResponseCurve(
+                  data =dataReshaped$reshapeD,
+                  plot_block = b,
+                  drug_index = i,
+                  point_color = input$DRC_dot_color,
+                  curve_color = input$DRC_curve_color
+                )
+                f <- paste0("DRC_block_", b,"_drug_", i, ".png")
+                plots <- c(plots, f)
+                png(
+                  filename = paste0(reportspath, subdir, "/", f),
+                  height = 600,
+                  width = 600
+                )
+                replayPlot(p)
+                dev.off()
+              } else {
+                p <- PlotDoseResponseCurve(
+                  data =dataReshaped$reshapeD,
+                  plot_block = b,
+                  drug_index = i,
+                  grid = NULL,
+                  point_color = input$DRC_dot_color,
+                  curve_color = input$DRC_curve_color
+                )
+                f <- paste0("DRC_block_", b,"_drug_", i, ".png")
+                plots <- c(plots, f)
+                png(
+                  filename = paste0(reportspath, subdir, "/", f),
+                  height = 600,
+                  width = 600
+                )
+                replayPlot(p)
+                dev.off()
+              }
+            }
           }
-        }
-      }
-      rmarkdown::render(
-        tempReport,
-        output_file = file,
-        params = list(
-          data = dataReshaped$reshapeD,
-          blocks = input$report_block,
-          correct_baseline = input$correct_baseline,
-          DRC_plots = plots,
-          DR_multi_high_value_color = input$DR_multi_high_value_color,
-          DR_multi_low_value_color = input$DR_multi_low_value_color,
-          DR_multi_point = input$DR_multi_point,
-          DR_multi_point_color = input$DR_multi_point_color,
-          DR_plot_type = input$DR_plot_type,
-          DR_rep_statistic = input$DR_rep_statistic,
-          DR_summary_statistic = input$DR_summary_statistic,
-          DR_high_value_color = input$DR_high_value_color,
-          DR_low_value_color = input$DR_low_value_color,
-          DR_heatmap_label_color = input$DR_heatmap_label_color,
-          DR_grid = input$DR_grid,
-          syn_multi_high_value_color = input$syn_multi_high_value_color,
-          syn_multi_low_value_color = input$syn_multi_low_value_color,
-          syn_multi_point = input$syn_multi_point,
-          syn_multi_point_color = input$syn_multi_point_color,
-          syn_plot_type = input$syn_plot_type,
-          syn_summary_statistic = input$syn_summary_statistic,
-          syn_high_value_color = input$syn_high_value_color,
-          syn_low_value_color = input$syn_low_value_color,
-          syn_heatmap_label_color = input$syn_heatmap_label_color,
-          syn_rep_statistic = input$syn_rep_statistic,
-          syn_grid = input$syn_grid,
-          bb_panel_title_size = input$bb_panel_title_size,
-          bb_axis_text_size = input$bb_axis_text_size,
-          bb_highlight_label_size = input$bb_highlight_label_size,
-          bb_highlight_pos_color = input$bb_highlight_pos_color,
-          bb_highlight_neg_color = input$bb_highlight_neg_color,
-          bb_pos_value_color = input$bb_pos_value_color,
-          bb_neg_value_color = input$bb_neg_value_color,
-          ss_point_color = input$ss_point_color,
-          ss_point_size = input$ss_point_size,
-          ss_show_label = input$ss_show_label,
-          ss_label_color = input$ss_label_color,
-          ss_label_size = input$ss_label_size),
-        envir = new.env(parent = globalenv())
-      )
+          rmarkdown::render(
+            tempReport,
+            output_file = file,
+            params = list(
+              data = dataReshaped$reshapeD,
+              blocks = input$report_block,
+              correct_baseline = input$correct_baseline,
+              DRC_plots = plots,
+              DR_multi_high_value_color = input$DR_multi_high_value_color,
+              DR_multi_low_value_color = input$DR_multi_low_value_color,
+              DR_multi_point = input$DR_multi_point,
+              DR_multi_point_color = input$DR_multi_point_color,
+              DR_plot_type = input$DR_plot_type,
+              DR_rep_statistic = input$DR_rep_statistic,
+              DR_summary_statistic = input$DR_summary_statistic,
+              DR_high_value_color = input$DR_high_value_color,
+              DR_low_value_color = input$DR_low_value_color,
+              DR_heatmap_label_color = input$DR_heatmap_label_color,
+              DR_grid = input$DR_grid,
+              syn_multi_high_value_color = input$syn_multi_high_value_color,
+              syn_multi_low_value_color = input$syn_multi_low_value_color,
+              syn_multi_point = input$syn_multi_point,
+              syn_multi_point_color = input$syn_multi_point_color,
+              syn_plot_type = input$syn_plot_type,
+              syn_summary_statistic = input$syn_summary_statistic,
+              syn_high_value_color = input$syn_high_value_color,
+              syn_low_value_color = input$syn_low_value_color,
+              syn_heatmap_label_color = input$syn_heatmap_label_color,
+              syn_rep_statistic = input$syn_rep_statistic,
+              syn_grid = input$syn_grid,
+              bb_panel_title_size = input$bb_panel_title_size,
+              bb_axis_text_size = input$bb_axis_text_size,
+              bb_highlight_label_size = input$bb_highlight_label_size,
+              bb_highlight_pos_color = input$bb_highlight_pos_color,
+              bb_highlight_neg_color = input$bb_highlight_neg_color,
+              bb_pos_value_color = input$bb_pos_value_color,
+              bb_neg_value_color = input$bb_neg_value_color,
+              ss_point_color = input$ss_point_color,
+              ss_point_size = input$ss_point_size,
+              ss_show_label = input$ss_show_label,
+              ss_label_color = input$ss_label_color,
+              ss_label_size = input$ss_label_size),
+            envir = new.env(parent = globalenv())
+          )
         }
       )
     }
   )
+  # Download: data tables -----------------------------------------------------
   output$download_summary_table <- downloadHandler(
     filename <- function() {
       paste0(
@@ -1655,7 +1789,7 @@ server <- function(input, output, session){
       }
     }
   )
-
+  # Download R object ---------------------------------------------------------
   output$download_r_object <- downloadHandler(
     filename <- function(){
       paste0(

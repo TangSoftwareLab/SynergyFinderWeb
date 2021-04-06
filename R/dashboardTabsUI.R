@@ -74,14 +74,14 @@ doseResponseTabUI <- function(id) {
       column(
         width = 2,
         uiOutput(outputId = "DR_block_ui")
-        )
-      ),
+      )
+    ),
     hr(),
     box(
       id = "boxDoseResponseCurve",
       title = "Dose Response Curve",
       solidHeader = TRUE,
-      width = 5,
+      width = 6,
       height = 400,
       collapsible = TRUE,
       fluidRow(
@@ -114,15 +114,16 @@ doseResponseTabUI <- function(id) {
         )
       )
     ),
+    uiOutput(outputId = "multi_drug_DR_plots"),
     box(
       id = "boxDoseResponseMatrix",
-      title = "Dose Response Matrix",
+      title = "Dose Response Map (2 Drugs Combination)",
       solidHeader = TRUE,
-      width = 7, 
+      width = 6, 
       height = 400,
       collapsible = TRUE,
       fluidRow(
-          plotlyOutput(outputId = "DR_plot")
+        plotlyOutput(outputId = "DR_plot")
       ),
       tags$hr(),
       fluidRow(
@@ -175,7 +176,7 @@ doseResponseTabUI <- function(id) {
           shinyWidgets::radioGroupButtons(
             inputId = "DR_plot_type",
             label = "Plot type",
-            choices = c("HeatMap", "3D surface"),
+            choices = c("HeatMap" = "heatmap", "3D surface" = "3D"),
             status = "primary"
           ),
           colourpicker::colourInput(
@@ -195,8 +196,7 @@ doseResponseTabUI <- function(id) {
           )
         )
       )
-    ),
-    uiOutput(outputId = "multi_drug_DR_plots")
+    )
   )
 }
 
@@ -206,9 +206,10 @@ synergyTabUI <- function(id) {
     tabName = id,
     fluidRow(
       # Synergy Score Plot
+      uiOutput(outputId = "multi_drug_syn_plots"),
       box(
         id = "BoxSynergyScorePlot",
-        title = "Synergy Scores",
+        title = "Synergy Map (2 Drugs Combination)",
         solidHeader = TRUE,
         width = 12, 
         collapsible = TRUE,
@@ -323,99 +324,112 @@ synergyTabUI <- function(id) {
         )
       ),
       # Bar Barometer plot
-      box(
-        id = "boxBarPlot",
-        title = "Bar and Barometer Plot",
-        solidHeader = TRUE,
-        width = 12, 
-        collapsible = TRUE,
-        fluidRow(
-          column(
-            width = 4,
-            offset = 4,
-            plotOutput(outputId = "syn_barometer")
-          )
+      # box(
+      #   id = "boxBarPlot",
+      #   title = "Bar and Barometer Plot",
+      #   solidHeader = TRUE,
+      #   width = 12, 
+      #   collapsible = TRUE,
+      fluidRow(
+        column(
+          width = 3,
+          offset = 1,
+          align = "center",
+          br(),
+          tags$h3("Selected Data Point"),
+          hr(),
+          DTOutput(outputId = "syn_barometer_values")
         ),
-        fluidRow(
-          column(
-            width = 12,
-            plotOutput(
-              outputId = "syn_bar_plot",
-              click = "syn_bar_plot_click",
-              dblclick = "syn_bar_plot_dbclick"
-            )
-          )
-        ),
-        hr(),
-        tags$h4("Bar Plot Setting"),
-        fluidRow(
-          column(
-            width = 3,
-            sliderInput(
-              inputId = "bb_panel_title_size",
-              label = "Panel title size",
-              value = 5,
-              min = 0,
-              max = 20
-            )
-          ),
-          column(
-            width = 3,
-            sliderInput(
-              inputId = "bb_axis_text_size",
-              label = "Axis text size",
-              value = 5,
-              min = 0,
-              max = 20
-            )
-          ),
-          column(
-            width = 3,
-            sliderInput(
-              inputId = "bb_highlight_label_size",
-              label = "Highlited label size",
-              value = 5,
-              min = 0,
-              max = 20
-            )
-          )
-        ),
-        fluidRow(
-          column(
-            width = 3,
-            colourpicker::colourInput(
-              inputId = "bb_pos_value_color",
-              label = "Positive bar color",
-              value = "#CC3311"
-            )
-          ),
-          column(
-            width = 3,
-            colourpicker::colourInput(
-              inputId = "bb_neg_value_color",
-              label = "Negative bar color",
-              value = "#448BD4"
-            )
-          ),
-          column(
-            width = 3,
-            colourpicker::colourInput(
-              inputId = "bb_highlight_pos_color",
-              label = "Highlighted positive bar color",
-              value = "#A90217"
-            )
-          ),
-          column(
-            width = 3,
-            colourpicker::colourInput(
-              inputId = "bb_highlight_neg_color",
-              label = "Highlighted negative bar color",
-              value = "#2166AC"
-            )
-          )
+        column(
+          width = 4,
+          # offset = 4,
+          plotOutput(outputId = "syn_barometer")
         )
       ),
-      uiOutput(outputId = "multi_drug_syn_plots")
+      fluidRow(
+        column(
+          width = 12,
+          uiOutput(outputId = "syn_bar_plot_ui")
+        )
+      ),
+      hr(),
+      tags$h4("Bar Plot Setting"),
+      fluidRow(
+        column(
+          width = 3,
+          sliderInput(
+            inputId = "bb_panel_title_size",
+            label = "Panel title size",
+            value = 10,
+            min = 0,
+            max = 20
+          )
+        ),
+        column(
+          width = 3,
+          sliderInput(
+            inputId = "bb_axis_text_size",
+            label = "Axis text size",
+            value = 10,
+            min = 0,
+            max = 20
+          )
+        ),
+        column(
+          width = 3,
+          sliderInput(
+            inputId = "bb_highlight_label_size",
+            label = "Highlited label size",
+            value = 10,
+            min = 0,
+            max = 20
+          )
+        ),
+        column(
+          width = 3,
+          colourpicker::colourInput(
+            inputId = "bb_barometer_color",
+            label = "Barometer color",
+            value = "#CC3311"
+          )
+          
+        )
+      ),
+      fluidRow(
+        column(
+          width = 3,
+          colourpicker::colourInput(
+            inputId = "bb_pos_value_color",
+            label = "Positive bar color",
+            value = "#CC3311"
+          )
+        ),
+        column(
+          width = 3,
+          colourpicker::colourInput(
+            inputId = "bb_neg_value_color",
+            label = "Negative bar color",
+            value = "#448BD4"
+          )
+        ),
+        column(
+          width = 3,
+          colourpicker::colourInput(
+            inputId = "bb_highlight_pos_color",
+            label = "Highlighted positive bar color",
+            value = "#A90217"
+          )
+        ),
+        column(
+          width = 3,
+          colourpicker::colourInput(
+            inputId = "bb_highlight_neg_color",
+            label = "Highlighted negative bar color",
+            value = "#2166AC"
+          )
+        )
+      )
+      # )
     )
   )
 }

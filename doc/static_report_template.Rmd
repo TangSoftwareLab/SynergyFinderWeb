@@ -1,6 +1,6 @@
 ---
-title: "SynergyFinder Static Report"
-author: "SynergyFinder"
+title: "SynergyFinder Report"
+author: "SynergyFinder (http://synergyfinder.org/)"
 date: "`r Sys.Date()`"
 output: pdf_document
 params:
@@ -254,8 +254,6 @@ for (b in params$blocks) {
 ```{r results='asis'}
   # multi-drug bar plot
 for (b in params$blocks) {
-  cat("\n")
-  cat("## Block", b, "\n")
   p <- PlotMultiDrugBar(
     data = synergyfinder_obj,
     plot_block = b,
@@ -272,9 +270,9 @@ for (b in params$blocks) {
     highlight_neg_color = params$bb_highlight_neg_color,
     pos_value_color = params$bb_pos_value_color,
     neg_value_color = params$bb_neg_value_color,
+    panel_title_size = 0.5,
     data_table = FALSE
   )
-  cat("\n\n")
   print(p)
 }
 ```
@@ -300,3 +298,33 @@ for (b in params$blocks) {
   }
 }
 ```
+
+# Reference
+
+* For use of Synergyfinder web application:
+
+Ianevski, A.; He, L.; Aittokallio, T.; Tang, J. SynergyFinder: A Web Application for Analyzing Drug Combination Dose-Response Matrix Data Bioinformatics 2017, 33 (15), 2413–2415. doi:10.1093/bioinformatics/btx162
+
+* For use of SynergyFinder R pacakge:
+
+He, L.; Kulesskiy, E.; Saarela, J.; Turunen, L.; Wennerberg, K.; Aittokallio, T.; Tang, J. Methods for High-Throughput Drug Combination Screening and Synergy Scoring. Methods Mol Biol 2018, 1711, 351–398. doi:10.1007/978-1-4939-7493-1_17
+
+* For use of ZIP synergy scoring:
+
+Yadav, B.; Wennerberg, K.; Aittokallio, T.; Tang, J. Searching for Drug Synergy in Complex Dose-Response Landscapes Using an Interaction Potency Model. Comput Struct Biotechnol J 2015, 13, 504–513. doi:10.1016/j.csbj.2015.09.001
+
+* For how to harmonize the different synergy scoring methods:
+
+Tang, J.; Wennerberg, K.; Aittokallio, T. What Is Synergy? The Saariselkä Agreement Revisited. Front Pharmacol 2015, 6, 181. doi:10.3389/fphar.2015.00181
+
+* For general ideas of drug combination therapies:
+
+Tang, J. Informatics Approaches for Predicting, Understanding, and Testing Cancer Drug Combinations. Methods Mol Biol 2017, 1636, 485–506. doi:10.1007/978-1-4939-7154-1_30
+
+* For retrieving the most comprehensive drug combination data resources and their sensitivity and synergy results by SynergyFinder, please go to DrugComb :
+
+Zagidullin, B.; Aldahdooh, J.; Zheng, S.; Wang, W.; Wang, Y.; Saad, J.; Malyutina, A.; Jafari, M.; Tanoli, Z.; Pessia, A.; Tang, J. DrugComb: An Integrative Cancer Drug Combination Data Portal. Nucleic Acids Res 2019, 47 (W1), W43–W51. doi:10.1093/nar/gkz337
+
+* For use of combination sensitivity score:
+
+Malyutina, A.; Majumder, M. M.; Wang, W.; Pessia, A.; Heckman, C. A.; Tang, J. Drug Combination Sensitivity Scoring Facilitates the Discovery of Synergistic and Efficacious Drug Combinations in Cancer. PLOS Computational Biology 2019, 15 (5), e1006752. 10.1371/journal.pcbi.1006752
