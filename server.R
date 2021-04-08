@@ -43,6 +43,7 @@ server <- function(input, output, session){
   shinyjs::hide(selector = "a[data-value=\"syenrgyTab\"]")
   shinyjs::hide(selector = "a[data-value=\"downloadTab\"]")
   shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
+  shinyjs::hide(id = "correct_baseline")
   shinyjs::hide(id = "annoSwitch")
   # Reset the input data file
   output$resettableInput <- renderUI({
@@ -108,6 +109,7 @@ server <- function(input, output, session){
     shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
     shinyjs::hide(selector = "a[data-value=\"annotationTab\"]")
+    shinyjs::hide(id = "correct_baseline")
     shinyjs::hide(id = "annoSwitch")
     bb_plot_param <- reactiveValues(
       conc_unit = NULL,
@@ -370,6 +372,7 @@ server <- function(input, output, session){
       shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
       shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
       shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
+      shinyjs::hide(id = "correct_baseline")
       bb_plot_param <- reactiveValues(
         conc_unit = NULL,
         drug_pair = NULL,
@@ -698,7 +701,9 @@ server <- function(input, output, session){
               plot_title = "",
               plot_subtitle = "",
               point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color
+              curve_color = input$DRC_curve_color,
+              plot_new = FALSE,
+              record_plot = FALSE
             )
           )
           # print(dataReshaped$reshapeD)
@@ -712,7 +717,9 @@ server <- function(input, output, session){
               plot_title = "",
               plot_subtitle = "",
               point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color
+              curve_color = input$DRC_curve_color,
+              plot_new = FALSE,
+              record_plot = FALSE
             )
           )
         }
@@ -811,6 +818,9 @@ server <- function(input, output, session){
             })
           }
         }
+        shinyjs::show(id = "correct_baseline")
+      } else {
+        shinyjs::hide(id = "correct_baseline")
       }
     }
   )
