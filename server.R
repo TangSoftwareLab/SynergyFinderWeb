@@ -567,7 +567,7 @@ server <- function(input, output, session){
           output$multi_drug_DR_plots <- renderUI(
             box(
               id = "boxDoseResponseMultiDrug",
-              title = "Dose Response Matrix (Dimention Reduced)",
+              title = "Dose Response Map (Dimention Reduced)",
               solidHeader = TRUE,
               width = 6,
               height = 400,
@@ -702,8 +702,8 @@ server <- function(input, output, session){
               plot_subtitle = "",
               point_color = input$DRC_dot_color,
               curve_color = input$DRC_curve_color,
-              plot_new = FALSE,
-              record_plot = FALSE
+              plot_new = TRUE,
+              record_plot = TRUE
             )
           )
           # print(dataReshaped$reshapeD)
@@ -718,8 +718,8 @@ server <- function(input, output, session){
               plot_subtitle = "",
               point_color = input$DRC_dot_color,
               curve_color = input$DRC_curve_color,
-              plot_new = FALSE,
-              record_plot = FALSE
+              plot_new = TRUE,
+              record_plot = TRUE
             )
           )
         }
@@ -1634,9 +1634,6 @@ server <- function(input, output, session){
               syn_heatmap_label_color = input$syn_heatmap_label_color,
               syn_rep_statistic = input$syn_rep_statistic,
               syn_grid = input$syn_grid,
-              bb_panel_title_size = input$bb_panel_title_size,
-              bb_axis_text_size = input$bb_axis_text_size,
-              bb_highlight_label_size = input$bb_highlight_label_size,
               bb_highlight_pos_color = input$bb_highlight_pos_color,
               bb_highlight_neg_color = input$bb_highlight_neg_color,
               bb_pos_value_color = input$bb_pos_value_color,
@@ -1748,9 +1745,6 @@ server <- function(input, output, session){
               syn_heatmap_label_color = input$syn_heatmap_label_color,
               syn_rep_statistic = input$syn_rep_statistic,
               syn_grid = input$syn_grid,
-              bb_panel_title_size = input$bb_panel_title_size,
-              bb_axis_text_size = input$bb_axis_text_size,
-              bb_highlight_label_size = input$bb_highlight_label_size,
               bb_highlight_pos_color = input$bb_highlight_pos_color,
               bb_highlight_neg_color = input$bb_highlight_neg_color,
               bb_pos_value_color = input$bb_pos_value_color,
