@@ -27,13 +27,53 @@ ui <- shinyUI(
       # USER GUIDE -------------------------------------------------------------
       tabPanel(
         "USER GUIDE",
-        fluidRow(
-          style = "margin-top: 15px;",
-          column(
-            width = 8, offset = 2,
-            tags$div(
-              class = "textCard", id = "userGuide",
-              withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+        dashboardPage(
+          # dash board header
+          dashboardHeader(disable = TRUE),
+          # sidebar content
+          dashboardSidebar(
+            width = "200px",
+            # Menu elements
+            sidebarMenu(
+              id = "menuUserGuide",
+              menuItem("Upload Data", tabName = "inputDataUserGuideTab"),
+              menuItem("Dose Response Map", tabName = "doseResponseUserGuideTab"),
+              menuItem("Synergy Map", tabName = "synergyUserGuideTab"),
+              menuItem("Sensitivity Score", tabName = "sensitivityUserGuideTab"),
+              menuItem("DownloadReports", tabName = "reportUserGuideTab")
+            )         
+          ),
+          dashboardBody(
+            tabItems(
+              tabItem(
+                tabName = "inputDataUserGuideTab",
+                    tags$div(
+                      class = "userGuide",
+                      withMathJax(includeMarkdown("./doc/user_guide_upload_data_tab.Rmd"))
+                      # inclRmd("./doc/user_guide_upload_data.Rmd")
+                    )
+              ),
+              tabItem(
+                tabName = "doseResponseUserGuideTab",
+                tags$div(
+                  class = "userGuide",
+                  withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+                )
+              ),
+              tabItem(
+                tabName = "sensitivityUserGuideTab",
+                tags$div(
+                  class = "userGuide",
+                  withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+                )
+              ),
+              tabItem(
+                tabName = "reportUserGuideTab",
+                tags$div(
+                  class = "userGuide",
+                  withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+                )
+              )
             )
           )
         )
