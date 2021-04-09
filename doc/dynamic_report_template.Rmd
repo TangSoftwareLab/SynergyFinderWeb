@@ -30,9 +30,6 @@ params:
   syn_heatmap_label_color: NA
   syn_rep_statistic: NA
   syn_grid: NA
-  bb_panel_title_size: NA
-  bb_axis_text_size: NA
-  bb_highlight_label_size: NA
   bb_highlight_pos_color: NA
   bb_highlight_neg_color: NA
   bb_pos_value_color: NA
@@ -110,7 +107,8 @@ synergyfinder_obj$drug_pairs %>%
     dplyr::starts_with("drug"),
     dplyr::starts_with("conc_unit"),
     dplyr::starts_with("cell")) %>% 
-  knitr::kable()
+  kbl() %>%
+  kable_classic(full_width = F, html_font = 'Roboto')
 ```
 
 ## 2. Synergy socores summary table
@@ -312,9 +310,9 @@ for (b in params$blocks) {
     ),
     highlight_row = NULL,
     sort_by = "response",
-    panel_title_size = params$bb_panel_title_size,
-    axis_text_size = params$bb_axis_text_size,
-    highlight_label_size = params$bb_highlight_label_size,
+    panel_title_size = 6,
+    axis_text_size = 5,
+    highlight_label_size = 5,
     highlight_pos_color = params$bb_highlight_pos_color,
     highlight_neg_color = params$bb_highlight_neg_color,
     pos_value_color = params$bb_pos_value_color,
@@ -339,7 +337,7 @@ for (b in params$blocks) {
       plot_synergy = m,
       plot_title = paste("Block", b, m, "- CSS", sep = " "),
       point_color = params$ss_point_color,
-      point_size = 5,
+      point_size = 3,
       show_labels = params$ss_show_label,
       point_label_color = params$ss_label_color,
       label_size = 10,
