@@ -1,0 +1,24 @@
+---
+title: "USER GUIDE: Upload Data"
+date: 2021.4.7
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+# 1 User Interface
+
+This tab mainly show the dose-response curve and dose-response map for inputted data. Figure 1 shows the user interface.
+
+![Fig.1 User Interface of the "Dose Response Map" tab](../www/images/userGuideDoseResponse.png)
+
+<p style="text-align: center;"> Fig.1 User Interface of the "Dose Response Map" tab </p>
+
+1. A selector to select the block to visualize.
+2. A selector to select the method for baseline correction. This function adjusts the baseline of drug combination dose-response matrix closer to 0. There are three options: "Non" - no baseline correction; "Part" - only the negative values in the matrix will be adjusted; "All" - adjusts all values in the matrix. Once the baseline correction method is selected. The calculation for synergy scores and sensitivity scores will be trigger. After the calculation, three new tabs ("Synergy Scores", "Sensitivity Scores", and "Download Report") will be shown. Please check corresponding pages for more details.
+3. Plotting area. The customizable plots will be shown in this area. All of the plots are able to be downloaded. Please check sections below for more details.
+
+# 2 Dose Response Curve
+
+

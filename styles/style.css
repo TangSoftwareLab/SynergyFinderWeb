@@ -172,29 +172,53 @@ body{
   font-size: 1em;
 }
 
+/*Dashboard Tabs*/
+#resettableInput label{
+  margin-bottom: -5px;
+}
+
 
 /*userGuide*/
-#userGuide {
+.userGuide {
   padding-right: 30px;
   padding-left: 30px;
 }
 #userGuide h1 {
   border-bottom: 3px solid #0277bd;
 }
-#userGuide p{
+.userGuide p{
   padding-left: 30px;
 }
-#userGuide ul, #userGuide ol{
+.userGuide ul, #userGuide ol{
   padding-left: 60px;
 }
-#userGuide .title {
+.userGuide .title {
   text-align: 'center';
 }
-#userGuide img {
+.userGuide img {
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: 70%;
+}
+
+.userGuide table {
+    border-collapse: collapse;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+/*
+#userGuide table, th, td {
+    border: 1px solid #2d2d2d;
+}
+*/
+.userGuide th {
+  background-color: #0277bd;
+  color: #FFFFFF;
+}
+
+.userGuide th, td{
+  padding: 5px;
 }
 
 .textCard {

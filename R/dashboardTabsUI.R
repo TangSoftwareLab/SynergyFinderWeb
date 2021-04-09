@@ -7,26 +7,34 @@ inputDataTabUI <- function(id) {
     fluidPage(
       fluidRow(
         column(
-          width = 3,
+          width = 4,
           selectInput(
             inputId = "inputDatatype",
             label = "1. Choose data format:",
             width = '100%',
             choices = list("Table" = "Table", "Matrix" = "Matrix"),
             selected = "Table"
-          )
+          ),
+          br(),
+          downloadButton(outputId = "loadExData_small", label = "example data")
         ),
         column(
-          width = 3,
+          width = 4,
           div(
             id = "annotfileid",
             uiOutput('resettableInput'),
-            HTML('<div id = "spanpop" class="tooltip-item"></div>')
+            # HTML('<div id = "spanpop" class="tooltip-item"></div>')
+          ),
+          shinyWidgets::materialSwitch(
+            inputId = "annoSwitch",
+            label = "Annotate Data",
+            status = "primary",
+            right = TRUE
           ),
           bsAlert("alertannotfile")
         ),
         column(
-          width = 3,
+          width = 4,
           selectInput(
             "selectInhVia",
             label = "3. Phenotypic Response:",
@@ -37,18 +45,6 @@ inputDataTabUI <- function(id) {
               "Viability" = "viability"
             ),
             selected = ""
-          )
-        ),
-        column(
-          width = 3,
-          downloadButton(outputId = "loadExData_small", label = "example data"),
-          br(),
-          br(),
-          shinyWidgets::materialSwitch(
-            inputId = "annoSwitch",
-            label = "Annotate Data",
-            status = "primary",
-            right = TRUE
           )
         )
       ),
@@ -70,12 +66,12 @@ doseResponseTabUI <- function(id) {
   ns <- NS(id)
   tabItem(
     tabName = id,
-    fluidRow(
-      column(
-        width = 2,
-        uiOutput(outputId = "DR_block_ui")
-      )
-    ),
+    # fluidRow(
+    #   column(
+    #     width = 2,
+    #     uiOutput(outputId = "DR_block_ui")
+    #   )
+    # ),
     hr(),
     box(
       id = "boxDoseResponseCurve",

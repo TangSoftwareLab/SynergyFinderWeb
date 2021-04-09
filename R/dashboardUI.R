@@ -22,21 +22,20 @@ dashboardUI <- function(id) {
       useToastr(),
       shinyjs::useShinyjs(),
       bsAlert("noPDdata"),
-      textOutput("test"),
-      uiOutput(outputId = 'exData'),
+      # uiOutput(outputId = 'exData'),
       uiOutput(outputId = 'errorTable'),
       fluidRow(
         column(
-          width = 3,
+          width = 4,
+          uiOutput(outputId = "plot_block")
+        ),
+        column(
+          width = 4,
           selectInput(
             inputId = "correct_baseline", label = "Correct baseline",
             choices = list("", "Non" = "non", "Part" = "part", "All" = "all"),
             selected = ""
           )
-        ),
-        column(
-          width = 9,
-          uiOutput(outputId = "plot_block")
         )
       ),
       tabItems(

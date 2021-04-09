@@ -1,52 +1,70 @@
 ---
 title: "USER GUIDE"
+date: 2021.4.7
 output: html_document
 ---
 
-# UPLOAD DATA
+# Upload Data
 
-## 1 Data Format
+## 1 Data format
 
 SynergyFinder accepts two data formats: **Table** and **Matrix**.
 
 ### 1.1 Table format
 
-In the Table format, the input dose-response matrix is represented as a table where each row contains the information about the one cell in the dose-response matrix (Fig.1).
-
-The input table must contain the following columns:
-
-1. **PairIndex** index of drug-pair to be analyzed
-2. **Response** %inhibition or %viability values
-3. **Drug1** name of the first drug
-4. **Drug2** name of the second drug
-5. **Conc1** concentration of Drug1
-6. **Conc2** concentration of Drug2
-7. **ConcUnit** unit of concentration
-
-The orders of rows and columns are arbitrary. The number of drug combinations (PairIndex) provided in the input
-file is unlimited. The only restriction is imposed on the size of a dose-response matrix, which should comprise **at least
-three rows and columns**, so that sensible synergy scores can be calculated.
-
+In the Table format, the input dose-response matrix is represented as a table where each row contains the information about the one dosage combination in the dose-response matrix (Fig.1).
 ![Fig.1 Input file in Table format.](../www/images/exampleTab.png)
 
 <p style="text-align: center;">Fig.1 Input file in Table format.</p>
 
+The input table must contain the following columns (The column naming style used in the old SynergyFinder or [DrugComb](https://drugcomb.org/), e.i. 'Alternative Column names' are accepted):
+
+| Required Columns | Alternative Column names         | Description                                                     |
+| ---------------- | -------------------------------- | --------------------------------------------------------------- |
+| block\_id        | PairIndex, BlockId               | Identifier for the drug combination blocks.                     |
+| drug1            | Drug1, drug\_row, DrugRow        | Name of the first tested drug.                                  |
+| drug2            | Drug2, drug\_col, DrugCol        | Name of the second tested drug.                                 |
+| conc1            | Conc1, conc\_row, ConcRow        | Concentration of first tested drug.                             |
+| conc2            | Conc2, conc\_col, ConcCol        | Concentration of second tested drug.                            |
+| response         | Response, inhibition, Inhibition | Cell response to the drug treatment (%inhibition or %viability).|
+| conc\_unit       | ConcUnit                         | Unit of concentration for drugs. This column could be replaced by multiple separated columns for each tested drugs (see table below), while different unit was used for measuring the concentrations.|
+
+| Optional Columns | Alternative Column names         | Description                                                                              |
+| ---------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| conc\_unit1      | conc\_r\_unit                    | Unit of concentration for first drug. It is used if the concentration units are different for the tested drugs.|
+| conc\_unit2      | conc\_c\_unit                    | Unit of concentration for second drug. It is used if the concentration units are different for the tested drugs.|
+| conc\_unit[n]    |                                  | Unit of concentration for n_th drug. For example, "conc\_unit3" for the third tested drug. It is used if the concentration units are different for the tested drugs and more than 2 drugs were combined.|
+| drug[n]          |                                  | Name of the n_th_ tested drug. For example, "drug3" for the third tested drug. It is required if more than 2 drugs were combined.|
+| conc[n]          |                                  | Concentration of n_th_ tested drug. For example, "conc3" for the third tested drug. It is required if more than 2 drugs were combined.|
+| cell\_line\_name |                                  | Name of the cell line. The cell line names will be used for "data annotation". It will not influence the drug treatment effect analysis.|
+
+**Note:** 
+
+1. The duplicated concentration combinations in one block (with the same "block_id") will be treated as replicates.
+2. The size of a dose-response matrix should contain **at least three rows and columns**, so that sensible synergy scores can be calculated.
+3. SynergyFinder allows for missing values in the dose-response matrix. They will be automatically imputed by [mice](https://amices.org/mice/) R package.
+
 ### 1.2 Matrix format
 
-In the Matrix format, the dose-response matrix is represented in a matrix form with drug concentrations shown along the top and left side of the matrix (Fig.2).
-
-The three rows should precede each dose-response matrix:
+In the Matrix format, the dose-response matrix is represented in a matrix form with drug concentrations shown along the top and left side of the matrix (Fig.2). The three rows below should precede each dose-response matrix:
 
 1. **Drug1** name of the first drug
 2. **Drug2** name of the second drug
 3. **ConcUnit** unit of concentration
 
-The drug concentrations should be located at the top and left side of the matrix, where left side concentrations correspond to Drug1 and concentrations shown at the top correspond to the Drug2. The number of drug combinations provided in the input file is unlimited. The only restriction is imposed on the dose-response matrix size, which should comprise at least three rows and columns, so that sensible synergy scores can be calculated.
-
 ![Fig.2 An input file in Matrix format. Two dose-response matrices (for AT-406 & Navitoclax and NVP-LGK974 &
 Alpelisib drug combinations) are provided as an example.](../www/images/exampleMat.png)
 
 <p style="text-align: center;">Fig.2 An input file in Matrix format. Two dose-response matrices are provided as an example.</p>
+
+The number of drug combinations provided in the input file is unlimited. The only restriction is imposed on the dose-response matrix size, which should comprise at least three rows and columns, so that sensible synergy scores can be calculated.
+
+**Note:** 
+
+1. Matrix format only works on 2 drug combination data. Please use _table_ format for combinations with more than 3 drugs.
+2. The drug concentrations should be located at the top and left side of the matrix, where left side concentrations correspond to Drug1 and concentrations shown at the top correspond to the Drug2.
+3. The he dose-response matrix size should contain at least three rows and columns, so that sensible synergy scores can be calculated.
+4. SynergyFinder allows for missing values in the dose-response matrix. They will be automatically imputed by [mice](https://amices.org/mice/) R package.
 
 ## 2 Load file
 
@@ -58,35 +76,35 @@ Using the "Browse" button, users could select a file from local directory for up
 
 Example data is available from <a href="ExampleData.zip" download>here</a>.
 
+While the file is successfully uploaded, an overview of the input data will be shown for checking the problematic data points.
+
 ## 3 Choose readout
 
 After uploading the input file the user needs to specify the type of **phenotypic response**. Available options in SynergyFinder are:
+
 * **inhibition** % inhibition to cell growth or other signals. Normalized by negative control. 
 * **viabillity** % cell viability after treatment. Normalized by negative control. In case of %viability response type, the provided %viability values will be converted to %inhibition by the formula: $\%inhibition = 100 - \%viability$.
 
-After specifying the type of phenotypic response the user may firstly obtain an overview of the provided data in a searchable table to check for the problematic data points.
+Once user selected a response type, a new tab "Dose Response Map" will be shown in the left sidebar. User could click it to visualize dose-response map.
 
-By switching the "Visualize dose response data" toggle button, users will be directed to nex tab "Dose Response Map" for dose-response dat visualization.
+## Data annotation
+
+After successfully uploading the data, a switch for "data annotation" appears at the right left corner of the control panel. By turning it on, the program will query the external databases for the drug and cell line (If "cell_line_name" column was found in the input data) information. Three or two tables for drug information, drug MOA information and cell line information (Fig.3) will be shown below the input data table.
+
+![Fig.3 Annotation for drug and cell line](../www/images/dataAnno.png)
+
+<p style="text-align: center;">Fig.3 Annotation for drug and cell line</p>
 
 # Dose Response Map
 
-This tab will show an overview of the full dose-response matrix, as well as the dose response (%inhibition) curve for the single drugs (i.e. the first column and first row in the dose-response matrix), fitted by four-parameter logistic curves. The tabs named by combination of drug names are design for navigating to maps for different combinations. (Fig.3)
+This tab will show:
+1. The dose response (%inhibition) curve for the single drugs, fitted by four-parameter logistic curves. 
+2. The overview of full dose-response matrix. (Fig.3)
 
 ![Fig.3 Visualization of input dose-response data](../www/images/visDos.png)
 
 <p style="text-align: center;">Fig.3 Visualization of input dose-response data</p>
 
-The control panel at the left side of the page enables user to change the height and width of the plot.
-
-SynergyFinder allows for missing values in the dose-response matrix. They will be colored in gray. (Fig.4A) They will be imputed by taking the average of the nearest responses of both drugs. For example, the missing value from the response matrix in Fig.4A will be estimated as: $( 73.04 + 74.8 + 52.1 + 45.25) / 4 = 61.3$
-
-User could also specify the outliers (Fig.4C) by using the ‘Estimate outliers’ widget. In this case the cell specified by users will be imputed by using the same method as that for missing value.
-
-![Fig.4 A. Dose-response matrix with a missing value; B. Dose-response matrix with an outlier; C. SynergyFinder imputation of outliers.](../www/images/imputation.png)
-
-<p style="text-align: center;">Fig.4 A. Dose-response matrix with a missing value; B. Dose-response matrix with an outlier;<br/>C. SynergyFinder imputation of outliers.</p>
-
-After adjusting the dose response matrix, user could switch the "Calculate synergy" toggle button to navigate to next tab "Synergy Map".
 
 # Synergy Map
 
