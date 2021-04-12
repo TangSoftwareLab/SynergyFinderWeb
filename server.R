@@ -19,6 +19,7 @@ server <- function(input, output, session){
   inputdatatype <- reactiveValues(type_ = "Table")
   switches <- reactiveValues(vizDR = 0, vizSyn = 0, report = 0, calSyn = 0)
   correct_baseline <- reactiveValues(correct_baseline = NULL)
+  bb_plots <- reactiveValues(bar_plot = NULL, barometer = NULL)
   observeEvent(
     eventExpr = input$correct_baseline,
     handlerExpr = {
@@ -111,6 +112,7 @@ server <- function(input, output, session){
     shinyjs::hide(selector = "a[data-value=\"annotationTab\"]")
     shinyjs::hide(id = "correct_baseline")
     shinyjs::hide(id = "annoSwitch")
+    bb_plots <- reactiveValues(bar_plot = NULL, barometer = NULL)
     bb_plot_param <- reactiveValues(
       conc_unit = NULL,
       drug_pair = NULL, 
@@ -373,6 +375,7 @@ server <- function(input, output, session){
       shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
       shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
       shinyjs::hide(id = "correct_baseline")
+      bb_plots <- reactiveValues(bar_plot = NULL, barometer = NULL)
       bb_plot_param <- reactiveValues(
         conc_unit = NULL,
         drug_pair = NULL,
@@ -527,7 +530,7 @@ server <- function(input, output, session){
           output$report_blocks_ui <- renderUI({
             awesomeCheckboxGroup(
               inputId = "report_block",
-              label = "Select Blocks to Report",
+              label = "", #"Select Blocks to Report",
               choices = blocks,
               selected = blocks
             )
@@ -564,10 +567,10 @@ server <- function(input, output, session){
     handlerExpr = {
       if (switches$vizDR == 1) {
         if (nDrug$n > 2) { # Two drug combination
-          output$multi_drug_DR_plots <- renderUI(
+          output$multi_drug_DR_plot <- renderUI(
             box(
               id = "boxDoseResponseMultiDrug",
-              title = "Dose Response Map (Dimention Reduced)",
+              title = "Dose Response Map (Multiple Drugs Combination)",
               solidHeader = TRUE,
               width = 6,
               height = 400,
@@ -587,10 +590,14 @@ server <- function(input, output, session){
                     status = "primary",
                     right = TRUE
                   ),
-                  colourpicker::colourInput(
-                    inputId = "DR_multi_point_color",
-                    label = "Color for data points",
-                    value = "#DDA137"
+                  br(),
+                  tags$div(
+                    style = "margin-top: -4px;",
+                    colourpicker::colourInput(
+                      inputId = "DR_multi_point_color",
+                      label = "Color for data points",
+                      value = "#DDA137"
+                    )
                   )
                 ),
                 column(
@@ -727,6 +734,39 @@ server <- function(input, output, session){
     }
   )
   
+  output$downloadDRC <- downloadHandler(
+    filename = function() {
+      paste0(
+        "block_",
+        input$viz_block,
+        "_",
+        input$DRC_drug,
+        "dose_response_curve.svg"
+      )
+    },
+    content = function(file) {
+      grDevices::svg(
+        file, 
+        width = 10, 
+        height = 10,
+      )
+      replayPlot(
+        PlotDoseResponseCurve(
+          data = dataReshaped$reshapeD,
+          plot_block = input$viz_block,
+          drug_index = input$DRC_drug,
+          grid = NULL,
+          plot_title = "",
+          plot_subtitle = "",
+          point_color = input$DRC_dot_color,
+          curve_color = input$DRC_curve_color,
+          plot_new = TRUE,
+          record_plot = TRUE
+        )
+      )
+    }
+  )
+  
   # Plot: Dose-response map ---------------------------------------------------
   observeEvent(
     eventExpr = {
@@ -763,6 +803,7 @@ server <- function(input, output, session){
               plot_block = input$viz_block,
               drugs = param$drugs,
               dynamic = TRUE,
+              plot_title = "",
               statistic = input$DR_rep_statistic,
               summary_statistic = input$DR_summary_statistic,
               high_value_color = input$DR_high_value_color,
@@ -944,7 +985,6 @@ server <- function(input, output, session){
           switches$vizSyn == 1 &
           !is.null(input$viz_block)) {
         data <- dataReshaped$reshapeD
-        plots <- reactiveValues(bar_plot = NULL, barometer = NULL)
         if (is.null(bb_plot_param$drug_pair)) {
           bb_plot_param$drug_pair <- dataReshaped$reshapeD$drug_pairs[
             dataReshaped$reshapeD$drug_pairs$block_id == input$viz_block,
@@ -965,7 +1005,7 @@ server <- function(input, output, session){
             )
           ]
         }
-        plots$bar_plot <- PlotMultiDrugBar(
+        bb_plots$bar_plot <- PlotMultiDrugBar(
           data,
           plot_block = input$viz_block,
           plot_value = c(
@@ -983,7 +1023,7 @@ server <- function(input, output, session){
           neg_value_color = input$bb_neg_value_color,
           data_table = TRUE
         )
-        barPlotHeight <- reactive(length(unique(plots$bar_plot$data_table$id)) * 10)
+        barPlotHeight <- reactive(length(unique(bb_plots$bar_plot$data_table$id)) * 10)
         output$syn_bar_plot_ui <- renderUI({
           plotOutput(
             outputId = "syn_bar_plot",
@@ -995,8 +1035,8 @@ server <- function(input, output, session){
             withSpinner(color="#D2D2D2")
         })
         if (is.null(bb_plot_param$selected_values)) {
-          bb_plot_param$selected_values <- plots$bar_plot$data_table[
-            plots$bar_plot$data_table$id == 1,
+          bb_plot_param$selected_values <- bb_plots$bar_plot$data_table[
+            bb_plots$bar_plot$data_table$id == 1,
           ]
         }
         if (is.null(bb_plot_param$selected_conc)) {
@@ -1004,17 +1044,18 @@ server <- function(input, output, session){
             sort(grep("conc", colnames(bb_plot_param$selected_values), value = TRUE))
           ])
         }
-        plots$barometer <- PlotBarometer(
+        bb_plots$barometer <- PlotBarometer(
           data,
           plot_block = input$viz_block,
           plot_concs = bb_plot_param$selected_conc,
+          color_bar_color = input$bb_barometer_color,
           needle_text_offset = 5,
           show_concs = FALSE
         )
         # Double click to sort
         observeEvent(input$syn_bar_plot_dbclick, {
           if (is.null(input$syn_bar_plot_dbclick$panelvar1)){
-            plots$bar_plot <- PlotMultiDrugBar(
+            bb_plots$bar_plot <- PlotMultiDrugBar(
               data,
               plot_block = input$viz_block,
               plot_value = c(
@@ -1032,10 +1073,11 @@ server <- function(input, output, session){
               neg_value_color = input$bb_neg_value_color,
               data_table = TRUE
             )
-            plots$barometer <- PlotBarometer(
+            bb_plots$barometer <- PlotBarometer(
               data,
               plot_block = input$viz_block,
               plot_concs = bb_plot_param$selected_conc,
+              color_bar_color = input$bb_barometer_color,
               needle_text_offset = 5,
               show_concs = FALSE
             )
@@ -1054,7 +1096,7 @@ server <- function(input, output, session){
                 "Bliss Synergy Score" = "Bliss_synergy"
               )
             }
-            plots$bar_plot <- PlotMultiDrugBar(
+            bb_plots$bar_plot <- PlotMultiDrugBar(
               data,
               plot_block = input$viz_block,
               plot_value = c(
@@ -1072,10 +1114,11 @@ server <- function(input, output, session){
               neg_value_color = input$bb_neg_value_color,
               data_table = TRUE
             )
-            plots$barometer <- PlotBarometer(
+            bb_plots$barometer <- PlotBarometer(
               data,
               plot_block = input$viz_block,
               plot_concs = bb_plot_param$selected_conc,
+              color_bar_color = input$bb_barometer_color,
               needle_text_offset = 5,
               show_concs = FALSE
             )
@@ -1083,14 +1126,14 @@ server <- function(input, output, session){
         })
         # Click to highlight
         observeEvent(input$syn_bar_plot_click, {
-          bb_plot_param$selected_values <- plots$bar_plot$data_table[
-            plots$bar_plot$data_table$id == round(input$syn_bar_plot_click$y),
+          bb_plot_param$selected_values <- bb_plots$bar_plot$data_table[
+            bb_plots$bar_plot$data_table$id == round(input$syn_bar_plot_click$y),
           ]
           bb_plot_param$selected_conc <- unlist(bb_plot_param$selected_values[,
             sort(grep("conc", colnames(bb_plot_param$selected_values), value = TRUE))
           ])
           
-          plots$bar_plot <- PlotMultiDrugBar(
+          bb_plots$bar_plot <- PlotMultiDrugBar(
             data,
             plot_block = input$viz_block,
             plot_value = c(
@@ -1108,7 +1151,7 @@ server <- function(input, output, session){
             neg_value_color = input$bb_neg_value_color,
             data_table = TRUE
           )
-          plots$barometer <- PlotBarometer(
+          bb_plots$barometer <- PlotBarometer(
             data,
             plot_block = input$viz_block,
             plot_concs = bb_plot_param$selected_conc,
@@ -1120,8 +1163,8 @@ server <- function(input, output, session){
         
         observe({
           output$syn_bar_plot <- renderPlot(
-            {plots$bar_plot$plot})
-          output$syn_barometer <- renderPlot({plots$barometer})
+            {bb_plots$bar_plot$plot})
+          output$syn_barometer <- renderPlot({bb_plots$barometer})
           headerCallback <- c(
             "function(thead, data, start, end, display){",
             "  $('th', thead).css('border-bottom', 'none');",
@@ -1170,6 +1213,31 @@ server <- function(input, output, session){
     }
   )
   
+  output$downloadBar <- downloadHandler(
+    filename = function() {
+      paste0(
+        "SynergyFinder_bar_plot_block_",
+        input$viz_block,
+        ".svg"
+      )
+    },
+    content = function(file) {
+      ggsave(file, plot = bb_plots$bar_plot$plot, device = "svg")
+    }
+  )
+  
+  output$downloadBarometer <- downloadHandler(
+    filename = function() {
+      paste0(
+        "SynergyFinder_barometer_block_",
+        input$viz_block,
+        ".svg"
+      )
+    },
+    content = function(file) {
+      ggsave(file, plot = bb_plots$barometer, device = "svg")
+    }
+  )
   # # Plot: Synergy Map -------------------------------------------------------
   # Plot: Heatmap or 3D surface
   observeEvent(
@@ -1527,8 +1595,10 @@ server <- function(input, output, session){
         output$summaryTable <- renderDT(
           {dataReshaped$reshapeD$drug_pairs%>% 
               dplyr::select(
-                -input_type, -replicate, # -ZIP_synergy, -Loewe_synergy, -Bliss_synergy, -HSA_synergy,
-                -dplyr::contains("synergy")) %>%
+                -input_type, -replicate,
+                -dplyr::contains("synergy"),
+                -dplyr::contains("response"),
+                -dplyr::contains("conc_unit")) %>%
               dplyr::mutate_if(is.numeric, round, 2)
           }, 
           options = list(scrollX = TRUE, scrollCollapse=TRUE),
@@ -1634,6 +1704,9 @@ server <- function(input, output, session){
               syn_heatmap_label_color = input$syn_heatmap_label_color,
               syn_rep_statistic = input$syn_rep_statistic,
               syn_grid = input$syn_grid,
+              bb_panel_title_size = input$bb_panel_title_size,
+              bb_axis_text_size = input$bb_axis_text_size,
+              bb_highlight_label_size = input$bb_highlight_label_size,
               bb_highlight_pos_color = input$bb_highlight_pos_color,
               bb_highlight_neg_color = input$bb_highlight_neg_color,
               bb_pos_value_color = input$bb_pos_value_color,
@@ -1745,6 +1818,9 @@ server <- function(input, output, session){
               syn_heatmap_label_color = input$syn_heatmap_label_color,
               syn_rep_statistic = input$syn_rep_statistic,
               syn_grid = input$syn_grid,
+              bb_panel_title_size = input$bb_panel_title_size,
+              bb_axis_text_size = input$bb_axis_text_size,
+              bb_highlight_label_size = input$bb_highlight_label_size,
               bb_highlight_pos_color = input$bb_highlight_pos_color,
               bb_highlight_neg_color = input$bb_highlight_neg_color,
               bb_pos_value_color = input$bb_pos_value_color,

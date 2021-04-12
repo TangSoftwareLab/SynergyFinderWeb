@@ -36,11 +36,27 @@ ui <- shinyUI(
             # Menu elements
             sidebarMenu(
               id = "menuUserGuide",
-              menuItem("Upload Data", tabName = "inputDataUserGuideTab"),
-              menuItem("Dose Response Map", tabName = "doseResponseUserGuideTab"),
-              menuItem("Synergy Map", tabName = "synergyUserGuideTab"),
-              menuItem("Sensitivity Score", tabName = "sensitivityUserGuideTab"),
-              menuItem("DownloadReports", tabName = "reportUserGuideTab")
+              menuItem(
+                "Upload Data",
+                tabName = "inputDataUserGuideTab",
+                selected = T
+              ),
+              menuItem(
+                "Dose Response Map",
+                tabName = "doseResponseUserGuideTab"
+              ),
+              menuItem(
+                "Synergy Score",
+                tabName = "synergyUserGuideTab"
+              ),
+              menuItem(
+                "Sensitivity Score",
+                tabName = "sensitivityUserGuideTab"
+              ),
+              menuItem(
+                "DownloadReports",
+                tabName = "reportUserGuideTab"
+              )
             )         
           ),
           dashboardBody(
@@ -49,29 +65,55 @@ ui <- shinyUI(
                 tabName = "inputDataUserGuideTab",
                     tags$div(
                       class = "userGuide",
-                      withMathJax(includeMarkdown("./doc/user_guide_upload_data_tab.Rmd"))
-                      # inclRmd("./doc/user_guide_upload_data.Rmd")
+                      withMathJax(
+                        includeMarkdown(
+                          "./doc/user_guide_upload_data_tab.Rmd"
+                        )
+                      )
                     )
               ),
               tabItem(
                 tabName = "doseResponseUserGuideTab",
                 tags$div(
                   class = "userGuide",
-                  withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+                  withMathJax(
+                    includeMarkdown(
+                      "./doc/user_guide_dose_response_tab.Rmd"
+                    )
+                  )
+                )
+              ),
+              tabItem(
+                tabName = "synergyUserGuideTab",
+                tags$div(
+                  class = "userGuide",
+                  withMathJax(
+                    includeMarkdown(
+                      "./doc/user_guide_synergy_score_tab.Rmd"
+                    )
+                  )
                 )
               ),
               tabItem(
                 tabName = "sensitivityUserGuideTab",
                 tags$div(
                   class = "userGuide",
-                  withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+                  withMathJax(
+                    includeMarkdown(
+                      "./doc/user_guide_sensitivity_score_tab.Rmd"
+                    )
+                  )
                 )
               ),
               tabItem(
                 tabName = "reportUserGuideTab",
                 tags$div(
                   class = "userGuide",
-                  withMathJax(includeMarkdown("./doc/userGuide.Rmd"))
+                  withMathJax(
+                    includeMarkdown(
+                      "./doc/user_guide_report_tab.Rmd"
+                    )
+                  )
                 )
               )
             )

@@ -2,7 +2,24 @@
 title: "SynergyFinder Report"
 author: "SynergyFinder (http://synergyfinder.org/)"
 date: "`r Sys.Date()`"
-output: pdf_document
+header-includes:
+ - \usepackage{booktabs}
+ - \usepackage{longtable}
+ - \usepackage{array}
+ - \usepackage{multirow}
+ - \usepackage{wrapfig}
+ - \usepackage{float}
+ - \usepackage{colortbl}
+ - \usepackage{pdflscape}
+ - \usepackage{tabu}
+ - \usepackage{threeparttable}
+ - \usepackage{threeparttablex}
+ - \usepackage[normalem]{ulem}
+ - \usepackage{makecell}
+ - \usepackage{xcolor}
+output: 
+  pdf_document: default
+fig_caption: yes
 params:
   data: NA
   blocks: NA
@@ -30,6 +47,9 @@ params:
   syn_heatmap_label_color: NA
   syn_rep_statistic: NA
   syn_grid: NA
+  bb_panel_title_size: NA
+  bb_axis_text_size: NA
+  bb_highlight_label_size: NA
   bb_highlight_pos_color: NA
   bb_highlight_neg_color: NA
   bb_pos_value_color: NA
@@ -39,15 +59,19 @@ params:
   ss_show_label: NA
   ss_label_color: NA
   ss_label_size: NA
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+options(kableExtra.auto_format= FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "H")
+options(tinytex.verbose = TRUE)
 ```
 ```{r include=FALSE}
 library(tidyverse)
 library(synergyfinder)
 library(TidyComb)
+library(kableExtra)
 synergyfinder_obj <- params$data
 ndrug <- sum(grepl("drug", colnames(synergyfinder_obj$drug_pairs)))
 methods = c("ZIP", "Loewe", "Bliss", "HSA")
@@ -94,55 +118,93 @@ if (is.null(params$syn_multi_point)) {
 }
 ```
 
+```{r calculate_setting}
+cat("Correct Baseline Setting: ", params$correct_baseline)
+```
+
 # 1. Data tables
 
-## 1. Meta data table
-
 ```{r meta_table}
-table <- synergyfinder_obj$drug_pairs %>% 
+meta_table <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
     block_id,
     dplyr::starts_with("drug"),
     dplyr::starts_with("conc_unit"),
     dplyr::starts_with("cell"))
-
-knitr::kable(table)
-  # kableExtra::kbl() %>%
-  # kableExtra::kable_classic(full_width = F)
+names(meta_table) <- gsub("_", " ", names(meta_table))
+meta_table %>%
+  kableExtra::kable(
+    "latex",
+    booktabs = TRUE,
+    caption = "Drug Combiantion Meta Data"
+  ) %>%
+  kable_styling(latex_options = c("striped", "HOLD_position"))
 ```
-
-## 2. Synergy socores summary table
 
 ```{r synergy_table}
-synergyfinder_obj$drug_pairs %>% 
+df_synergy <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
     block_id,
-    dplyr::contains("synergy")) %>% 
-  knitr::kable()
-  # kableExtra::kbl() %>%
-  # kableExtra::kable_classic(full_width = F)
+    "ZIP" = "ZIP_synergy",
+    "Loewe" = "Loewe_synergy",
+    "HSA" = "HSA_synergy",
+    "Bliss" = "Bliss_synergy"
+    )
+names(df_synergy) <- gsub("_", " ", names(df_synergy))
+df_synergy %>% 
+  kableExtra::kable("latex", caption = "Synergy Score Summary Table") %>%
+  kableExtra::kable_styling(latex_options = c("striped", "HOLD_position"))
 ```
 
-## 3. Sensitivity socores summary table
-
-```{r sensitive_table}
-synergyfinder_obj$drug_pairs %>% 
+```{r synergy_statistic_table}
+if (any(synergyfinder_obj$drug_pairs$replicate)) {
+  df_synergy_statistic <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
     block_id,
-    dplyr::contains("ri"),
-    dplyr::contains("css")) %>% 
-  knitr::kable()
-  # kableExtra::kbl() %>%
-  # kableExtra::kable_classic(full_width = F)
+    `ZIP p Value` = "ZIP_synergy_p_value",
+    `Loewe p Value` = "Loewe_synergy_p_value",
+    `HSA p Value` = "HSA_synergy_p_value",
+    `Bliss p Value` = "Bliss_synergy_p_value"
+    )
+names(df_synergy_statistic) <- gsub("_", " ", names(df_synergy_statistic))
+df_synergy_statistic %>%
+  kableExtra::kable("latex", caption = "Synergy Score Statistic Table") %>%
+  kableExtra::kable_styling(latex_options = c("striped", "HOLD_position"))
+}
 ```
 
-## 4. Calcuclation setting
+```{r sensitivity_table}
+df_sensitive <- synergyfinder_obj$drug_pairs %>% 
+  dplyr::filter(block_id == params$blocks) %>% 
+  dplyr::select(
+    block_id,
+    dplyr::contains("ri_"),
+    "CSS" = "css")    
+names(df_sensitive) <- gsub("_", " ", names(df_sensitive))
+df_sensitive %>% 
+  kableExtra::kable("latex", caption = "Sensitivity Score Summary Table") %>%
+  kableExtra::kable_styling(latex_options = c("striped", "HOLD_position"))
+```
 
-```{r calculate_setting}
-cat("Correct Baseline: ", params$correct_baseline)
+```{r sensitivity_statistic_table}
+if (any(synergyfinder_obj$drug_pairs$replicate)) {
+  df_sensitive_statistic <- synergyfinder_obj$sensitivity_scores_statistics %>% 
+    dplyr::filter(block_id == params$blocks) %>% 
+    dplyr::select(
+      block_id,
+      paste0("ri_", 1:ndrug, "_p_value"),
+      "css_p_value"
+      ) 
+    names(df_sensitive_statistic) <- gsub("_", " ", names(df_sensitive_statistic))
+    df_sensitive_statistic %>% 
+    # knitr::kable(caption = "Synergy Score Statistic Table", format = "latex")
+    kableExtra::kable("latex", caption = "Sensitivity Score Statistic Table") %>%
+    # kableExtra::kable_classic(full_width = F) %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position"))
+}
 ```
 
 # 2. Dose response curve
@@ -155,19 +217,6 @@ knitr::include_graphics(params$DRC_plots)
 
 ```{r dose_response_map, fig.show="hold", out.width="50%"}
 for (b in params$blocks) {
-  # if (ndrug > 2) {
-  #   p <- PlotMultiDrugSurface(
-  #     data = synergyfinder_obj,
-  #     plot_block = b,
-  #     plot_value = "response",
-  #     plot_title = paste0("Block ", b, " Dose Response Matrix"),
-  #     high_value_color = DR_multi_high_value_color,
-  #     low_value_color = DR_multi_low_value_color,
-  #     show_data_points = DR_multi_point,
-  #     point_color = DR_multi_point_color
-  #   )
-  #   print(p)
-  # }
   comb <- combn(1:ndrug, 2)
   for (c in 1:ncol(comb)) {
     if (params$DR_plot_type == "heatmap") {
@@ -267,9 +316,9 @@ for (b in params$blocks) {
     ),
     highlight_row = NULL,
     sort_by = "response",
-    panel_title_size = 6,
-    axis_text_size = 5,
-    highlight_label_size = 5,
+    panel_title_size = params$bb_panel_title_size * 0.6,
+    axis_text_size = params$bb_axis_text_size * 0.6,
+    highlight_label_size = params$bb_highlight_label_size * 0.6,
     highlight_pos_color = params$bb_highlight_pos_color,
     highlight_neg_color = params$bb_highlight_neg_color,
     pos_value_color = params$bb_pos_value_color,
@@ -304,30 +353,30 @@ for (b in params$blocks) {
 
 # Reference
 
-* For use of Synergyfinder web application:
+## For use of Synergyfinder web application:
 
 Ianevski, A.; He, L.; Aittokallio, T.; Tang, J. SynergyFinder: A Web Application for Analyzing Drug Combination Dose-Response Matrix Data Bioinformatics 2017, 33 (15), 2413–2415. doi:10.1093/bioinformatics/btx162
 
-* For use of SynergyFinder R pacakge:
+## For use of SynergyFinder R pacakge:
 
 He, L.; Kulesskiy, E.; Saarela, J.; Turunen, L.; Wennerberg, K.; Aittokallio, T.; Tang, J. Methods for High-Throughput Drug Combination Screening and Synergy Scoring. Methods Mol Biol 2018, 1711, 351–398. doi:10.1007/978-1-4939-7493-1_17
 
-* For use of ZIP synergy scoring:
+## For use of ZIP synergy scoring:
 
 Yadav, B.; Wennerberg, K.; Aittokallio, T.; Tang, J. Searching for Drug Synergy in Complex Dose-Response Landscapes Using an Interaction Potency Model. Comput Struct Biotechnol J 2015, 13, 504–513. doi:10.1016/j.csbj.2015.09.001
 
-* For how to harmonize the different synergy scoring methods:
+## For how to harmonize the different synergy scoring methods:
 
 Tang, J.; Wennerberg, K.; Aittokallio, T. What Is Synergy? The Saariselkä Agreement Revisited. Front Pharmacol 2015, 6, 181. doi:10.3389/fphar.2015.00181
 
-* For general ideas of drug combination therapies:
+## For general ideas of drug combination therapies:
 
 Tang, J. Informatics Approaches for Predicting, Understanding, and Testing Cancer Drug Combinations. Methods Mol Biol 2017, 1636, 485–506. doi:10.1007/978-1-4939-7154-1_30
 
-* For retrieving the most comprehensive drug combination data resources and their sensitivity and synergy results by SynergyFinder, please go to DrugComb :
+## For retrieving the most comprehensive drug combination data resources and their sensitivity and synergy results by SynergyFinder, please go to DrugComb :
 
 Zagidullin, B.; Aldahdooh, J.; Zheng, S.; Wang, W.; Wang, Y.; Saad, J.; Malyutina, A.; Jafari, M.; Tanoli, Z.; Pessia, A.; Tang, J. DrugComb: An Integrative Cancer Drug Combination Data Portal. Nucleic Acids Res 2019, 47 (W1), W43–W51. doi:10.1093/nar/gkz337
 
-* For use of combination sensitivity score:
+## For use of combination sensitivity score:
 
-Malyutina, A.; Majumder, M. M.; Wang, W.; Pessia, A.; Heckman, C. A.; Tang, J. Drug Combination Sensitivity Scoring Facilitates the Discovery of Synergistic and Efficacious Drug Combinations in Cancer. PLOS Computational Biology 2019, 15 (5), e1006752. 10.1371/journal.pcbi.1006752
+Malyutina, A.; Majumder, M. M.; Wang, W.; Pessia, A.; Heckman, C. A.; Tang, J. Drug Combination Sensitivity Scoring Facilitates the Discovery of Synergistic and Efficacious Drug Combinations in Cancer. PLOS Computational Biology 2019, 15 (5), e1006752. doi:10.1371/journal.pcbi.1006752

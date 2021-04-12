@@ -10,7 +10,11 @@ dashboardUI <- function(id) {
       # Menu elements
       sidebarMenu(
         id = "menu",
-        menuItem("Upload Data", tabName = "inputDataTab"),
+        menuItem(
+          "Upload Data",
+          tabName = "inputDataTab",
+          selected = T
+        ),
         menuItemOutput("doseResponseMenu"),
         menuItemOutput("synergyMenu"),
         menuItemOutput("sensitivityMenu"),
@@ -26,14 +30,18 @@ dashboardUI <- function(id) {
       uiOutput(outputId = 'errorTable'),
       fluidRow(
         column(
-          width = 4,
+          width = 6,
           uiOutput(outputId = "plot_block")
         ),
         column(
-          width = 4,
+          width = 6,
           selectInput(
             inputId = "correct_baseline", label = "Correct baseline",
-            choices = list("", "Non" = "non", "Part" = "part", "All" = "all"),
+            choices = list(
+              "",
+              "Non: No correction" = "non",
+              "Part: Correct negative inhibition values" = "part",
+              "All: Correct whole matrix" = "all"),
             selected = ""
           )
         )

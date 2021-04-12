@@ -94,6 +94,11 @@ doseResponseTabUI <- function(id) {
             label = "Background grids",
             status = "primary",
             right = TRUE
+          ),
+          downloadButton(
+            outputId = "downloadDRC",
+            label = "Download Plot (SVG)",
+            icon =shiny::icon("download")
           )
         ),
         column(
@@ -111,7 +116,7 @@ doseResponseTabUI <- function(id) {
         )
       )
     ),
-    uiOutput(outputId = "multi_drug_DR_plots"),
+    uiOutput(outputId = "multi_drug_DR_plot"),
     box(
       id = "boxDoseResponseMatrix",
       title = "Dose Response Map (2 Drugs Combination)",
@@ -137,6 +142,17 @@ doseResponseTabUI <- function(id) {
             min = 0.1,
             max = 2
           ),
+          selectInput(
+            inputId = "DR_summary_statistic",
+            label = "Summary Statistics",
+            choice = c(
+              "None" = NULL,
+              "Mean" = "mean", "Median" = "median",
+              "25% quantile" = "quantile_25",
+              "75% quantile" = "quantile_75"
+            ),
+            selected = NULL
+          ),
           sliderInput(
             inputId = "DR_heatmap_label_size",
             label = "Heatmap text label size",
@@ -149,17 +165,6 @@ doseResponseTabUI <- function(id) {
             label = "Statistics for Replicates",
             choices = c("Non" = NULL, "95% confidence interval" = "ci",
                         "Standard error of mean" = "sem"),
-            selected = NULL
-          ),
-          selectInput(
-            inputId = "DR_summary_statistic",
-            label = "Summary Statistics",
-            choice = c(
-              "None" = NULL,
-              "Mean" = "mean", "Median" = "median",
-              "25% quantile" = "quantile_25",
-              "75% quantile" = "quantile_75"
-            ),
             selected = NULL
           ),
           shinyWidgets::materialSwitch(
@@ -356,7 +361,6 @@ synergyTabUI <- function(id) {
         )
       ),
       hr(),
-      tags$h4("Bar Plot Setting"),
       fluidRow(
         column(
           width = 3,
@@ -431,6 +435,24 @@ synergyTabUI <- function(id) {
             value = "#2166AC"
           )
         )
+      ),
+      fluidRow(
+        column(
+          width = 3,
+          downloadButton(
+            outputId = "downloadBar",
+            label = "Download Bar Plot (SVG)",
+            icon =shiny::icon("download")
+          )
+        ),
+        column(
+          width = 3,
+          downloadButton(
+            outputId = "downloadBarometer",
+            label = "Download Barometer (SVG)",
+            icon =shiny::icon("download")
+          )
+        )
       )
       # )
     )
@@ -478,7 +500,7 @@ sensitivityTabUI <- function(id) {
           ),
           column(
             width = 3,
-            numericInput(
+            sliderInput(
               inputId = "ss_point_size",
               label = "Point size (mm)",
               value = 1,
@@ -486,6 +508,25 @@ sensitivityTabUI <- function(id) {
               max = 10,
               step = 0.5,
             )
+          )
+        ),
+        column(
+          width = 3,
+          colourpicker::colourInput(
+            inputId = "ss_label_color",
+            label = "Text label color",
+            value = "#2166AC"
+          )
+        ),
+        column(
+          width = 3,
+          sliderInput(
+            inputId = "ss_label_size",
+            label = "Label size (pt)",
+            value = 10,
+            min = 1,
+            max = 50,
+            step = 1
           )
         ),
         fluidRow(
@@ -497,25 +538,6 @@ sensitivityTabUI <- function(id) {
               label = "Show labels",
               status = "primary",
               right = TRUE
-            )
-          ),
-          column(
-            width = 3,
-            colourpicker::colourInput(
-              inputId = "ss_label_color",
-              label = "Antagnositic effect color",
-              value = "#2166AC"
-            )
-          ),
-          column(
-            width = 3,
-            numericInput(
-              inputId = "ss_label_size",
-              label = "Label size (pt)",
-              value = 10,
-              min = 1,
-              max = 50,
-              step = 1
             )
           )
         )
@@ -531,6 +553,7 @@ reportTabUI <- function(id) {
     fluidRow(
       column(
         width = 3,
+        tags$h3("Select Blocks to Report"),
         uiOutput(outputId = "report_blocks_ui")
       ),
       column(

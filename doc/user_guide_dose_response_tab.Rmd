@@ -1,5 +1,5 @@
 ---
-title: "USER GUIDE: Upload Data"
+title: "USER GUIDE: Dose Response Map"
 date: 2021.4.7
 output: 
   html_document:
@@ -16,9 +16,54 @@ This tab mainly show the dose-response curve and dose-response map for inputted 
 <p style="text-align: center;"> Fig.1 User Interface of the "Dose Response Map" tab </p>
 
 1. A selector to select the block to visualize.
-2. A selector to select the method for baseline correction. This function adjusts the baseline of drug combination dose-response matrix closer to 0. There are three options: "Non" - no baseline correction; "Part" - only the negative values in the matrix will be adjusted; "All" - adjusts all values in the matrix. Once the baseline correction method is selected. The calculation for synergy scores and sensitivity scores will be trigger. After the calculation, three new tabs ("Synergy Scores", "Sensitivity Scores", and "Download Report") will be shown. Please check corresponding pages for more details.
+2. A selector to select the method for baseline correction. This function adjusts the baseline of drug combination dose-response matrix closer to 0. There are three options: "Non" - no baseline correction; "Part" - only the negative values in the matrix will be adjusted; "All" - adjusts all values in the matrix. Once the baseline correction method is selected, the calculation for synergy scores and sensitivity scores will be triggered. After the calculation, three new tabs ("Synergy Scores", "Sensitivity Scores", and "Download Report") will be shown. Please check corresponding pages for more details.
 3. Plotting area. The customizable plots will be shown in this area. All of the plots are able to be downloaded. Please check sections below for more details.
 
 # 2 Dose Response Curve
 
+![Fig.2 Dose-response curve](../www/images/userGuideDoseResponseCurve.png)
 
+<p style="text-align: center;"> Fig.2 Dose-response curve </p>
+
+SynergyFinder extracts the data of the single drug treatment from the input data. Each drug's dose-response is modeled using 4-parameter log-logistic curve and visualized in this panel. SynergyFinder provides various widgets to help user customize the plot:
+
+1. Plotting area for dose response curve.
+2. Select the one of the drugs in the combination to visualize.
+3. Select the color for the data points.
+4. Whether to show the grids at the background or not.
+5. Select the color for the curve.
+6. Download the plot as "SVG" file.
+
+# 3 Dose Response Map (2 Drugs Combination)
+
+![Fig.3 Two drugs combination dose-response map](../www/images/userGuideDoseResponseMap.png)
+
+<p style="text-align: center;"> Fig.3 Two drugs combination dose-response map </p>
+
+SynergyFinder extracts the data for all the possible drug combination pairs from the data and visualize the dose response map. It would be the whole dose response matrix if the input data is about 2 drug combination. There are two types of plot are available: Heatmap and interactive 3D surface (Fig.3). SynergyFinder provides various widgets to help user customize the plot:
+
+1. Interactive plotting area powered by [plotly](https://plotly.com/r/). Several buttons will be shown at the top-right corner while hovering to help user modify the plotting view and download the plot as "SVG" file.
+2. Select the drug pair to visualize. If input data is 2-drug combination, only one option is available.
+3. Adjust the text size for plot title, axis titles, axis texts, legend titles, and legend tick texts.
+4. Select the summary statistic shown on the top of the top. It could be mean, median, 25% quantile or 75% quantile of the response values in the whole combination matrix. If there are replications in the input data, the p value (comparing to 0% inhibition) will be shown after the mean value.
+5. Select the plot type to be Heatmap or 3D surface.
+6. Select the color for the highest value in the Heatmap/surface.
+7. Select the color for the lowest value in the Heatmap/surface.
+8. (Only for Heatmap) Adjust the text size for the labels within Heatmap.
+9. (Only for Heatmap and replicated data) Select the statistics shown below the Heatmap text labels. Available statistics are "90% confidence interval" or "standard error of mean".
+10. (Only for Heatmap) Select the color for the text Heatmap on the Heatmap.
+11. (Only for 3D surface) Whether to show the grids on the surface in the plot.
+
+# 4 Dose Response Map (Multiple Drugs Combination)
+
+![Fig.4 Multiple drugs combination dose-response map](../www/images/userGuideDoseResponseMulti.png)
+
+<p style="text-align: center;"> Fig.4 Two drugs combination dose-response map </p>
+
+This plot will be shown when there are more than 2 drugs combined in the input data. To visualize the high-order drug combinations, the two-dimensional coordinates of each drug dose combination are determined by multi-dimensional scaling based on the similarity of their dose ranges. The response (% inhibition) will be visualized as the height of a 3D surface. Observed data points are plotted on the surface. Hovering mouse on the data points will show the concentration information of the drugs and corresponding % inhibition value.
+
+1. Interactive plotting area powered by [plotly](https://plotly.com/r/). Several buttons will be shown at the top-right corner while hovering to help user modify the plotting view and download the plot as "SVG" file. Hovering mouse on the data points will show the concentration information of the drugs and corresponding % inhibition value.
+2. Whether to show the data points or not.
+3. Select the color of the data points.
+4. Select the color for the highest value in the surface plot.
+5. Select the color for the lowest value in the surface plot.
