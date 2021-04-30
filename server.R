@@ -136,6 +136,16 @@ server <- function(input, output, session){
   
   # # inputDataTab ------------------------------------------------------------
   
+  # Download example data -----------------------------------------------------
+  
+  output$loadExData_small <- downloadHandler(
+    filename = "ExampleData.zip",
+    content = function(fname) {
+      zip(zipfile=fname, files="./ExampleData/")
+    },
+    contentType = "application/zip"
+  )
+  
   # Input data type select box ------------------------------------------------
   observeEvent(
     eventExpr = input$inputDatatype,
