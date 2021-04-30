@@ -1,5 +1,5 @@
 
-<a href="http://synergyfinder.org"><img src="./www/magnifier_i.gif" align="left" width="500px"></a>
+<a href="http://synergyfinder.org"><img src="./www/images/logo.gif" align="left" width="500px"></a>
 <br/>
 <br/>
 <br/>
@@ -15,8 +15,7 @@
 
 ## User interface
 
-![Dose response visualization](./www/visDoseResponse.png)
-![synergy visualization](./www/visSyn.png)
+![Home page](./www/images/userGuideHome.png)
 
 For any questions please contact **Jing Tang** [@JingTang](jing.tang@helsinki.fi), or **Shuyu Zheng** [@ShuyuZheng](shuyu.zheng@helsinki.fi)
 
