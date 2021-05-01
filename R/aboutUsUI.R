@@ -50,9 +50,8 @@ aboutUsUI <- function(id) {
               tags$p(class='textCard left-light-green',
                 tags$b("DrugComb"),
                 tags$br(),
-                "An integrated data portal aimed at collecting, ",
-                "analysing and distributing the results of drug combination screens on cancer cell lines. ",
-                "Its main purpose is harmonisation of drug combination research results."
+                "An integrated data portal aimed at collecting and, ",
+                "and harmonizing the results of drug combination screens on cancer cell lines. ",
               ),
               href="https://www.drugcomb.org",
               target="_blank"
