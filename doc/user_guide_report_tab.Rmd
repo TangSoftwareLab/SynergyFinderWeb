@@ -7,7 +7,7 @@ output:
     toc_depth: 2
 ---
 
-# 1 User Interface 
+# User Interface 
 
 This tab provides the functions to download the analysis results. Figure 1 shows the user interface.
 
