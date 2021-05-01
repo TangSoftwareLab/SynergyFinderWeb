@@ -11,16 +11,16 @@ output:
 
 ## 1.1 Data Format
 
-SynergyFinder accepts two data formats: **Table** and **Matrix**.
+SynergyFinder accepts two formats of input: **Table** and **Matrix**.
 
 ### 1.1.1 Table Format
 
-In the Table format, the input dose-response matrix is represented as a table where each row contains the information about the one dosage combination in the dose-response matrix (Fig.1).
+In the Table format, the dose-response data is represented as a long table where each row represent one observation in the dose-response matrix (Fig.1).
 ![Fig.1 Input file in Table format.](../www/images/exampleTab.png)
 
 <p style="text-align: center;">Fig.1 Input file in Table format.</p>
 
-The input table must contain the following columns (The column naming style used in the old SynergyFinder or [DrugComb](https://drugcomb.org/), e.i. 'Alternative Column names' are accepted):
+The input table must contain the following columns (The column naming style used in the old SynergyFinder or [DrugComb](https://drugcomb.org/), i.e. 'Alternative Column names' are accepted):
 
 | Required Columns | Alternative Column names         | Description                                                     |
 | ---------------- | -------------------------------- | --------------------------------------------------------------- |
@@ -34,22 +34,22 @@ The input table must contain the following columns (The column naming style used
 
 | Optional Columns | Alternative Column names         | Description                                                                              |
 | ---------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
-| conc\_unit1      | conc\_r\_unit                    | Unit of concentration for first drug. It is used if the concentration units are different for the tested drugs.|
-| conc\_unit2      | conc\_c\_unit                    | Unit of concentration for second drug. It is used if the concentration units are different for the tested drugs.|
-| conc\_unit[n]    |                                  | Unit of concentration for n_th drug. For example, "conc\_unit3" for the third tested drug. It is used if the concentration units are different for the tested drugs and more than 2 drugs were combined.|
+| conc\_unit1      | conc\_r\_unit                    | Unit of concentration for the first drug. It is used if the concentration units are different for the tested drugs.|
+| conc\_unit2      | conc\_c\_unit                    | Unit of concentration for the second drug. It is used if the concentration units are different for the tested drugs.|
+| conc\_unit[n]    |                                  | Unit of concentration for n_th drug. For example, "conc\_unit3" for the n_th tested drug. It is used if the concentration units are different for the tested drugs and more than 2 drugs were combined.|
 | drug[n]          |                                  | Name of the n_th_ tested drug. For example, "drug3" for the third tested drug. It is required if more than 2 drugs were combined.|
 | conc[n]          |                                  | Concentration of n_th_ tested drug. For example, "conc3" for the third tested drug. It is required if more than 2 drugs were combined.|
-| cell\_line\_name |                                  | Name of the cell line. The cell line names will be used for "data annotation". It will not influence the drug treatment effect analysis.|
+| cell\_line\_name |                                  | Name of the cell line. The cell line names will be used for "data annotation". |
 
 **Note:** 
 
 1. The duplicated concentration combinations in one block (with the same "block_id") will be treated as replicates.
-2. The size of a dose-response matrix should contain **at least three rows and columns**, so that sensible synergy scores can be calculated.
-3. SynergyFinder allows for missing values in the dose-response matrix. They will be automatically imputed by [mice](https://amices.org/mice/) R package.
+2. There is no restriction on the number of drug combinations for the input file. The data should however, contain **at least three concentrations for each drug**, so that sensible synergy scores can be calculated.
+3. SynergyFinder allows for missing values in the dose-response matrix. The missing value will be automatically imputed by [mice](https://amices.org/mice/) R package.
 
 ### 1.1.2 Matrix Format
 
-In the Matrix format, the dose-response matrix is represented in a matrix form with drug concentrations shown along the top and left side of the matrix (Fig.2). The three rows below should precede each dose-response matrix:
+In the Matrix format, the dose-response matrix is represented in a matrix with drug concentrations shown along the top and left edge of the matrix (Fig.2). The three rows below should precede each dose-response matrix:
 
 1. **Drug1** name of the first drug
 2. **Drug2** name of the second drug
@@ -60,14 +60,13 @@ Alpelisib drug combinations) are provided as an example.](../www/images/exampleM
 
 <p style="text-align: center;">Fig.2 An input file in Matrix format. Two dose-response matrices are provided as an example.</p>
 
-The number of drug combinations provided in the input file is unlimited. The only restriction is imposed on the dose-response matrix size, which should comprise at least three rows and columns, so that sensible synergy scores can be calculated.
 
 **Note:** 
 
 1. Matrix format only works on 2 drug combination data. Please use _table_ format for combinations with more than 3 drugs.
-2. The drug concentrations should be located at the top and left side of the matrix, where left side concentrations correspond to Drug1 and concentrations shown at the top correspond to the Drug2.
-3. The he dose-response matrix size should contain at least three rows and columns, so that sensible synergy scores can be calculated.
-4. SynergyFinder allows for missing values in the dose-response matrix. They will be automatically imputed by [mice](https://amices.org/mice/) R package.
+2. The drug concentrations should be located at the top and left side of the matrix, where concentrations located at the left side correspond to Drug1 and concentrations located at the top correspond to the Drug2.
+3. There is no restriction on the number of drug combinations for the input file. The data should however, contain **at least three concentrations for each drug**, so that sensible synergy scores can be calculated.
+4. SynergyFinder allows for missing values in the dose-response matrix. The missing value will be automatically imputed by [mice](https://amices.org/mice/) R package.
 
 ## 1.2 File Format
 
@@ -75,7 +74,7 @@ SynergyFinder accepts following file formats:
 
 * EXCLE file with extension ".xlsx"
 * comma-delimited CSV file, with extension ".csv"
-* comma-delimited TXT file, with extension ".txt"
+* tab-delimited TXT file, with extension ".txt"
 
 ## 1.3 Example Data
 
