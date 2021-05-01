@@ -9,13 +9,13 @@ output:
 
 # 1 Synergy Score Calculation
 
-The synergistic effect can be determined as the excess of observed effect over expected effect calculated with reference models (synergy scoring models). All of the models make different assumptions regarding the expected effect. Currently, 4 reference models are available in SynergyFinder. 
+The synergistic effect can be determined as the excess of observed effect over expected effect calculated by a reference models (synergy scoring models). All of the models make different assumptions regarding the expected effect. Currently, 4 reference models are available in SynergyFinder. 
 
 * **Highest Single Agent (HSA)** [Berenbaum, 1989] states that the expected combination effect equals to the higher effect of individual drugs:
 
 $$y_{HSA} = max(y_1, y_2)$$
 
-* **Loewe** additivity model [Loewe, 1953] defines the expected effect $y_{LOEWE}$ as if a drug was combined with itself. Unlike the HSA and the Bliss independence models giving a point estimate using different assumptions, the Loewe additivity model considers the dose-response curves of individual drugs. The expected effect $y_{LOEWE}$ must satisfy:
+* **Loewe** additivity model [Loewe, 1953] defines the expected effect $y_{LOEWE}$ as if a drug was combined with itself. Unlike the HSA and the Bliss independence models, which give a point estimate using different assumptions, the Loewe additivity model considers the dose-response curves of individual drugs. The expected effect $y_{LOEWE}$ must satisfy:
 
 $$
 		\frac
@@ -37,7 +37,7 @@ $$
 $$
 , where $E_{min}, E_{max}\in[0,1]$ are minimal and maximal effects of the drug, $m_{1,2}$ are the doses of drugs that produce the midpoint effect of $E_{min} + E_{max}$, also known as relative $EC_{50}$ or $IC_{50}$, and $\lambda_{1,2}(\lambda>0)$ are the shape parameters indicating the sigmoidicity or slope of dose-response curves. A numerical nonlinear solver can be then used to determine $y_{LOEWE}$ for ($x_1$, $x_2$).
 
-* **Bliss** model [Bliss, 1939] assumes a stochastic process in which two drugs elicit their effects independently, and the expected combination effect can be calculated based on the probability of independent events as:
+* **Bliss** model [Bliss, 1939] assumes a stochastic process in which two drugs exert their effects independently, and the expected combination effect can be calculated based on the probability of independent events as:
 
 $$
 		y_{BLISS} = y_1 + y_2 - y_1 \cdot y_2
