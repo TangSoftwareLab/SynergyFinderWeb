@@ -186,11 +186,18 @@ server <- function(input, output, session){
               annot <- openxlsx::read.xlsx(
                 input$annotfile$datapath
               )
-            } else if (ext %in% c("TXT", "CSV")) {
+            } else if (ext == "CSV") {
+              annot <- read.csv(
+                file = input$annotfile$datapath,
+                header = TRUE,
+                row.names = NULL,
+                fill = TRUE
+              )
+            } else if (ext == "TXT") {
               annot <- read.table(
                 file = input$annotfile$datapath,
                 header = TRUE,
-                sep = ",",
+                sep = "\t",
                 row.names = NULL,
                 fill = TRUE
               )
@@ -219,11 +226,18 @@ server <- function(input, output, session){
                 input$annotfile$datapath,
                 colNames = FALSE
               )
-            } else if (ext %in% c("TXT", "CSV")) {
+            } else if (ext == "CSV") {
+              annot <- read.csv(
+                file = input$annotfile$datapath,
+                header = FALSE,
+                row.names = NULL,
+                fill = TRUE
+              )
+            } else if (ext == "TXT") {
               annot <- read.table(
                 file = input$annotfile$datapath,
                 header = FALSE,
-                sep =",",
+                sep = "\t",
                 row.names = NULL,
                 fill = TRUE
               )
@@ -245,7 +259,8 @@ server <- function(input, output, session){
             "Something wrong with your file that cannot be handled by application.",
             " Please check that <b>\"", input$inputDatatype,
             "\"</b> is a correct file format.",
-            "For more information about input data see <b>USER GUIDE</b>."
+            "For more information about input data see <b>USER GUIDE</b>.",
+            "\n", e
           ),
           title = "Unhandled error occurred!",
           closeButton = TRUE,
@@ -876,7 +891,6 @@ server <- function(input, output, session){
     }
   )
   
-  
   # Plot: Multi-drug dose-response --------------------------------------------
   observeEvent(
     eventExpr = {
@@ -909,7 +923,7 @@ server <- function(input, output, session){
     }
   )
   
-  # # Calculate synergy scores and sensitivity score --------------------------
+  # Calculate synergy scores and sensitivity score --------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline

@@ -180,10 +180,15 @@ body{
 
 /*userGuide*/
 .userGuide {
+}
+.userGuide {
   padding-right: 30px;
   padding-left: 30px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
-#userGuide h1 {
+.userGuide h1 {
   border-bottom: 3px solid #0277bd;
 }
 .userGuide p{
@@ -203,22 +208,29 @@ body{
 }
 
 .userGuide table {
-    border-collapse: collapse;
-    margin-left: 2%;
-    margin-right: 2%;
+  display: block;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  width: 68%;
 }
-/*
-#userGuide table, th, td {
-    border: 1px solid #2d2d2d;
-}
-*/
+
 .userGuide th {
   background-color: #0277bd;
   color: #FFFFFF;
+  /*border: 1px solid #e4e4e4;*/
+  padding: 5px;
 }
 
-.userGuide th, td{
+.userGuide td{
   padding: 5px;
+  min-width: 116px;
+  border: 1px solid #e4e4e4;
+}
+.userGuide ol, ul {
+  padding-left: 80px;
 }
 
 .textCard {

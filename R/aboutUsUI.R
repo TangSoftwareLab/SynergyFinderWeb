@@ -95,8 +95,7 @@ aboutUsUI <- function(id) {
               tags$br(),
               "Former postdoc Researcher"
             )
-
-          )
+          ),
           column(
             width = 6,
             tags$p(
@@ -131,8 +130,6 @@ aboutUsUI <- function(id) {
               tags$br(),
               "Former PhD student"
             )
-            
-           )
           )
         )
       )

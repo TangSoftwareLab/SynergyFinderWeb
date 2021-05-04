@@ -5,6 +5,7 @@ ui <- shinyUI(
       includeCSS("./styles/style.css"),
       # includeCSS("./styles/tooltip-curved.css"),
       tags$script(src = "feedback_source.js"),
+      singleton(tags$script(src = "correctBaselineSetting.js")),
       tags$script(src = "feedback.js"), #also to top button
       tags$script(src = "https://d3js.org/d3.v4.min.js"),
       tags$script(src = "https://d3js.org/d3-scale-chromatic.v1.min.js"),
@@ -15,7 +16,7 @@ ui <- shinyUI(
         href = "https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap"
       )
     ),
-    setBackgroundImage("background.jpg"),
+    # setBackgroundImage("background.jpg"),
     navbarPage(
       title = tags$img(src="/images/logo.gif", height="30", width="150"),
       windowTitle = "SynergyFinder",
