@@ -1873,16 +1873,17 @@ server <- function(input, output, session){
     content <- function(file) {
       table <- dataReshaped$reshapeD$drug_pairs %>% 
         dplyr::select(
-          block_id,
-          dplyr::starts_with("drug"),
-          dplyr::ends_with("_synergy"),
-          css)
+          block_id, drug1, drug2, response, response_p_value, ZIP_synergy,
+          ZIP_synergy_p_value, HSA_synergy, HSA_synergy_p_value, Loewe_synergy,
+          Loewe_synergy_p_value, Bliss_synergy, Bliss_synergy_p_value, ic50_1,
+          ic50_2, ri_1, ri_2, css1_ic502, css2_ic501, css
+        )
       if (input$download_table_format == "XLSX") {
         writexl::write_xlsx(table, path = file)
       } else if (input$download_table_format == "CSV") {
-        write.csv(table, file = file)
+        write.csv(table, file = file, row.names = FALSE)
       } else if (input$download_table_format == "TXT") {
-        write.table(table, file = file, sep = "\t")
+        write.table(table, file = file, sep = "\t", row.names = FALSE)
       }
     }
   )
@@ -1900,9 +1901,9 @@ server <- function(input, output, session){
       if (input$download_table_format == "XLSX") {
         writexl::write_xlsx(table, path = file)
       } else if (input$download_table_format == "CSV") {
-        write.csv(table, file = file)
+        write.csv(table, file = file, row.names = FALSE)
       } else if (input$download_table_format == "TXT") {
-        write.table(table, file = file, sep = "\t")
+        write.table(table, file = file, sep = "\t", row.names = FALSE)
       }
     }
   )
