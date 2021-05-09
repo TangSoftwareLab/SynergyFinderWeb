@@ -1626,6 +1626,7 @@ server <- function(input, output, session){
               dplyr::mutate_if(is.numeric, round, 2)
           }, 
           options = list(scrollX = TRUE, scrollCollapse=TRUE),
+          selection = 'none',
           rownames= FALSE
         )
       }
