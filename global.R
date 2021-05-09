@@ -18,5 +18,5 @@ sapply(
 )
 
 # Path to temporarily store pdf reports.
-reportspath <- "~/Desktop/test_synergyfinder/"
-cellosauruspath <- "~/Documents/work/TidyComb_related/cellosaurus.xml"
+reportspath <- "tem_folder/"
+cellosauruspath <- "cellosaurus.xml"
