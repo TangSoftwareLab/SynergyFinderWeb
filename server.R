@@ -1873,7 +1873,7 @@ server <- function(input, output, session){
     content <- function(file) {
       table <- dataReshaped$reshapeD$drug_pairs %>% 
         dplyr::select(
-          block_id, drug1, drug2, response, response_p_value, ZIP_synergy,
+          block_id, drug1, drug2, ZIP_synergy,
           ZIP_synergy_p_value, HSA_synergy, HSA_synergy_p_value, Loewe_synergy,
           Loewe_synergy_p_value, Bliss_synergy, Bliss_synergy_p_value, ic50_1,
           ic50_2, ri_1, ri_2, css1_ic502, css2_ic501, css
