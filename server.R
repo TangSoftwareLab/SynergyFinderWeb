@@ -213,7 +213,6 @@ server <- function(input, output, session){
             annot <- annot[, !apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
             annot <- synergyfinder::.AdjustColumnName(annot)
             cols_num <- c(
-              "block_id",
               grep("conc\\d+", colnames(annot), value = TRUE),
               "response"
             )
@@ -528,12 +527,12 @@ server <- function(input, output, session){
           closeAlert(session, "alertPD")
           drug_pairs <- dataReshaped$reshapeD$drug_pairs
           #find all drug pairs
-          blocks <- 1:nrow(drug_pairs)
+          blocks <- drug_pairs$block_id
           names(blocks) <- sapply(
             1:nrow(drug_pairs),
             function(i) {
               paste0(
-                as.character(i),
+                as.character(drug_pairs$block_id[i]),
                 ": ",
                 paste(
                   drug_pairs[i, grepl("drug\\d+", colnames(drug_pairs))],
@@ -547,7 +546,7 @@ server <- function(input, output, session){
               inputId = "viz_block",
               label = "Block ID for plots",
               choices = blocks,
-              selected = blocks[1]
+              selected = drug_pairs$block_id[1]
             )
           }) # renderUI plot_block
           
