@@ -21,7 +21,7 @@ where $y_{min}, y_{max}$ are minimal and maximal inhibition and $x' = log_{10}x$
 ## 1.2 Relative Inhibition (RI)
 RI is the abbreviation of “relative inhibition”. It is the proportion of the area under the dose-response curve (fitted by four parameter log logistic model), to the maximal area that one drug can achieve at the same dose range (Fig.1). For example, RI of 40 suggests that the drug is able to achieve 40% of the maximal of inhibition (e.g. a positive control where the cell is 100% inhibited in each dose that in the range). RI is comparable between 
 different scenarios, even for the same drug-cell pair but tested in different concentration ranges.
-![Fig.2 User Interface of the "Synergy Score" tab](../www/images/ri.png)
+![Fig.1 Concept of RI](../www/images/ri.png)
 
 ## 1.3 Combination Sensitivity Score (CSS)
 
