@@ -4,9 +4,9 @@ ui <- shinyUI(
     tags$head( 
       includeCSS("./styles/style.css"),
       # includeCSS("./styles/tooltip-curved.css"),
-      tags$script(src = "feedback_source.js"),
+      # tags$script(src = "feedback_source.js"),
       singleton(tags$script(src = "correctBaselineSetting.js")),
-      tags$script(src = "feedback.js"), #also to top button
+      # tags$script(src = "feedback.js"), #also to top button
       tags$script(src = "https://d3js.org/d3.v4.min.js"),
       tags$script(src = "https://d3js.org/d3-scale-chromatic.v1.min.js"),
       tags$script(src = "https://unpkg.com/d3-3d/build/d3-3d.min.js"),
