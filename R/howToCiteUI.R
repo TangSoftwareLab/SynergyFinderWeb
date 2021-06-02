@@ -61,10 +61,20 @@ howToCiteUI <- function(id) {
         tags$p(
           "Zheng, S.; Aldahdooh, J.; Shadbahr, T.; Wang, Y.; Aldahdooh, D.; Bao, J.; Wang, W.; Jing, T. ",
           "DrugComb update: a more comprehensive drug sensitivity data repository and analysis portal. ",
-          "Nucleic Acids Research (2021)",
+          "Nucleic Acids Research (2021). ",
           tags$a(
             "doi:10.1093/nar/gkab438",
             href = "https://doi.org/10.1093/nar/gkab438",
+            target = "_blank"
+          )
+        ),
+        tags$p(
+          "Zagidullin, B.; Aldahdooh, J.; Zheng, S.; Wang, W.; Wang, Y.; Saad, J.; Malyutina, A.; Jafari, M.; Tanoli, Z.; Pessia, A.; Tang, J. ",
+          "DrugComb: An Integrative Cancer Drug Combination Data Portal.",
+          "Nucleic Acids Res 2019, 47 (W1), W43–W51. ",
+          tags$a(
+            "doi:10.1093/nar/gkz337",
+            href = "https://doi.org/10.1093/nar/gkz337",
             target = "_blank"
           )
         ),
