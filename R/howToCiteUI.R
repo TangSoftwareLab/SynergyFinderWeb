@@ -10,25 +10,14 @@ howToCiteUI <- function(id) {
           class = "bottom-blue", "HOW TO CITE",
           style = "text-align: center;"
         ),
-        tags$h3("For use of Synergyfinder web application:"),
+        tags$h3("For use of SynergyFinder R package or web application:"),
         tags$p(
-          "Ianevski, A.; He, L.; Aittokallio, T.; Tang, J. ",
-          "SynergyFinder: A Web Application for Analyzing Drug Combination Dose-Response Matrix Data",
-          "Bioinformatics 2017, 33 (15), 2413–2415.",
+          "Zheng, S.; Wang, W.; Aldahdooh, J.; Malyutina, A.; Shadbahr, T.; Pessia, A.; Jing, T. ",
+          "SynergyFinder Plus: towards a better interpretation and annotation of drug combination screening datasets. ",
+          "bioRxiv 2021.06.01.446564 (2021) ",
           tags$a(
-            "doi:10.1093/bioinformatics/btx162",
-            href = "https://doi.org/10.1093/bioinformatics/btx162",
-            target = "_blank"
-          )
-        ),
-        tags$h3("For use of SynergyFinder R pacakge:"),
-        tags$p(
-          "He, L.; Kulesskiy, E.; Saarela, J.; Turunen, L.; Wennerberg, K.; Aittokallio, T.; Tang, J. ",
-          "Methods for High-Throughput Drug Combination Screening and Synergy Scoring. ",
-          "Methods Mol Biol 2018, 1711, 351–398.",
-          tags$a(
-            "doi:10.1007/978-1-4939-7493-1_17",
-            href = "https://doi.org/10.1007/978-1-4939-7493-1_17",
+            "doi:10.1101/2021.06.01.446564",
+            href = "https://doi.org/10.1101/2021.06.01.446564",
             target = "_blank"
           )
         ),
@@ -70,12 +59,12 @@ howToCiteUI <- function(id) {
           tags$a("DrugComb", href = "http://drugcomb.org/"), " :"
         ),
         tags$p(
-          "Zagidullin, B.; Aldahdooh, J.; Zheng, S.; Wang, W.; Wang, Y.; Saad, J.; Malyutina, A.; Jafari, M.; Tanoli, Z.; Pessia, A.; Tang, J. ",
-          "DrugComb: An Integrative Cancer Drug Combination Data Portal. ",
-          "Nucleic Acids Res 2019, 47 (W1), W43–W51.",
+          "Zheng, S.; Aldahdooh, J.; Shadbahr, T.; Wang, Y.; Aldahdooh, D.; Bao, J.; Wang, W.; Jing, T. ",
+          "DrugComb update: a more comprehensive drug sensitivity data repository and analysis portal. ",
+          "Nucleic Acids Research (2021)",
           tags$a(
-            "doi:10.1093/nar/gkz337",
-            href = "https://doi.org/10.1093/nar/gkz337",
+            "doi:10.1093/nar/gkab438",
+            href = "https://doi.org/10.1093/nar/gkab438",
             target = "_blank"
           )
         ),
