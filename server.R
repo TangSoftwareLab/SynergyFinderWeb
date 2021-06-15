@@ -134,9 +134,9 @@ server <- function(input, output, session){
     closeAlert(session, "alertPD")
   }
   
-  # # inputDataTab ------------------------------------------------------------
+  # Input Data Tab ------------------------------------------------------------
   
-  # Download example data -----------------------------------------------------
+  ## Download example data -----------------------------------------------------
   
   output$loadExData_small <- downloadHandler(
     filename = "ExampleData.zip",
@@ -146,7 +146,7 @@ server <- function(input, output, session){
     contentType = "application/zip"
   )
   
-  # Input data type select box ------------------------------------------------
+  ## Input data type select box ------------------------------------------------
   observeEvent(
     eventExpr = input$inputDatatype,
     handlerExpr = {
@@ -155,7 +155,7 @@ server <- function(input, output, session){
     }
   )
   
-  # File is loaded ------------------------------------------------------------
+  ## File is loaded ------------------------------------------------------------
   observeEvent(
     eventExpr = input$annotfile,
     handlerExpr = {
@@ -279,7 +279,7 @@ server <- function(input, output, session){
     }# handlerExpr
   ) # observeEvent
   
-  # Render data table ---------------------------------------------------------
+  ## Render data table ---------------------------------------------------------
   observeEvent(
     eventExpr = {
       datannot$annot
@@ -307,7 +307,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Annotation switch ---------------------------------------------------------
+  ## Annotation switch ---------------------------------------------------------
   observeEvent(
     eventExpr = {
       datannot$annot
@@ -390,7 +390,7 @@ server <- function(input, output, session){
       }
     }
   )
-  # selectInhVia --------------------------------------------------------------
+  ## selectInhVia --------------------------------------------------------------
   observeEvent(
     eventExpr = input$selectInhVia, 
     handlerExpr = {
@@ -514,7 +514,7 @@ server <- function(input, output, session){
     } # handlerExpr
   ) # observeEvent
   
-  # # Render plot block selector ----------------------------------------------
+  # Render plot block selector ----------------------------------------------
   observeEvent(
     eventExpr = {
       switches$vizDR
@@ -649,13 +649,18 @@ server <- function(input, output, session){
     }
   )
   
-  # # Dose response tab -------------------------------------------------------
-  # Render drug pair selectors ------------------------------------------------
+  
+# Dose response tab -------------------------------------------------------
+  
+  ## Render drug pair selectors ---------------------------------------------
   observeEvent(
-    eventExpr = input$viz_block,
+    eventExpr = {
+      switches$vizDR
+      input$viz_block
+      },
     handlerExpr = {
       # render UI DRC_drug_ui
-      if (!is.null(input$viz_block)){
+      if (switches$vizDR == 1 & !is.null(input$viz_block)){
         drug_pairs <- dataReshaped$reshapeD$drug_pairs
         drugs <- 1:sum(grepl("drug\\d+", colnames(drug_pairs)))
         output$DRC_drug_ui <- renderUI({
@@ -705,11 +710,14 @@ server <- function(input, output, session){
             selected = two_drug_comb[1]
           )
         })
+      } else {
+        removeUI("syn_2_drugs")
+        removeUI("DR_2_drugs")
       }
     }
   )
   
-  # Plot: Dose-response curve -------------------------------------------------
+  ## Plot: Dose-response curve -------------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -791,7 +799,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Plot: Dose-response map ---------------------------------------------------
+  ## Plot: Dose-response map ---------------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -890,7 +898,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Plot: Multi-drug dose-response --------------------------------------------
+  ## Plot: Multi-drug dose-response --------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -922,7 +930,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Calculate synergy scores and sensitivity score --------------------------
+  ## Calculate synergy scores and sensitivity score --------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -960,7 +968,7 @@ server <- function(input, output, session){
     }
   )
   
-  # # synergyTab --------------------------------------------------------------
+  # synergyTab --------------------------------------------------------------
   observeEvent(
     eventExpr = {
       switches$vizSyn
@@ -987,7 +995,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Plot: Bar barometer plots -------------------------------------------------
+  ## Plot: Bar barometer plots -------------------------------------------------
   observeEvent(
     eventExpr = {
       switches$vizSyn
@@ -1404,7 +1412,7 @@ server <- function(input, output, session){
     }
   )
   
-  # Plot: Multi-drug Synergy Map ----------------------------------------------
+  ## Plot: Multi-drug Synergy Map ----------------------------------------------
   observeEvent(
     eventExpr = {
       input$viz_block
@@ -1551,7 +1559,7 @@ server <- function(input, output, session){
     }
   )
   
-  # # sensitivity Tab ---------------------------------------------------------
+  # sensitivity Tab ---------------------------------------------------------
   observeEvent(
     eventExpr = {
       input$correct_baseline
@@ -1631,8 +1639,8 @@ server <- function(input, output, session){
       }
     }
   )
-  # # report Tab --------------------------------------------------------------
-  # Static PDF report ---------------------------------------------------------
+  # report Tab --------------------------------------------------------------
+  ## Static PDF report ---------------------------------------------------------
   output$static_report <- downloadHandler(
     filename = "SynergyFinder_report.pdf",
     content = function(file) {
@@ -1746,7 +1754,7 @@ server <- function(input, output, session){
       )
     }
   )
-  # Dynamic PDF report --------------------------------------------------------
+  ## Dynamic PDF report --------------------------------------------------------
   output$dynamic_report <- downloadHandler(
     filename = "SynergyFinder_report.html",
     content = function(file) {
@@ -1860,7 +1868,7 @@ server <- function(input, output, session){
       )
     }
   )
-  # Download: data tables -----------------------------------------------------
+  ## Download: data tables -----------------------------------------------------
   output$download_summary_table <- downloadHandler(
     filename <- function() {
       paste0(
@@ -1907,7 +1915,7 @@ server <- function(input, output, session){
       }
     }
   )
-  # Download R object ---------------------------------------------------------
+  ## Download R object ---------------------------------------------------------
   output$download_r_object <- downloadHandler(
     filename <- function(){
       paste0(
