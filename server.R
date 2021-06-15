@@ -209,8 +209,8 @@ server <- function(input, output, session){
               annot[col_string], 
               function(x) gsub("^\\s+|\\s+$", "", x)
             )
-            annot <- annot[!apply(is.na(annot) | annot == "", 2, all), ] # rows with all NA
-            annot <- annot[, !apply(is.na(annot) | annot == "", 2, all)] # cols with all NA
+            annot <- annot[!apply(is.na(annot) | annot == "", 2, all), ] # rows contains only NA
+            annot <- annot[, !apply(is.na(annot) | annot == "", 2, all)] # cols contains only NA
             annot <- synergyfinder::.AdjustColumnName(annot)
             cols_num <- c(
               grep("conc\\d+", colnames(annot), value = TRUE),
@@ -940,7 +940,7 @@ server <- function(input, output, session){
       if (!is.null(correct_baseline$correct_baseline) &
           switches$calSyn == 1 & !is.null(dataReshaped$reshapeD)) {
         show_modal_spinner(spin = "fading-circle") 
-        withCallingHandlers({
+        tryCatch(withCallingHandlers({
           dataReshaped$reshapeD <- CalculateSynergy(
             dataReshaped$reshapeD,
             correct_baseline = correct_baseline$correct_baseline,
@@ -957,7 +957,28 @@ server <- function(input, output, session){
             html = m$message,
             add = FALSE)
         }
-        )
+        ), error = function(e) {
+          closeAll()
+          toastr_error(
+            message = paste0(
+              "Something wrong with your file that cannot be handled by",
+              "application. Please contact software maintainer."
+            ),
+            title = "Unhandled error occurred!",
+            closeButton = TRUE,
+            progressBar = TRUE,
+            position = "top-right",
+            preventDuplicates = TRUE,
+            showDuration = 300,
+            hideDuration = 1000,
+            timeOut = 10000,
+            extendedTimeOut = 1000,
+            showEasing = "swing",
+            hideEasing = "swing",
+            showMethod = "fadeIn",
+            hideMethod = "fadeOut"
+          )
+        })
         remove_modal_spinner()
         
         switches$vizSyn <- 1
