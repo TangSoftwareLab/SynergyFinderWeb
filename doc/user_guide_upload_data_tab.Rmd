@@ -49,7 +49,7 @@ The input table must contain the following columns (The column naming style used
 
 ### 1.1.2 Matrix Format
 
-In the Matrix format, the dose-response matrix is represented in a matrix with drug concentrations shown along the top and left edge of the matrix (Fig.2). The three rows below should precede each dose-response matrix:
+In the Matrix format, the dose-response matrix is represented in a matrix with drug concentrations shown along the left (for Drug1) and top (for Drug2) edges of the matrix (Fig.2). The three rows below should precede each dose-response matrix:
 
 1. **Drug1** name of the first drug
 2. **Drug2** name of the second drug
