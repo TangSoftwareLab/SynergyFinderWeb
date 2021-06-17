@@ -1597,7 +1597,7 @@ server <- function(input, output, session){
           switches$vizSyn == 1) {
         # S-S plot table
         output$ss_ZIP_plot <- renderPlotly({
-          PlotSensitiveSynergy(
+          PlotSensitivitySynergy(
             data = dataReshaped$reshapeD,
             plot_synergy = "ZIP",
             point_color = input$ss_point_color,
@@ -1609,7 +1609,7 @@ server <- function(input, output, session){
           )
         })
         output$ss_Loewe_plot <- renderPlotly({
-          PlotSensitiveSynergy(
+          PlotSensitivitySynergy(
             data = dataReshaped$reshapeD,
             plot_synergy = "Loewe",
             point_color = input$ss_point_color,
@@ -1621,7 +1621,7 @@ server <- function(input, output, session){
           )
         })
         output$ss_Bliss_plot <- renderPlotly({
-          PlotSensitiveSynergy(
+          PlotSensitivitySynergy(
             data = dataReshaped$reshapeD,
             plot_synergy = "Bliss",
             point_color = input$ss_point_color,
@@ -1633,7 +1633,7 @@ server <- function(input, output, session){
           )
         })
         output$ss_HSA_plot <- renderPlotly({
-          PlotSensitiveSynergy(
+          PlotSensitivitySynergy(
             data = dataReshaped$reshapeD,
             plot_synergy = "HSA",
             point_color = input$ss_point_color,
