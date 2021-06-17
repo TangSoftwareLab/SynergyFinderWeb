@@ -335,7 +335,7 @@ for (b in params$blocks) {
 for (b in params$blocks) {
   # multi-drug dimension reduction surface
   for (m in methods) {
-    p <- PlotSensitiveSynergy(
+    p <- PlotSensitivitySynergy(
       data = synergyfinder_obj,
       plot_synergy = m,
       plot_title = paste("Block", b, m, "- CSS", sep = " "),
