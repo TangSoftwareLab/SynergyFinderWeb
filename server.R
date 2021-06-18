@@ -63,35 +63,34 @@ server <- function(input, output, session){
                    size = "extra-small")
         ),
         accept = c('.csv', '.xlsx', '.txt'),
-        
-      ),
-      shinyBS::bsPopover(#session,
-        id = "q1",
-        title = "Input data structure:",
-        content = paste0(
-          tags$p("Table format:"),
-          # tags$br(),
-          tags$image(
-            src = 'images/exampleTab.png',
-            width = '400', height = '200'
-          ),
-          tags$br(),
-          tags$br(),
-          tags$p("Matrix format:"),
-          # tags$br(),
-          tags$image(
-            src = 'images/exampleMat.png',
-            width = '400', height = '200'
-          ),
-          tags$br(),
-          tags$br(),
-          tags$p(
-            "For more information about input file format please check the USER GUIDE."
-          )
-        ),
-        placement = "bottom",
-        trigger = "click"
-      )
+      )#,
+      # shinyBS::bsPopover(#session,
+      #   id = "q1",
+      #   title = "Input data structure:",
+      #   content = paste0(
+      #     tags$p("Table format:"),
+      #     # tags$br(),
+      #     tags$image(
+      #       src = 'images/exampleTab.png',
+      #       width = '400', height = '200'
+      #     ),
+      #     tags$br(),
+      #     tags$br(),
+      #     tags$p("Matrix format:"),
+      #     # tags$br(),
+      #     tags$image(
+      #       src = 'images/exampleMat.png',
+      #       width = '400', height = '200'
+      #     ),
+      #     tags$br(),
+      #     tags$br(),
+      #     tags$p(
+      #       "For more information about input file format please check the USER GUIDE."
+      #     )
+      #   ),
+      #   placement = "bottom",
+      #   trigger = "click"
+      # )
     )
   })
   
@@ -110,21 +109,21 @@ server <- function(input, output, session){
     shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
     shinyjs::hide(selector = "a[data-value=\"annotationTab\"]")
-    shinyjs::hide(id = "correct_baseline")
     shinyjs::hide(id = "annoSwitch")
-    bb_plots <- reactiveValues(bar_plot = NULL, barometer = NULL)
-    bb_plot_param <- reactiveValues(
-      conc_unit = NULL,
-      drug_pair = NULL, 
-      selected_panel = "response",
-      selected_conc = NULL,
-      selected_values = NULL)
+    bb_plots$bar_plot <- NULL
+    bb_plots$barometer <- NULL
+    bb_plot_param$conc_unit <- NULL
+    bb_plot_param$drug_pair <- NULL
+    bb_plot_param$selected_panel <- "response"
+    bb_plot_param$selected_conc <- NULL
+    bb_plot_param$selected_values <- NULL
     dataReshaped$reshapeD <- NULL
     datannot$annot <- NULL
     correct_baseline$correct_baseline <- NULL
     updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
     updateSelectInput(session, "selectInhVia", selected = "")
     updateSelectInput(session, inputId = "correct_baseline", selected = "")
+    shinyjs::hide(id = "correct_baseline")
     switches$vizDR <- 0
     switches$vizSyn <- 0
     switches$report <- 0
@@ -181,6 +180,7 @@ server <- function(input, output, session){
             append = FALSE
           )
         } else {
+          # datannot$annot <- 1
           if (input$inputDatatype == "Table") {
             if (ext == 'XLSX') {
               annot <- openxlsx::read.xlsx(
@@ -566,13 +566,16 @@ server <- function(input, output, session){
   
   # Show the selector only when the tabs doseResponseTab or synergyTab selected
   observeEvent(
-    eventExpr = input$menu,
+    eventExpr = {
+      switches$vizDR
+      input$menu
+      },
     handlerExpr = {
-      if (input$menu %in% c("doseResponseTab", "synergyTab")) {
+      if (switches$vizDR == 1 & input$menu %in% c("doseResponseTab", "synergyTab")) {
         shinyjs::show("plot_block")
         shinyjs::show("correct_baseline")
       } else {
-        if (input$menu == "sensitivityTab") {
+        if (switches$vizDR == 1 & input$menu == "sensitivityTab") {
           shinyjs::show("correct_baseline")
         } else {
           shinyjs::hide("correct_baseline")
@@ -641,10 +644,14 @@ server <- function(input, output, session){
             )
           )
         } else {
-          output$multi_drug_DR_plots <- renderUI(
+          output$multi_drug_DR_plot <- renderUI(
             tags$div()
           )
         }
+      } else {
+        output$multi_drug_DR_plot <- renderUI(
+          tags$div()
+        )
       }
     }
   )
