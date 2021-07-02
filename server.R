@@ -490,6 +490,7 @@ server <- function(input, output, session){
             output$doseResponseMenu <- renderMenu({
               menuItem("Dose Response Map", tabName = "doseResponseTab")
             })
+            updateTabsetPanel(session, "menu", selected = "doseResponseTab")
           }
         } else {
           closeAll()
