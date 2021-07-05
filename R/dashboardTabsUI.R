@@ -133,7 +133,7 @@ doseResponseTabUI <- function(id) {
           colourpicker::colourInput(
             inputId = "DRC_dot_color",
             label = "Color for dots",
-            value = "#C24B40"
+            value = "#FF0000"
           ),
           colourpicker::colourInput(
             inputId = "DRC_curve_color",
@@ -196,6 +196,7 @@ doseResponseTabUI <- function(id) {
           ),
           shinyWidgets::materialSwitch(
             inputId = "DR_grid",
+            value = TRUE,
             label = "Grids on surface",
             status = "primary",
             right = TRUE
@@ -212,12 +213,12 @@ doseResponseTabUI <- function(id) {
           colourpicker::colourInput(
             inputId = "DR_high_value_color",
             label = "High response value color",
-            value = "#C24B40"
+            value = "#FF0000"
           ),
           colourpicker::colourInput(
             inputId = "DR_low_value_color",
             label = "Low response value color",
-            value = "#2166AC"
+            value = "#00FF00"
           ),
           colourpicker::colourInput(
             inputId = "DR_heatmap_label_color",
@@ -308,7 +309,7 @@ synergyTabUI <- function(id) {
             colourpicker::colourInput(
               inputId = "syn_high_value_color",
               label = "Synergy effect color",
-              value = "#C24B40"
+              value = "#FF0000"
             )
           ),
           column(
@@ -316,7 +317,7 @@ synergyTabUI <- function(id) {
             colourpicker::colourInput(
               inputId = "syn_low_value_color",
               label = "Antagnositic effect color",
-              value = "#2166AC"
+              value = "#00FF00"
             )
           )
         ),
@@ -325,7 +326,8 @@ synergyTabUI <- function(id) {
             width = 3,
             shinyWidgets::materialSwitch(
               inputId = "syn_grid",
-              label = "Grids on surface",
+              value = TRUE,
+              label = "Show grids",
               status = "primary",
               right = TRUE
             ),
@@ -435,7 +437,7 @@ synergyTabUI <- function(id) {
           colourpicker::colourInput(
             inputId = "bb_pos_value_color",
             label = "Positive bar color",
-            value = "#CC3311"
+            value = "#FF0000"
           )
         ),
         column(
@@ -443,7 +445,7 @@ synergyTabUI <- function(id) {
           colourpicker::colourInput(
             inputId = "bb_neg_value_color",
             label = "Negative bar color",
-            value = "#448BD4"
+            value = "#00FF00"
           )
         ),
         column(
@@ -451,7 +453,7 @@ synergyTabUI <- function(id) {
           colourpicker::colourInput(
             inputId = "bb_highlight_pos_color",
             label = "Highlighted positive bar color",
-            value = "#A90217"
+            value = "#BB0000"
           )
         ),
         column(
@@ -459,7 +461,7 @@ synergyTabUI <- function(id) {
           colourpicker::colourInput(
             inputId = "bb_highlight_neg_color",
             label = "Highlighted negative bar color",
-            value = "#2166AC"
+            value = "#00BB00"
           )
         )
       ),
@@ -562,6 +564,7 @@ sensitivityTabUI <- function(id) {
             br(),
             shinyWidgets::materialSwitch(
               inputId = "ss_show_label",
+              value = TRUE,
               label = "Show labels",
               status = "primary",
               right = TRUE

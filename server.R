@@ -608,6 +608,7 @@ server <- function(input, output, session){
                   br(),
                   shinyWidgets::materialSwitch(
                     inputId = "DR_multi_point",
+                    value = TRUE,
                     label = "Show data points",
                     status = "primary",
                     right = TRUE
@@ -627,12 +628,12 @@ server <- function(input, output, session){
                   colourpicker::colourInput(
                     inputId = "DR_multi_high_value_color",
                     label = "High response value color",
-                    value = "#C24B40"
+                    value = "#FF0000"
                   ),
                   colourpicker::colourInput(
                     inputId = "DR_multi_low_value_color",
                     label = "Low response value color",
-                    value = "#2166AC"
+                    value = "#00FF00"
                   )
                 )
               )
@@ -1111,11 +1112,12 @@ server <- function(input, output, session){
           shinyjs::hide(id = "syn_heatmap_label_color")
         }
         
-        if (input$syn_plot_type == "3D") {
+        if (input$syn_plot_type %in% c("3D", "2D")) {
           shinyjs::show(id = "syn_grid")
         } else {
           shinyjs::hide(id = "syn_grid")
         }
+        
         # ZIP
         output$syn_ZIP_plot <- renderPlotly({
           p <- PlotSynergy(
@@ -1133,7 +1135,7 @@ server <- function(input, output, session){
             heatmap_text_label_color = input$syn_heatmap_label_color,
             heatmap_text_label_size_scale = input$syn_heatmap_label_size,
             statistic = input$syn_rep_statistic,
-            surface_grid = input$syn_grid,
+            grid = input$syn_grid,
             display = FALSE
           )
           p[[1]]
@@ -1155,7 +1157,7 @@ server <- function(input, output, session){
             heatmap_text_label_color = input$syn_heatmap_label_color,
             heatmap_text_label_size_scale = input$syn_heatmap_label_size,
             statistic = input$syn_rep_statistic,
-            surface_grid = input$syn_grid,
+            grid = input$syn_grid,
             display = FALSE
           )
           if (input$syn_plot_type == "2D"){
@@ -1181,7 +1183,7 @@ server <- function(input, output, session){
             heatmap_text_label_color = input$syn_heatmap_label_color,
             heatmap_text_label_size_scale = input$syn_heatmap_label_size,
             statistic = input$syn_rep_statistic,
-            surface_grid = input$syn_grid,
+            grid = input$syn_grid,
             display = FALSE
           )
           p[[1]]
@@ -1203,7 +1205,7 @@ server <- function(input, output, session){
             heatmap_text_label_color = input$syn_heatmap_label_color,
             heatmap_text_label_size_scale = input$syn_heatmap_label_size,
             statistic = input$syn_rep_statistic,
-            surface_grid = input$syn_grid,
+            grid = input$syn_grid,
             display = FALSE
           )
           p[[1]]
@@ -1252,6 +1254,7 @@ server <- function(input, output, session){
                     width = 3,
                     shinyWidgets::materialSwitch(
                       inputId = "syn_multi_point",
+                      value = TRUE,
                       label = "Show data points",
                       status = "primary",
                       right = TRUE
@@ -1270,7 +1273,7 @@ server <- function(input, output, session){
                     colourpicker::colourInput(
                       inputId = "syn_multi_high_value_color",
                       label = "Synergy effect color",
-                      value = "#C24B40"
+                      value = "#FF0000"
                     )
                   ),
                   column(
@@ -1278,7 +1281,7 @@ server <- function(input, output, session){
                     colourpicker::colourInput(
                       inputId = "syn_multi_low_value_color",
                       label = "Antagnositic effect color",
-                      value = "#2166AC"
+                      value = "#00FF00"
                     )
                   )
                 )
@@ -1699,13 +1702,22 @@ server <- function(input, output, session){
           )
         })
         output$summaryTable <- renderDT(
-          {dataReshaped$reshapeD$drug_pairs%>% 
+          {
+            df <- dataReshaped$reshapeD$drug_pairs%>% 
               dplyr::select(
                 -input_type, -replicate,
                 -dplyr::contains("synergy"),
                 -dplyr::contains("response"),
                 -dplyr::contains("conc_unit")) %>%
               dplyr::mutate_if(is.numeric, round, 2)
+            colnames(df) <- toupper(colnames(df))
+            colnames(df) <- gsub("_", " ", colnames(df))
+            colnames(df)[startsWith(colnames(df), "RI")] <- gsub(
+              " ", 
+              "",
+              colnames(df)[startsWith(colnames(df), "RI")]
+            )
+            df
           }, 
           options = list(scrollX = TRUE, scrollCollapse=TRUE),
           selection = 'none',
