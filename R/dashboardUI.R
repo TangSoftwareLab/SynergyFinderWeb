@@ -17,6 +17,16 @@ dashboardUI <- function(id) {
         ),
         menuItemOutput("doseResponseMenu"),
         menuItemOutput("synergyMenu"),
+        # menuItem(
+        #   "Sensitivity Score",
+        #   tabName = "sensitivityTab",
+        #   selected = FALSE
+        # ),
+        # menuItem(
+        #   "Download Reports",
+        #   tabName = "reportTab",
+        #   selected = FALSE
+        # )
         menuItemOutput("sensitivityMenu"),
         menuItemOutput("reportMenu")
       )         
@@ -38,11 +48,11 @@ dashboardUI <- function(id) {
           selectInput(
             inputId = "correct_baseline", label = "Correct baseline",
             choices = list(
-              "",
+              # "",
               "Non: No correction" = "non",
               "Part: Correct negative inhibition values" = "part",
               "All: Correct whole matrix" = "all"),
-            selected = ""
+            selected = "non"
           )
         )
       ),
