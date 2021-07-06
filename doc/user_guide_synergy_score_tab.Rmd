@@ -58,10 +58,18 @@ This tab visualizes the synergy scores for the inputted drug combination screeni
 <p style="text-align: center;"> Fig.1 User Interface of the "Synergy Score" tab </p>
 
 1. A selector to select the block to visualize.
-2. A selector to select the method for baseline correction. This function adjusts the baseline of drug combination dose-response matrix closer to 0. There are three options: "Non" - no baseline correction; "Part" - only the negative values in the matrix will be adjusted; "All" - adjusts all values in the matrix. Once the baseline correction method is selected, the calculation for synergy scores and sensitivity scores will be triggered. After the calculation, three new tabs ("Synergy Scores", "Sensitivity Scores", and "Download Report") will be shown. Please check corresponding pages for more details.
+2. A selector to select the method for baseline correction. This function adjusts the baseline of drug combination dose-response matrix closer to 0. There are three options:
+
+"Non" - no baseline correction (default value);
+
+"Part" - only the negative values in the matrix will be adjusted;
+
+"All" - adjusts all values in the matrix.
+
+Once the baseline correction method is selected, the calculation for synergy scores and sensitivity scores will be triggered. After the calculation, two new tabs ("Sensitivity Scores" and "Download Report") will be shown. Please check corresponding pages for more details.
 3. Plotting area. The customizable plots will be shown in this area. All of the plots are able to be downloaded. Please check sections below for more details.
 
-## 1.1 Synergy Map (2 Drugs Combination)
+# 3 Synergy Map (2 Drugs Combination)
 
 ![Fig.2 Synergy Map (2 Drugs Combination)](../www/images/userGuideSynergyMap.png)
 
@@ -79,9 +87,23 @@ SynergyFinder extracts the data for all the possible drug combination pairs from
 8. (Only for Heatmap and replicated data) Select the statistics shown below the Heatmap text labels. Available statistics are "90% confidence interval" or "standard error of mean".
 9. (Only for Heatmap) Adjust the text size for the labels within Heatmap.
 10. (Only for Heatmap) Select the color for the text Heatmap on the Heatmap.
-11. (Only for 3D surface) Whether to show the grids on the surface in the plot.
+11. (For 3D surface and 2D contour plot) Whether to show the grids on the surface in the plot.
 
-# 3 Bar and Barometer Plots
+# 4 Synergy Map (Multiple Drugs Combination)
+
+![Fig.4 Multiple drugs combination synergy map](../www/images/userGuideSynergyMapMulti.png)
+
+<p style="text-align: center;"> Fig.4 Multiple drugs combination synergy map </p>
+
+This plot is designed for visualizing high-order drug combinations. The two-dimensional coordinates of each drug dose combination are determined by multi-dimensional scaling based on the similarity of their dose ranges. The synergy scores are visualized as the height of a 3D surface. Observed data points are plotted as dots on the surface.
+
+1. Interactive plotting area powered by [plotly](https://plotly.com/r/). Buttons at the top-right corner help user modify the plotting view and download the plot as "SVG" file. Hovering mouse on the data points will show the concentration information of the drugs and corresponding synergy score.
+2. Select whether to show the observed data points.
+3. Select the color of the data points.
+4. Select the color for the highest value in the surface plot.
+5. Select the color for the lowest value in the surface plot.
+
+# 5 Bar and Barometer Plots
 
 ![Fig.3 Bar and Barometer Plots](../www/images/userGuideSynergyBar.png)
 
@@ -101,7 +123,7 @@ SynergyFinder visualize the whole matrix's dose response and synergy scores in a
 10. Select the color for the highlighted bars of positive value.
 11. Select the color for the highlighted bars of negative value.
 12. Download Bar plot as "SVG" file.
-11. Download Bar plot as "SVG" file.
+13. Download Barometer as "SVG" file.
 
 # Reference
 

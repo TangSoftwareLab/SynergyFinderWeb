@@ -16,14 +16,8 @@ This tab contains the dose-response curve and dose-response map for visualizing 
 <p style="text-align: center;"> Fig.1 User Interface of the "Dose Response Map" tab </p>
 
 1. Select the block to visualize.
-2. Select the method for baseline correction. The function adjusts the baseline of drug combination dose-response matrix closer to 0. 
-There are three options available: 
-"Non" - no baseline correction; 
-"Part" - only the negative values in the matrix will be adjusted; 
-"All" - adjusts all values in the matrix. 
-
-Once the baseline correction method is selected, the calculation for synergy scores and sensitivity scores will be triggered. After the calculation, three new tabs ("Synergy Scores", "Sensitivity Scores", and "Download Report") will be shown. Please check corresponding pages for more details.
-3. Plotting area. All of the plots can be customized and downloaded. Please check sections below for more details.
+2. Plotting area. All of the plots can be customized and downloaded. Please check sections below for more details.
+3. The "Synergy Map" tab appears in the sidebar. By clicking on it, user will be directed to visualization for synergy level of the combinations.
 
 # 2 Dose Response Curve
 
@@ -64,9 +58,9 @@ SynergyFinder extracts the data for all possible drug combinations from the data
 
 ![Fig.4 Multiple drugs combination dose-response map](../www/images/userGuideDoseResponseMulti.png)
 
-<p style="text-align: center;"> Fig.4 Two drugs combination dose-response map </p>
+<p style="text-align: center;"> Fig.4 Multiple drugs combination dose-response map </p>
 
-This plot is designed for visualing high-order drug combinations. The two-dimensional coordinates of each drug dose combination are determined by multi-dimensional scaling based on the similarity of their dose ranges. The response (% inhibition) will be visualized as the height of a 3D surface. Observed data points are plotted on the surface. Hovering mouse on the data points will show the concentration information of the drugs and corresponding % inhibition value.
+This plot is designed for visualizing high-order drug combinations. The two-dimensional coordinates of each drug dose combination are determined by multi-dimensional scaling based on the similarity of their dose ranges. The response (% inhibition) is visualized as the height of a 3D surface. Observed data points are plotted as dots on the surface.
 
 1. Interactive plotting area powered by [plotly](https://plotly.com/r/). Buttons at the top-right corner help user modify the plotting view and download the plot as "SVG" file. Hovering mouse on the data points will show the concentration information of the drugs and corresponding % inhibition value.
 2. Select whether to show the observed data points.

@@ -38,9 +38,8 @@ This tab visualizes the sensitivity scores for the inputted drug combination scr
 
 <p style="text-align: center;"> Fig.2 User Interface of the "Sensitivity Score" tab </p>
 
-1. A selector to select the method for baseline correction. This function adjusts the baseline of drug combination dose-response matrix closer to 0. There are three options: "Non" - no baseline correction; "Part" - only the negative values in the matrix will be adjusted; "All" - adjusts all values in the matrix. Once the baseline correction method is selected, the calculation for synergy scores and sensitivity scores will be triggered. After the calculation, three new tabs ("Synergy Scores", "Sensitivity Scores", and "Download Report") will be shown. Please check corresponding pages for more details.
-2. Summary table for sensitivity scores. Please check section 2.1 below for more details.
-3. Plotting area for Synergy-Sensitivity plot(S-S plot).All of the plots can be customized and downloaded. Please check section 2.2 below for more details.
+1. Summary table for sensitivity scores. Please check section 2.1 below for more details.
+2. Plotting area for Synergy-Sensitivity plot(S-S plot).All of the plots can be customized and downloaded. Please check section 2.2 below for more details.
 
 ## 2.1 Sensitivity score summary table
 
