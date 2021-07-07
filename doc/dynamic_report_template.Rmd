@@ -46,6 +46,8 @@ params:
   syn_heatmap_label_color: NA
   syn_rep_statistic: NA
   syn_grid: NA
+  syn_heatmap_label_size: NA
+  syn_text_size: NA
   bb_panel_title_size: NA
   bb_axis_text_size: NA
   bb_highlight_label_size: NA
@@ -127,17 +129,34 @@ cat("Correct Baseline Setting: ", params$correct_baseline)
 meta_table <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     dplyr::starts_with("drug"),
     dplyr::starts_with("conc_unit"),
     dplyr::starts_with("cell"))
-names(meta_table) <- gsub("_", " ", names(meta_table))
+names(meta_table)[startsWith(names(meta_table), "conc_unit")] <- paste0(
+    gsub(
+      "conc_unit",
+      "Conc Unit<sub>",
+     names(meta_table)[startsWith(names(meta_table), "conc_unit")]
+    ),
+    "</sub>"
+  )
+  names(meta_table)[startsWith(names(meta_table), "drug")] <- paste0(
+    gsub(
+      "drug",
+      "Drug<sub>",
+      names(meta_table)[startsWith(names(meta_table), "drug")]
+    ),
+    "</sub>"
+  )
+  names(meta_table)[names(meta_table) == "cell_line_name"] <- "Cell Line Name"
 meta_table %>%
   kableExtra::kable(
     "html",
     booktabs = TRUE,
     caption = "Drug Combiantion Meta Data",
-    align = "r"
+    align = "r",
+    escape = FALSE
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover"),
@@ -149,7 +168,7 @@ meta_table %>%
 df_synergy <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     "ZIP" = "ZIP_synergy",
     "Loewe" = "Loewe_synergy",
     "HSA" = "HSA_synergy",
@@ -160,7 +179,8 @@ df_synergy %>%
   kableExtra::kable(
     "html",
     caption = "Synergy Score Summary Table",
-    align = "r") %>%
+    align = "r",
+    escape = FALSE) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "float_right") %>%
@@ -172,7 +192,7 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
   df_synergy_statistic <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     `ZIP p Value` = "ZIP_synergy_p_value",
     `Loewe p Value` = "Loewe_synergy_p_value",
     `HSA p Value` = "HSA_synergy_p_value",
@@ -183,7 +203,8 @@ df_synergy_statistic %>%
   kableExtra::kable(
     "html",
     caption = "Synergy Score Statistic Table",
-    align = "r") %>%
+    align = "r",
+    escape = FALSE) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "float_right") %>%
@@ -195,15 +216,23 @@ df_synergy_statistic %>%
 df_sensitive <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     dplyr::contains("ri_"),
-    "CSS" = "css")    
-names(df_sensitive) <- gsub("_", " ", names(df_sensitive))
+    "CSS" = "css")
+ names(df_sensitive)[startsWith(names(df_sensitive), "ri_")] <- paste0(
+    gsub(
+      "ri_",
+      "RI<sub>",
+      names(df_sensitive)[startsWith(names(df_sensitive), "ri_")]
+    ),
+    "</sub>"
+  )
 df_sensitive %>% 
   kableExtra::kable(
     "html",
     caption = "Sensitivity Score Summary Table",
-    align = "r") %>%
+    align = "r",
+    escape = FALSE) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "float_right") %>%
@@ -215,20 +244,31 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
   df_sensitive_statistic <- synergyfinder_obj$sensitivity_scores_statistics %>% 
     dplyr::filter(block_id == params$blocks) %>% 
     dplyr::select(
-      block_id,
+      "Block ID" = "block_id",
       paste0("ri_", 1:ndrug, "_p_value"),
-      "css_p_value"
-      ) 
-    names(df_sensitive_statistic) <- gsub("_", " ", names(df_sensitive_statistic))
-    df_sensitive_statistic %>%
-    kableExtra::kable(
-      "html",
-      caption = "Sensitivity Score Statistic Table",
-    align = "r") %>%
-    kable_styling(
-      bootstrap_options = c("striped", "hover"),
-      position = "float_right") %>%
-    column_spec(1, width = "8em")
+      "CSS p Value" = "css_p_value"
+      )
+  names(df_sensitive_statistic)[startsWith(names(df_sensitive_statistic), "ri_")] <-
+    gsub(
+      "_p_value",
+      "</sub> p Value",
+      gsub(
+        "ri_",
+        "RI<sub>",
+        names(df_sensitive_statistic)[startsWith(names(df_sensitive_statistic), "ri_")]
+     )
+    )
+
+  df_sensitive_statistic %>%
+  kableExtra::kable(
+    "html",
+    caption = "Sensitivity Score Statistic Table",
+    align = "r",
+    escape = FALSE) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    position = "float_right") %>%
+  column_spec(1, width = "8em")
 }
 ```
 
@@ -302,7 +342,7 @@ for(j in 1:length(plotlist)){
   }
 }
 ```
-```{r out.width="50%"}
+```{r out.width="100%"}
 # Attach the Dependencies since they do not get included with renderTags(...)$html
 deps <- lapply(
   Filter(f = function(x){inherits(x,"htmlwidget")}, x = plotlist),
@@ -349,11 +389,11 @@ for (b in params$blocks) {
         summary_statistic = params$syn_summary_statistic,
         high_value_color = params$syn_high_value_color,
         low_value_color = params$syn_low_value_color,
-        # text_size_scale = params$syn_text_size,
+        text_size_scale = params$syn_text_size,
         heatmap_text_label_color = params$syn_heatmap_label_color,
-        # heatmap_text_label_size_scale = params$syn_heatmap_label_size,
+        heatmap_text_label_size_scale = params$syn_heatmap_label_size,
         statistic = params$syn_rep_statistic,
-        surface_grid = params$syn_grid,
+        grid = params$syn_grid,
         display = FALSE
       )[[1]]
     }
@@ -376,7 +416,7 @@ for(j in 1:length(plotlist)){
 }
 ```
 
-```{r out.width="50%"}
+```{r out.width="100%"}
 # Attach the Dependencies since they do not get included with renderTags(...)$html
 deps <- lapply(
   Filter(f = function(x){inherits(x,"htmlwidget")}, x = plotlist),
@@ -389,10 +429,8 @@ htmltools::attachDependencies(x = htmltools::tagList(), value = unlist(deps,recu
 
 # 5. Bar plots
 
-```{r results='asis'}
-  # multi-drug bar plot
+```{r out.width="100%"}
 for (b in params$blocks) {
-  cat(paste0("## Block ", b, "\n"))
   p <- PlotMultiDrugBar(
     data = synergyfinder_obj,
     plot_block = b,
@@ -410,9 +448,9 @@ for (b in params$blocks) {
     pos_value_color = params$bb_pos_value_color,
     neg_value_color = params$bb_neg_value_color,
     data_table = FALSE
-  )
+  ) +
+    ggtitle(paste0("Block ", b))
   print(p)
-  cat("\n")
 }
 ```
 
@@ -432,7 +470,8 @@ for (b in params$blocks) {
       point_size = 3,
       show_labels = params$ss_show_label,
       point_label_color = params$ss_label_color,
-      label_size = 10,
+      label_size = 14,
+      text_size_scale = 2,
       dynamic = TRUE
     )
   }
@@ -454,7 +493,7 @@ for(j in 1:length(plotlist)){
 }
 ```
 
-```{r out.width="50%"}
+```{r out.width="100%"}
 # Attach the Dependencies since they do not get included with renderTags(...)$html
 deps <- lapply(
   Filter(f = function(x){inherits(x,"htmlwidget")}, x = plotlist),

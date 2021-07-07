@@ -286,7 +286,37 @@ server <- function(input, output, session){
       # Show data table
       if (!is.null(datannot$annot)) {
         output$inputData <- renderDT(
-          datannot$annot,
+            {
+              df <- datannot$annot
+              colnames(df)[startsWith(colnames(df), "drug")] <- paste0(
+                gsub(
+                  "drug",
+                  "Drug<sub>",
+                  colnames(df)[startsWith(colnames(df), "drug")]
+                ),
+                "</sub>"
+              )
+              colnames(df)[startsWith(colnames(df), "conc_unit")] <- paste0(
+                gsub(
+                  "conc_unit",
+                  "Conc Unit<sub>",
+                  colnames(df)[startsWith(colnames(df), "conc_unit")]
+                ),
+                "</sub>"
+              )
+              colnames(df)[startsWith(colnames(df), "conc")] <- paste0(
+                gsub(
+                  "conc",
+                  "Conc<sub>",
+                  colnames(df)[startsWith(colnames(df), "conc")]
+                ),
+                "</sub>"
+              )
+              colnames(df)[colnames(df) == "response"] <- "Response"
+              colnames(df)[colnames(df) == "block_id"] <- "Block ID"
+              colnames(df)[colnames(df) == "cell_line_name"] <- "Cell Line Name"
+            dt <- DT::datatable(df, escape = FALSE)
+            },
           options = list(
             scrollX = TRUE,
             scrollCollapse=TRUE,
@@ -1710,21 +1740,22 @@ server <- function(input, output, session){
                 -dplyr::contains("response"),
                 -dplyr::contains("conc_unit")) %>%
               dplyr::mutate_if(is.numeric, round, 2)
-            colnames(df) <- toupper(colnames(df))
-            colnames(df) <- gsub("_", " ", colnames(df))
-            colnames(df)[startsWith(colnames(df), "RI")] <- gsub(
-              " ", 
-              "",
-              colnames(df)[startsWith(colnames(df), "RI")]
-            )
-            df
+            colnames(df) <- gsub("_ic50", "</sub>ic50", colnames(df))
+            colnames(df) <- gsub("_", "", colnames(df))
+            colnames(df) <- gsub("drug", "Drug<sub>", colnames(df))
+            colnames(df) <- gsub("ic50", "IC50<sub>", colnames(df))
+            colnames(df) <- gsub("ri", "RI<sub>", colnames(df))
+            colnames(df) <- gsub("css", "CSS<sub>", colnames(df))
+            colnames(df) <- gsub("blockid", "Block ID", colnames(df))
+            colnames(df) <- paste0(colnames(df),"</sub>")
+            colnames(df) <- gsub("<sub></sub>", "", colnames(df))
+            df <- datatable(df, escape = FALSE)
           }, 
           options = list(scrollX = TRUE, scrollCollapse=TRUE),
           selection = 'none',
           rownames= FALSE
         )
-      }
-    }
+      } }
   )
   # report Tab --------------------------------------------------------------
   observeEvent(
@@ -1778,8 +1809,8 @@ server <- function(input, output, session){
                 plots <- c(plots, f)
                 png(
                   filename = paste0(reportspath, subdir, "/", f),
-                  height = 600,
-                  width = 600
+                  height = 300,
+                  width = 300
                 )
                 replayPlot(p)
                 dev.off()
@@ -1796,8 +1827,8 @@ server <- function(input, output, session){
                 plots <- c(plots, f)
                 png(
                   filename = paste0(reportspath, subdir, "/", f),
-                  height = 600,
-                  width = 600
+                  height = 300,
+                  width = 300
                 )
                 replayPlot(p)
                 dev.off()
@@ -1834,6 +1865,8 @@ server <- function(input, output, session){
               syn_heatmap_label_color = input$syn_heatmap_label_color,
               syn_rep_statistic = input$syn_rep_statistic,
               syn_grid = input$syn_grid,
+              syn_heatmap_label_size = input$syn_heatmap_label_size,
+              syn_text_size = input$syn_text_size,
               bb_panel_title_size = input$bb_panel_title_size,
               bb_axis_text_size = input$bb_axis_text_size,
               bb_highlight_label_size = input$bb_highlight_label_size,
@@ -1892,8 +1925,8 @@ server <- function(input, output, session){
                 plots <- c(plots, f)
                 png(
                   filename = paste0(reportspath, subdir, "/", f),
-                  height = 600,
-                  width = 600
+                  height = 300,
+                  width = 300
                 )
                 replayPlot(p)
                 dev.off()
@@ -1910,8 +1943,8 @@ server <- function(input, output, session){
                 plots <- c(plots, f)
                 png(
                   filename = paste0(reportspath, subdir, "/", f),
-                  height = 600,
-                  width = 600
+                  height = 300,
+                  width = 300
                 )
                 replayPlot(p)
                 dev.off()
@@ -1948,6 +1981,8 @@ server <- function(input, output, session){
               syn_heatmap_label_color = input$syn_heatmap_label_color,
               syn_rep_statistic = input$syn_rep_statistic,
               syn_grid = input$syn_grid,
+              syn_heatmap_label_size = input$syn_heatmap_label_size,
+              syn_text_size = input$syn_text_size,
               bb_panel_title_size = input$bb_panel_title_size,
               bb_axis_text_size = input$bb_axis_text_size,
               bb_highlight_label_size = input$bb_highlight_label_size,

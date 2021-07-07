@@ -45,6 +45,8 @@ params:
   syn_high_value_color: NA
   syn_low_value_color: NA
   syn_heatmap_label_color: NA
+  syn_heatmap_label_size: NA
+  syn_text_size: NA
   syn_rep_statistic: NA
   syn_grid: NA
   bb_panel_title_size: NA
@@ -128,16 +130,33 @@ cat("Correct Baseline Setting: ", params$correct_baseline)
 meta_table <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     dplyr::starts_with("drug"),
     dplyr::starts_with("conc_unit"),
     dplyr::starts_with("cell"))
-names(meta_table) <- gsub("_", " ", names(meta_table))
+names(meta_table)[startsWith(names(meta_table), "conc_unit")] <- paste0(
+    gsub(
+      "conc_unit",
+      "Conc Unit\\\\textsubscript{",
+     names(meta_table)[startsWith(names(meta_table), "conc_unit")]
+    ),
+    "}"
+  )
+names(meta_table)[startsWith(names(meta_table), "drug")] <- paste0(
+  gsub(
+    "drug",
+    "Drug\\\\textsubscript{",
+    names(meta_table)[startsWith(names(meta_table), "drug")]
+  ),
+  "}"
+)
+names(meta_table)[names(meta_table) == "cell_line_name"] <- "Cell Line Name"
 meta_table %>%
   kableExtra::kable(
     "latex",
     booktabs = TRUE,
-    caption = "Drug Combiantion Meta Data"
+    caption = "Drug Combiantion Meta Data",
+    escape = FALSE
   ) %>%
   kable_styling(latex_options = c("striped", "HOLD_position"))
 ```
@@ -146,7 +165,7 @@ meta_table %>%
 df_synergy <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     "ZIP" = "ZIP_synergy",
     "Loewe" = "Loewe_synergy",
     "HSA" = "HSA_synergy",
@@ -154,7 +173,10 @@ df_synergy <- synergyfinder_obj$drug_pairs %>%
     )
 names(df_synergy) <- gsub("_", " ", names(df_synergy))
 df_synergy %>% 
-  kableExtra::kable("latex", caption = "Synergy Score Summary Table") %>%
+  kableExtra::kable(
+    "latex",
+    caption = "Synergy Score Summary Table",
+    escape = FALSE) %>%
   kableExtra::kable_styling(latex_options = c("striped", "HOLD_position"))
 ```
 
@@ -163,7 +185,7 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
   df_synergy_statistic <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     `ZIP p Value` = "ZIP_synergy_p_value",
     `Loewe p Value` = "Loewe_synergy_p_value",
     `HSA p Value` = "HSA_synergy_p_value",
@@ -171,7 +193,10 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
     )
 names(df_synergy_statistic) <- gsub("_", " ", names(df_synergy_statistic))
 df_synergy_statistic %>%
-  kableExtra::kable("latex", caption = "Synergy Score Statistic Table") %>%
+  kableExtra::kable(
+    "latex",
+    caption = "Synergy Score Statistic Table",
+    escape = FALSE) %>%
   kableExtra::kable_styling(latex_options = c("striped", "HOLD_position"))
 }
 ```
@@ -180,12 +205,24 @@ df_synergy_statistic %>%
 df_sensitive <- synergyfinder_obj$drug_pairs %>% 
   dplyr::filter(block_id == params$blocks) %>% 
   dplyr::select(
-    block_id,
+    "Block ID" = "block_id",
     dplyr::contains("ri_"),
-    "CSS" = "css")    
-names(df_sensitive) <- gsub("_", " ", names(df_sensitive))
+    "CSS" = "css")
+names(df_sensitive)[startsWith(names(df_sensitive), "ri_")] <- paste0(
+  gsub(
+    "ri_",
+    "RI\\\\textsubscript{",
+    names(df_sensitive)[startsWith(names(df_sensitive), "ri_")]
+  ),
+  "}"
+)
+
 df_sensitive %>% 
-  kableExtra::kable("latex", caption = "Sensitivity Score Summary Table") %>%
+  kableExtra::kable(
+    "latex",
+    caption = "Sensitivity Score Summary Table",
+    escape = FALSE
+  ) %>%
   kableExtra::kable_styling(latex_options = c("striped", "HOLD_position"))
 ```
 
@@ -194,16 +231,28 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
   df_sensitive_statistic <- synergyfinder_obj$sensitivity_scores_statistics %>% 
     dplyr::filter(block_id == params$blocks) %>% 
     dplyr::select(
-      block_id,
+    "Block ID" = "block_id",
       paste0("ri_", 1:ndrug, "_p_value"),
-      "css_p_value"
+      "CSS p Value" = "css_p_value"
       ) 
-    names(df_sensitive_statistic) <- gsub("_", " ", names(df_sensitive_statistic))
-    df_sensitive_statistic %>% 
-    # knitr::kable(caption = "Synergy Score Statistic Table", format = "latex")
-    kableExtra::kable("latex", caption = "Sensitivity Score Statistic Table") %>%
-    # kableExtra::kable_classic(full_width = F) %>%
-    kableExtra::kable_styling(latex_options = c("HOLD_position"))
+  names(df_sensitive_statistic)[startsWith(names(df_sensitive_statistic), "ri_")] <-
+    gsub(
+      "_p_value",
+      "} p Value",
+      gsub(
+        "ri_",
+        "RI\\\\textsubscript{",
+        names(df_sensitive_statistic)[startsWith(names(df_sensitive_statistic), "ri_")]
+     )
+    )
+  df_sensitive_statistic %>% 
+  # knitr::kable(caption = "Synergy Score Statistic Table", format = "latex")
+  kableExtra::kable(
+    "latex",
+    caption = "Sensitivity Score Statistic Table",
+    escape = FALSE) %>%
+  # kableExtra::kable_classic(full_width = F) %>%
+  kableExtra::kable_styling(latex_options = c("HOLD_position"))
 }
 ```
 
@@ -215,11 +264,11 @@ knitr::include_graphics(params$DRC_plots)
 
 # 3. Dose response map
 
-```{r dose_response_map, fig.show="hold", out.width="50%"}
-for (b in params$blocks) {
-  comb <- combn(1:ndrug, 2)
-  for (c in 1:ncol(comb)) {
-    if (params$DR_plot_type == "heatmap") {
+```{r dose_response_map_heatmap, fig.show="hold", out.width="100%"}
+if (params$DR_plot_type == "heatmap"){
+  for (b in params$blocks) {
+    comb <- combn(1:ndrug, 2)
+    for (c in 1:ncol(comb)) {
       p <- Plot2DrugHeatmap(
         data = synergyfinder_obj,
         plot_block = b,
@@ -235,7 +284,17 @@ for (b in params$blocks) {
         # title_text_size_scale = params$DR_text_size
       )
       print(p)
-    } else {
+    }
+  }
+}
+
+```
+
+```{r dose_response_map, fig.show="hold", out.width="50%"}
+if (params$DR_plot_type != "heatmap") {
+  for (b in params$blocks) {
+    comb <- combn(1:ndrug, 2)
+    for (c in 1:ncol(comb)) {
       p <- Plot2DrugSurface(
         data = synergyfinder_obj,
         drugs = c(comb[1, c], comb[2, c]),
@@ -245,6 +304,7 @@ for (b in params$blocks) {
         summary_statistic = params$DR_summary_statistic,
         high_value_color = params$DR_high_value_color,
         low_value_color = params$DR_low_value_color,
+        text_size_scale = 1,
         grid = params$DR_grid
         # text_size_scale = params$DR_text_size
       )
@@ -252,51 +312,72 @@ for (b in params$blocks) {
     }
   }
 }
+
 ```
 
 # 4. Synergy Scores
 
+```{r synergy_plots_heatmap, fig.show="hold", out.width="100%"}
+if (params$syn_plot_type == "heatmap") {
+  for (b in params$blocks) {
+    comb <- combn(1:ndrug, 2)
+    # 2-drug synergy surface
+    for (c in 1:ncol(comb)) {
+      for (m in methods) {
+      p <- PlotSynergy(
+        data = synergyfinder_obj,
+        block_ids = b,
+        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        drugs = c(comb[1, c], comb[2, c]),
+        type = params$syn_plot_type,
+        method = m,
+        dynamic = FALSE,
+        summary_statistic = params$syn_summary_statistic,
+        high_value_color = params$syn_high_value_color,
+        low_value_color = params$syn_low_value_color,
+        text_size_scale = params$syn_text_size,
+        heatmap_text_label_color = params$syn_heatmap_label_color,
+        heatmap_text_label_size_scale = params$syn_heatmap_label_size,
+        statistic = params$syn_rep_statistic,
+        grid = params$syn_grid,
+        # text_size_scale = 1.5,
+        display = FALSE
+      )
+      print(p[[1]])
+      }
+    }
+  }
+}
+```
+
 ```{r, synergy_plots, fig.show="hold", out.width="50%"}
-for (b in params$blocks) {
-  # multi-drug dimension reduction surface
-  # if (ndrug > 2) {
-  #   for (m in methods) {
-  #     p <- PlotMultiDrugSurface(
-  #       data = synergyfinder_obj,
-  #       plot_block = b,
-  #       plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
-  #       plot_value = paste0(m, "_synergy"),
-  #       dynamic = FALSE,
-  #       high_value_color = syn_multi_high_value_color,
-  #       low_value_color = syn_multi_low_value_color,
-  #       show_data_points = syn_multi_point,
-  #       point_color = syn_multi_point_color
-  #     )
-  #     print(p)
-  #   }
-  # }
-  # 2-drug synergy surface
-  for (c in 1:ncol(comb)) {
-    for (m in methods) {
-    p <- PlotSynergy(
-      data = synergyfinder_obj,
-      block_ids = b,
-      plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
-      drugs = c(comb[1, c], comb[2, c]),
-      type = params$syn_plot_type,
-      method = m,
-      dynamic = FALSE,
-      summary_statistic = params$syn_summary_statistic,
-      high_value_color = params$syn_high_value_color,
-      low_value_color = params$syn_low_value_color,
-      # text_size_scale = params$syn_text_size,
-      heatmap_text_label_color = params$syn_heatmap_label_color,
-      # heatmap_text_label_size_scale = params$syn_heatmap_label_size,
-      statistic = params$syn_rep_statistic,
-      surface_grid = params$syn_grid,
-      display = FALSE
-    )
-    print(p[[1]])
+if (params$syn_plot_type != "heatmap") {
+  for (b in params$blocks) {
+    comb <- combn(1:ndrug, 2)
+    # 2-drug synergy surface
+    for (c in 1:ncol(comb)) {
+      for (m in methods) {
+      p <- PlotSynergy(
+        data = synergyfinder_obj,
+        block_ids = b,
+        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        drugs = c(comb[1, c], comb[2, c]),
+        type = params$syn_plot_type,
+        method = m,
+        dynamic = FALSE,
+        summary_statistic = params$syn_summary_statistic,
+        high_value_color = params$syn_high_value_color,
+        low_value_color = params$syn_low_value_color,
+        text_size_scale = params$syn_text_size,
+        heatmap_text_label_color = params$syn_heatmap_label_color,
+        heatmap_text_label_size_scale = params$syn_heatmap_label_size,
+        statistic = params$syn_rep_statistic,
+        grid = params$syn_grid,
+        # text_size_scale = 1.5,
+        display = FALSE
+      )
+      print(p[[1]])
+      }
     }
   }
 }
@@ -331,7 +412,7 @@ for (b in params$blocks) {
 
 # 6. S-S plot
 
-```{r ss_plot, fig.show="hold", out.width="50%"}
+```{r ss_plot, fig.show="hold", out.width="100%"}
 for (b in params$blocks) {
   # multi-drug dimension reduction surface
   for (m in methods) {
@@ -343,7 +424,8 @@ for (b in params$blocks) {
       point_size = 3,
       show_labels = params$ss_show_label,
       point_label_color = params$ss_label_color,
-      label_size = 10,
+      label_size = 14,
+      text_size_scale = 1.5,
       dynamic = FALSE
     )
     print(p)
