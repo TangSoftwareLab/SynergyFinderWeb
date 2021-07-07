@@ -3,7 +3,8 @@ dependency <- c(
   "shiny", "shinyjs", "shinytoastr", "shinyWidgets", "shinydashboard",
   "shinyBS", "DT", "synergyfinder", "htmltools", "TidyComb", #"kableExtra",
   "dashboardthemes", "ggplot2", "scales", "gplots", "lattice", "plotly", "grid",
-  "xtable", "shinybusy", "writexl", "dplyr", "shinycssloaders", "purrr")
+  "xtable", "shinybusy", "writexl", "dplyr", "shinycssloaders", "purrr",
+  "RPostgreSQL", "RPostgres")
 sapply(
   dependency,
   library,
@@ -19,4 +20,6 @@ sapply(
 
 # Path to temporarily store pdf reports.
 reportspath <- "tem_folder/"
-cellosauruspath <- "cellosaurus.xml"
+# cellosauruspath <- "cellosaurus.xml"
+
+cellosauruspath <- "../TidyComb_related/cellosaurus.xml"

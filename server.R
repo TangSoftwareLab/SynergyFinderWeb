@@ -356,9 +356,9 @@ server <- function(input, output, session){
             ]
           )
           drugs <- na.omit(unique(drugs))
-          drug_anno <- TidyComb::AnnotateDrug(drugs)
+          drug_anno <- AnnotateDrug(drugs)
           output$drugAnno <- renderDT(
-            drug_anno$drug,
+            DT::datatable(drug_anno$drug, escape = FALSE),
             options = list(
               scrollX = TRUE,
               scrollCollapse=TRUE,
@@ -367,7 +367,7 @@ server <- function(input, output, session){
             rownames= FALSE
           )
           output$drugAnnoTarget <- renderDT(
-            drug_anno$target,
+            DT::datatable(drug_anno$target, escape = FALSE),
             options = list(
               scrollX = TRUE,
               scrollCollapse=TRUE,
@@ -389,8 +389,83 @@ server <- function(input, output, session){
               ),
               rownames= FALSE
             )
-          } else {
           }
+          
+          # Download buttons
+          output$downloadDrugAnno <- downloadHandler(
+            filename <- function() {
+              paste0(
+                "SynergyFinder_drug_information_table_", 
+                Sys.Date(), 
+                ".", 
+                # tolower(input$download_table_format)
+                "xlsx"
+              )
+            },
+            content <- function(file) {
+              table <- drug_anno$drug
+              table$`Cross Reference` <- gsub(
+                "<[^>]*>",
+                "",
+                table$`Cross Reference`
+              )
+              # if (input$download_table_format == "XLSX") {
+                writexl::write_xlsx(table, path = file)
+              # } else if (input$download_table_format == "CSV") {
+              #   write.csv(table, file = file, row.names = FALSE)
+              # } else if (input$download_table_format == "TXT") {
+              #   write.table(table, file = file, sep = "\t", row.names = FALSE)
+              # }
+            }
+          )
+          output$downloadTargetAnno <- downloadHandler(
+            filename <- function() {
+              paste0(
+                "SynergyFinder_drug_target_table_", 
+                Sys.Date(), 
+                ".", 
+                # tolower(input$download_table_format)
+                "xlsx"
+              )
+            },
+            content <- function(file) {
+              table <- drug_anno$target
+              colnames(table)[which(colnames(table) == "Potent Target Name<sup>*</sup>")] <- "Potent Target Name"
+              # if (input$download_table_format == "XLSX") {
+              writexl::write_xlsx(table, path = file)
+              # } else if (input$download_table_format == "CSV") {
+              #   write.csv(table, file = file, row.names = FALSE)
+              # } else if (input$download_table_format == "TXT") {
+              #   write.table(table, file = file, sep = "\t", row.names = FALSE)
+              # }
+            }
+          )
+          output$downloadDrugAnno <- downloadHandler(
+            filename <- function() {
+              paste0(
+                "SynergyFinder_drug_information_table_", 
+                Sys.Date(), 
+                ".", 
+                # tolower(input$download_table_format)
+                "xlsx"
+              )
+            },
+            content <- function(file) {
+              table <- drug_anno$drug
+              table$`Cross Reference` <- gsub(
+                "<[^>]*>",
+                "",
+                table$`Cross Reference`
+              )
+              # if (input$download_table_format == "XLSX") {
+              writexl::write_xlsx(table, path = file)
+              # } else if (input$download_table_format == "CSV") {
+              #   write.csv(table, file = file, row.names = FALSE)
+              # } else if (input$download_table_format == "TXT") {
+              #   write.table(table, file = file, sep = "\t", row.names = FALSE)
+              # }
+            }
+          )
         },
         message = function(m) {
           shinyjs::html(
