@@ -64,7 +64,7 @@ params:
 
 ```{r setup, include=FALSE}
 options(kableExtra.auto_format= FALSE)
-knitr::opts_chunk$set(echo = FALSE, fig.pos = "H")
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, fig.pos = "H")
 options(tinytex.verbose = TRUE)
 ```
 ```{r include=FALSE}
