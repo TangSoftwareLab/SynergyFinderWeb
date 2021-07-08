@@ -96,9 +96,44 @@ _viabillity_ (% cell viability after treatment. Normalized by negative control. 
 Once a response type is selected, a new tab "Dose Response Map" will be shown in the left sidebar. User could click it to visualize dose-response map (see the [next page]() of the user guide).
 4. A button to download the example data. The example datasets include  2 drug combination screening data, 3 drug combination screening data.
 5. The overview for the input data in table format. It will be shown while the file is successfully uploaded and formatted.
-6. A switch for data annotation. It will be shown once the data is successfully uploaded.By turning it on, the program will query the external databases for the drug and cell line (If "cell_line_name" column was found in the input data) information. Three or two tables for drug information, drug MOA information and cell line information (Fig.4) will be shown below the input data table.
+6. A switch for data annotation. It will be shown once the data is successfully uploaded.By turning it on, the program will query the external databases the annotate the drugs and cell lines in the input data table.
+
+SynergyFinder provides three tables for annotation(Fig.4):
 
 ![Fig.4 Annotation for drug and cell line](../www/images/dataAnno.png)
 
 <p style="text-align: center;">Fig.4 Annotation for drug and cell line</p>
-While the file is successfully uploaded, an overview of the input data will be shown for checking the problematic data points.
+
+**Drug Information**: It contains the basic information for drugs tested in input data tables. It includes columns: 
+
+  * Drug Name: The name for drugs in the input data table.
+  * InChIKey: They The IUPAC International Chemical Identifier for drugs. (Information from [PubChem](https://pubchem.ncbi.nlm.nih.gov/).[1])
+  * Isomeric SMILES: The isomeric SMILES for drugs from input data table. (Information from [PubChem](https://pubchem.ncbi.nlm.nih.gov/).[1])
+  * Molecular Formula: The molecular formula for the drugs. (Information from [MICHA](https://micha-protocol.org/)[2])
+  * Max Phase: The maximum phase for clinical trial for the compounds (drugs) in input data table. (Information from [MICHA](https://micha-protocol.org/)[2])
+  
+    * 0: Compound has not yet reached phase I clinical trials
+    * 1: Compound has reached phase I clinical trials
+    * 2: Compound has reached phase II clinical trials
+    * 3: Compound has reached phase III clinical trials
+    * 4: Compound has been approved in at least one country/area
+    
+  * Cross Reference: The drug identifiers used in other databases ([PubChem](https://pubchem.ncbi.nlm.nih.gov/), [BindingDB](https://www.bindingdb.org/bind/index.jsp),  [chEMBL](https://www.ebi.ac.uk/chembl/), [DrugBank](https://go.drugbank.com/), [PharmGKB](https://www.pharmgkb.org/), [Guide to Pharmacology](https://www.guidetopharmacology.org/), [ChEBI](https://www.ebi.ac.uk/chebi/), [Selleck](https://www.selleckchem.com/), [ZINC](https://zinc.docking.org/)). Clicking on the IDs directs user to corresponding drug pages on the external databases.
+  * Disease Indication: The drug is used to treat these diseases. (Information from [MICHA](https://micha-protocol.org/)[2])
+
+**Drug Target Information**: It contains the information for drug targets. It includes columns: 
+  * Drug Name: The name for drugs in the input data table.
+  * InChIKey: They The IUPAC International Chemical Identifier for drugs. (Information from [PubChem](https://pubchem.ncbi.nlm.nih.gov/).[1])
+  * Primary Target Name: The name for the primary target of the drug. (Information from [MICHA](https://micha-protocol.org/)[2])
+  * Primary Target ID: The [UniProt](https://www.uniprot.org/) ID for the primary target of the drug. (Information from [MICHA](https://micha-protocol.org/)[2])
+  * Potent Target Name: The potent targets are defined as the targets displaying binding affinities <= 1,000 nM from the bioactivity databases, or targets recorded in the unary databases. The information comes from MICHA, which integrates the data from 6 databases: [DTC](https://drugtargetcommons.fimm.fi/), [chEMBL](https://www.ebi.ac.uk/chembl/), [BindingDB](https://www.bindingdb.org/bind/index.jsp), [DrugBank](https://go.drugbank.com/), [Guide to Pharmacology](https://www.guidetopharmacology.org/), [DGIdb](https://www.dgidb.org/). (Information from [MICHA](https://micha-protocol.org/)[2])
+  
+**Cell Line Information**: It contains the information about the cell line from [Cellosaurus](https://web.expasy.org/cellosaurus/) database. It shows only when the cell line names are included in the input data table. It includes columns: 
+
+  * Cell Name: The cell line name extracted from input data table.
+  * Synonyms: The synonyms for cell line
+  * Cellosaurus Accession: The identifier for cell lines used in [Cellosaurus](https://web.expasy.org/cellosaurus/)
+  * Tissue: The tissue from which cell line is collected
+  * Disease Name: The disease from which cell line is collected
+  * Disease NCIt ID: The NCI Thesaurus (NCIt) for the disease
+  

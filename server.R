@@ -18,6 +18,7 @@ server <- function(input, output, session){
   dataReshaped <- reactiveValues(reshapeD = NULL)
   inputdatatype <- reactiveValues(type_ = "Table")
   switches <- reactiveValues(
+    anno = 0,
     vizDR = 0,
     vizSyn = 0,
     report = 1,
@@ -58,37 +59,19 @@ server <- function(input, output, session){
                    size = "extra-small")
         ),
         accept = c('.csv', '.xlsx', '.txt'),
-      )#,
-      # shinyBS::bsPopover(#session,
-      #   id = "q1",
-      #   title = "Input data structure:",
-      #   content = paste0(
-      #     tags$p("Table format:"),
-      #     # tags$br(),
-      #     tags$image(
-      #       src = 'images/exampleTab.png',
-      #       width = '400', height = '200'
-      #     ),
-      #     tags$br(),
-      #     tags$br(),
-      #     tags$p("Matrix format:"),
-      #     # tags$br(),
-      #     tags$image(
-      #       src = 'images/exampleMat.png',
-      #       width = '400', height = '200'
-      #     ),
-      #     tags$br(),
-      #     tags$br(),
-      #     tags$p(
-      #       "For more information about input file format please check the USER GUIDE."
-      #     )
-      #   ),
-      #   placement = "bottom",
-      #   trigger = "click"
-      # )
+      )
     )
   })
-  
+  observeEvent(
+    input$annoSwitch,
+    {
+      if (input$annoSwitch) {
+        switches$anno <- 1
+      } else {
+        switches$anno <- 0
+      }
+    }
+  )
   # Check number of sessions
   # isolate(vals$users_ <- vals$users_ + 1)
   # session$onSessionEnded(function(){ 
@@ -100,13 +83,10 @@ server <- function(input, output, session){
   # 
   closeAll <- function() {
     shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
-    # removeUI(selector = "a[data-value=\"synergyTab\"]")
-    # removeUI(selector = "a[data-value=\"sensitivityTab\"]")
-    # removeUI(selector = "a[data-value=\"reportTab\"]")
     shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
     shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
     shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
-    shinyjs::hide(selector = "a[data-value=\"annotationTab\"]")
+    shinyjs::hide(id = "inputData")
     shinyjs::hide(id = "annoSwitch")
     bb_plots$bar_plot <- NULL
     bb_plots$barometer <- NULL
@@ -121,6 +101,7 @@ server <- function(input, output, session){
     updateSelectInput(session, inputId = "correct_baseline", selected = "non")
     updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
     updateSelectInput(session, "selectInhVia", selected = "")
+    switches$anno <- 0
     switches$vizDR <- 0
     switches$vizSyn <- 0
     switches$vizSens <- 0
@@ -286,45 +267,49 @@ server <- function(input, output, session){
       # Show data table
       if (!is.null(datannot$annot)) {
         output$inputData <- renderDT(
-            {
-              df <- datannot$annot
-              colnames(df)[startsWith(colnames(df), "drug")] <- paste0(
-                gsub(
-                  "drug",
-                  "Drug<sub>",
-                  colnames(df)[startsWith(colnames(df), "drug")]
-                ),
-                "</sub>"
+          {
+            df <- datannot$annot
+            colnames(df)[startsWith(colnames(df), "drug")] <- paste0(
+              gsub(
+                "drug",
+                "Drug<sub>",
+                colnames(df)[startsWith(colnames(df), "drug")]
+              ),
+              "</sub>"
+            )
+            colnames(df)[startsWith(colnames(df), "conc_unit")] <- paste0(
+              gsub(
+                "conc_unit",
+                "Conc Unit<sub>",
+                colnames(df)[startsWith(colnames(df), "conc_unit")]
+              ),
+              "</sub>"
+            )
+            colnames(df)[startsWith(colnames(df), "conc")] <- paste0(
+              gsub(
+                "conc",
+                "Conc<sub>",
+                colnames(df)[startsWith(colnames(df), "conc")]
+              ),
+              "</sub>"
+            )
+            colnames(df)[colnames(df) == "response"] <- "Response"
+            colnames(df)[colnames(df) == "block_id"] <- "Block ID"
+            colnames(df)[colnames(df) == "cell_line_name"] <- "Cell Line Name"
+            dt <- DT::datatable(
+              df,
+              escape = FALSE,
+              rownames= FALSE,
+              options = list(
+                scrollX = TRUE,
+                scrollCollapse=TRUE,
+                lengthChange = FALSE
               )
-              colnames(df)[startsWith(colnames(df), "conc_unit")] <- paste0(
-                gsub(
-                  "conc_unit",
-                  "Conc Unit<sub>",
-                  colnames(df)[startsWith(colnames(df), "conc_unit")]
-                ),
-                "</sub>"
-              )
-              colnames(df)[startsWith(colnames(df), "conc")] <- paste0(
-                gsub(
-                  "conc",
-                  "Conc<sub>",
-                  colnames(df)[startsWith(colnames(df), "conc")]
-                ),
-                "</sub>"
-              )
-              colnames(df)[colnames(df) == "response"] <- "Response"
-              colnames(df)[colnames(df) == "block_id"] <- "Block ID"
-              colnames(df)[colnames(df) == "cell_line_name"] <- "Cell Line Name"
-            dt <- DT::datatable(df, escape = FALSE)
-            },
-          options = list(
-            scrollX = TRUE,
-            scrollCollapse=TRUE,
-            lengthChange = FALSE
-          ),
-          rownames= FALSE
+            )
+          }
         )
         shinyjs::show(id = "annoSwitch")
+        shinyjs::show(id = "inputData")
       } else {
         shinyjs::hide(id = "inputData")
         shinyis::hide(id = "annoSwitch")
@@ -339,10 +324,11 @@ server <- function(input, output, session){
   observeEvent(
     eventExpr = {
       datannot$annot
+      switches$anno
       input$annoSwitch
     },
     handlerExpr = {
-      if (!is.null(datannot$annot) & input$annoSwitch) {
+      if (!is.null(datannot$annot) & input$annoSwitch & switches$anno) {
         show_modal_spinner(spin = "fading-circle") 
         withCallingHandlers({
           # drugs' annotation
@@ -358,28 +344,94 @@ server <- function(input, output, session){
           drugs <- na.omit(unique(drugs))
           drug_anno <- AnnotateDrug(drugs)
           output$drugAnno <- renderDT(
-            DT::datatable(drug_anno$drug, escape = FALSE),
-            options = list(
-              scrollX = TRUE,
-              scrollCollapse=TRUE,
-              lengthChange = FALSE
-            ),
-            rownames= FALSE
+            DT::datatable(
+              drug_anno$drug,
+              escape = FALSE,
+              options = list(
+                pageLength = 20,
+                autoWidth = TRUE,
+                columnDefs = list(
+                  list(
+                    targets = 1,
+                    width = '100px'
+                  ),
+                  list(
+                    targets = 2,
+                    width = '300px'
+                  ),
+                  list(
+                    targets = 3,
+                    width = '500px'
+                  ),
+                  list(
+                    targets = 4,
+                    width = '100px'
+                  ),
+                  list(
+                    targets = 5,
+                    width = '100px'
+                  ),
+                  list(
+                    targets = 6,
+                    width = '200px'
+                  ),
+                  list(
+                    targets = 7,
+                    width = '800px'
+                  ),
+                  list(
+                    className = 'dt-left',
+                    targets = 1:5
+                  )
+                ),
+                scrollX = TRUE,
+                rownames= FALSE
+              )
+            )
           )
           output$drugAnnoTarget <- renderDT(
-            DT::datatable(drug_anno$target, escape = FALSE),
-            options = list(
-              scrollX = TRUE,
-              scrollCollapse=TRUE,
-              lengthChange = FALSE
-            ),
-            rownames= FALSE
+            DT::datatable(
+              drug_anno$target,
+              escape = FALSE,
+              options = list(
+                pageLength = 20,
+                autoWidth = TRUE,
+                columnDefs = list(
+                  list(
+                    targets = 1,
+                    width = '100px'
+                  ),
+                  list(
+                    targets = 2,
+                    width = '300px'
+                  ),
+                  list(
+                    targets = 3,
+                    width = '200px'
+                  ),
+                  list(
+                    targets = 4,
+                    width = '200px'
+                  ),
+                  list(
+                    targets = 5,
+                    width = '800px'
+                  ),
+                  list(
+                    className = 'dt-left',
+                    targets = 1:5
+                  )
+                ),
+                scrollX = TRUE,
+                rownames= FALSE
+              )
+            )
           )
           # cell lines' annotation
           cells <- grepl("cell", colnames(datannot$annot), fixed = TRUE)
           if (sum(cells) != 0){
             cells <- na.omit(unique(datannot$annot[, cells]))
-            cell_anno <- TidyComb::AnnotateCell(cells, file = cellosauruspath)
+            cell_anno <- AnnotateCell(cells, file = cellosauruspath)
             output$cellAnno <- renderDT(
               cell_anno,
               options = list(
@@ -389,6 +441,9 @@ server <- function(input, output, session){
               ),
               rownames= FALSE
             )
+            shinyjs::show(id = "cellAnnoResult")
+          } else {
+            shinyjs::hide(id = "cellAnnoResult")
           }
           
           # Download buttons
@@ -466,6 +521,8 @@ server <- function(input, output, session){
               # }
             }
           )
+          shinyjs::show(id = "drugAnnoResult")
+          
         },
         message = function(m) {
           shinyjs::html(
@@ -475,24 +532,13 @@ server <- function(input, output, session){
         })
         
         remove_modal_spinner()
+      } else {
+        shinyjs::hide(id = "drugAnnoResult")
+        shinyjs::hide(id = "cellAnnoResult")
       }
     } # handlerExpr
   ) # observeEvent
   
-  observeEvent(
-    eventExpr = input$annoSwitch,
-    handlerExpr = {
-      if (input$annoSwitch) {
-        shinyjs::show(id = "drugAnno")
-        shinyjs::show(id = "cellAnno")
-        shinyjs::show(id = "drugAnnoTarget")
-      } else {
-        shinyjs::hide(id = "drugAnno")
-        shinyjs::hide(id = "cellAnno")
-        shinyjs::hide(id = "drugAnnoTarget")
-      }
-    }
-  )
   ## selectInhVia --------------------------------------------------------------
   observeEvent(
     eventExpr = input$selectInhVia, 
@@ -1674,7 +1720,7 @@ server <- function(input, output, session){
             "}"
           )
           output$syn_barometer_values <- renderDT(
-            { 
+            {
               df <- bb_plot_param$selected_values %>% 
                 dplyr::select(
                   dplyr::starts_with("conc"),
@@ -1694,7 +1740,6 @@ server <- function(input, output, session){
                   bb_plot_param$drug_pair[1, paste0("drug", i)],
                   ":")
               }
-              
               DT::datatable(
                 data = t(df),
                 class = "compact",
@@ -1824,11 +1869,17 @@ server <- function(input, output, session){
             colnames(df) <- gsub("blockid", "Block ID", colnames(df))
             colnames(df) <- paste0(colnames(df),"</sub>")
             colnames(df) <- gsub("<sub></sub>", "", colnames(df))
-            df <- datatable(df, escape = FALSE)
-          }, 
-          options = list(scrollX = TRUE, scrollCollapse=TRUE),
-          selection = 'none',
-          rownames= FALSE
+            df <- datatable(
+              df,
+              escape = FALSE,
+              rownames= FALSE,
+              selection = 'none', 
+              options = list(
+                scrollX = TRUE,
+                scrollCollapse=TRUE
+              )
+            )
+          }
         )
       } }
   )

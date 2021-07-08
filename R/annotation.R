@@ -83,12 +83,14 @@ AnnotateDrug <- function(drug_names){
     )
   )
   cross_ref <- cross_ref %>%
-    mutate(cross_ref = paste0(
-      "<a href='", base_id_url, "'>", name_label, ":", compound_id, "</a>"
+    mutate(
+      cross_ref = 
+        paste0(
+          "<a href='", base_id_url, "' target='_blank'>", name_label, ":", compound_id, "</a><br>"
       )
     ) %>% 
     dplyr::group_by(standard_inchi_key) %>% 
-    summarise(cross_ref = paste(cross_ref, collapse = ", "))
+    summarise(cross_ref = paste(cross_ref, collapse = ""))
   
   ## Max clinical phase
   phase <- DBI::dbGetQuery(
@@ -98,7 +100,7 @@ AnnotateDrug <- function(drug_names){
       WHERE standard_inchi_key IN ('",
       paste(pubchem$InChIKey, collapse = "', '"),
       "') AND
-      name_label in ('BindingDB', 'PubChem', 'ChEMBL', 'DrugBank', 'PharmGKB', 
+      name_label in ('BindingDB', 'ChEMBL', 'DrugBank', 'PharmGKB', 
       'Guide to Pharmacology', 'ChEBI', 'Selleck', 'Zinc')"
     )
   )
@@ -134,7 +136,17 @@ AnnotateDrug <- function(drug_names){
   drug <- pubchem %>%
     left_join(cross_ref, by = c("InChIKey" = "standard_inchi_key")) %>%
     left_join(disease, by = c("InChIKey" = "standard_inchi_key")) %>% 
-    left_join(target, by = c("InChIKey" = "standard_inchi_key"))
+    left_join(target, by = c("InChIKey" = "standard_inchi_key")) %>% 
+    mutate(
+      cross_ref = paste0(
+        "<a href='https://pubchem.ncbi.nlm.nih.gov/compound/",
+        CID,
+        "' target='_blank'>PubChem:",
+        CID,
+        "</a><br>",
+        cross_ref
+      )
+    )
   
   drug[which(drug == "NULL", arr.ind = TRUE)] <- NA
   drug[which(drug == "", arr.ind = TRUE)] <- NA
@@ -150,13 +162,12 @@ AnnotateDrug <- function(drug_names){
   drug <- drug %>% 
     dplyr::select(
       "Drug Name" = "Name",
-      CID,
       "InChIKey",
-      "Molecular Formula" = "full_molformula",
       "Isomeric SMILES" = "IsomericSMILES",
-      "Max Clinical Phase" = "max_phase",
-      "Disease" = "disease",
-      "Cross Reference" = "cross_ref"
+      "Molecular Formula" = "full_molformula",
+      "Max Phase" = "max_phase",
+      "Cross Reference" = "cross_ref",
+      "Disease Indication" = "disease"
     )
   return(list(drug = drug, target = target))
 }

@@ -79,24 +79,30 @@ inputDataTabUI <- function(id) {
       fluidRow(
         DTOutput("inputData"),
         br(),
-        hr(),
-        tabs$h1("Drug Information"),
-        br(),
-        DTOutput(outputId = "drugAnno"),
-        downloadButton(outputId = "downloadDrugAnno", label = "Download Drug Information"),
-        br(),
-        hr(),
-        tabs$h1("Drug Target Information"),
-        br(),
-        DTOutput(outputId = "drugAnnoTarget"),
-        tabs$p("* Potent targets are defined as the targets displaying binding affinities <= 1,000 nM from the bioactivity databases, or targets recorded in the unary databases. The information comes from MICHA, which integrates the data from 6 databases: DTC, Chembl, BindingDB, DrugBank, Guide to pharmacology, DGiDB."),
-        downloadButton(outputId = "downloadTargetAnno", label = "Download Drug Target Information"),
-        br(),
-        hr(),
-        tabs$h1("Cell Information"),
-        br(),
-        DTOutput(outputId = "cellAnno"),
-        downloadButton(outputId = "downloadCellAnno", label = "Download Cell Information"),
+        tags$div(
+          id = "drugAnnoResult",
+          hr(),
+          tags$h1("Drug Information"),
+          br(),
+          DTOutput(outputId = "drugAnno"),
+          downloadButton(outputId = "downloadDrugAnno", label = "Download Drug Information"),
+          br(),
+          hr(),
+          tags$h1("Drug Target Information"),
+          br(),
+          DTOutput(outputId = "drugAnnoTarget"),
+          tags$p("* Potent targets are defined as the targets displaying binding affinities <= 1,000 nM from the bioactivity databases, or targets recorded in the unary databases. The information comes from MICHA, which integrates the data from 6 databases: DTC, Chembl, BindingDB, DrugBank, Guide to pharmacology, DGiDB."),
+          downloadButton(outputId = "downloadTargetAnno", label = "Download Drug Target Information"),
+          br()
+        ),
+        tags$div(
+          id = "cellAnnoResult",
+          hr(),
+          tags$h1("Cell Line Information"),
+          br(),
+          DTOutput(outputId = "cellAnno"),
+          downloadButton(outputId = "downloadCellAnno", label = "Download Cell Information")
+        )
       )
     )
   ) # tabItem - "inputTab"
