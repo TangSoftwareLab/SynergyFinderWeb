@@ -20,6 +20,4 @@ sapply(
 
 # Path to temporarily store pdf reports.
 reportspath <- "tem_folder/"
-# cellosauruspath <- "cellosaurus.xml"
-
-cellosauruspath <- "../TidyComb_related/cellosaurus.xml"
+cellosauruspath <- "cellosaurus.xml"
