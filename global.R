@@ -4,7 +4,7 @@ dependency <- c(
   "shinyBS", "DT", "synergyfinder", "htmltools", "TidyComb", #"kableExtra",
   "dashboardthemes", "ggplot2", "scales", "gplots", "lattice", "plotly", "grid",
   "xtable", "shinybusy", "writexl", "dplyr", "shinycssloaders", "purrr",
-  "RPostgreSQL", "RPostgres")
+  "RPostgreSQL", "RPostgres", "DBI", "config")
 sapply(
   dependency,
   library,
