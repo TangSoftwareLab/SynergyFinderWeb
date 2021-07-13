@@ -67,50 +67,7 @@ GetPubchemPro <- function(cids) {
 #' drug_names <- c("Gefitinib", "Paclitaxel", "sunitinib")
 #' AnnotateDrug(c("aspirin", "gefitinib"))
 AnnotateDrug <- function(drug_names){
-  # PubChem
-  # message("\nQuerying PubChem...")
-  # pubchem <- NULL
-  # url.base <- paste0(
-  #   "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%s/",
-  #   "property/InChIKey,IsomericSMILES/JSON")
-  # stepi <- 1
-  # n <- length(drug_names)
-  # pb <- utils::txtProgressBar(min = 0, max = n, style = 3)
-  # for (name in drug_names) {
-  #   tmp <- NULL
-  #   tryCatch({
-  #     url <- sprintf(url.base, utils::URLencode(name))
-  #     
-  #     doc <- jsonlite::fromJSON(url)
-  #     rootNode <- names(doc)
-  #     if (rootNode == "PropertyTable") {
-  #       tmp <- doc$PropertyTable$Properties
-  #     } else {
-  #       tmp <- data.frame(
-  #         CID = NA,
-  #         IsomericSMILES = NA,
-  #         InChIKey = NA,
-  #         stringsAsFactors = FALSE
-  #       )
-  #     }
-  #   }, error = function(e) {
-  #     # if (!quiet) {
-  #     #   print(e)
-  #     # }
-  #     tmp <<- data.frame(
-  #       CID = NA,
-  #       IsomericSMILES = NA,
-  #       InChIKey = NA,
-  #       stringsAsFactors = FALSE
-  #     )
-  #   }, finally = Sys.sleep(0.2) # See usage policy.
-  #   )
-  #   tmp$Name <- name
-  #   pubchem <- rbind.data.frame(pubchem, tmp)
-  #   
-  #   utils::setTxtProgressBar(pb, stepi)
-  #   stepi <- stepi + 1
-  # }
+
   drug_names <- na.omit(unique(drug_names))
   drug <- data.frame(
     Name = drug_names,
