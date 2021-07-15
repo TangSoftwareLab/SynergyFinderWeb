@@ -208,9 +208,12 @@ doseResponseTabUI <- function(id) {
           ),
           selectInput(
             inputId = "DR_rep_statistic",
-            label = "Statistics for Replicates",
-            choices = c("Non" = NULL, "95% confidence interval" = "ci",
-                        "Standard error of mean" = "sem"),
+            label = "Statistics for Observations",
+            choices = c(
+              "Non" = NULL,
+              "95% confidence interval" = "ci",
+              "Standard Deviation (SD)" = "sd",
+              "Standard error of mean (SEM)" = "sem"),
             selected = NULL
           ),
           shinyWidgets::materialSwitch(
@@ -352,9 +355,12 @@ synergyTabUI <- function(id) {
             ),
             selectInput(
               inputId = "syn_rep_statistic",
-              label = "Statistics for Replicates",
-              choices = c("Non" = NULL, "95% confidence interval" = "ci",
-                          "Standard error of mean" = "sem"),
+              label = "Statistics from Bootstrap",
+              choices = c(
+                "Non" = NULL,
+                "95% confidence interval" = "ci",
+                "Standard Deviation (SD)" = "sd",
+                "Standard error of mean (SEM)" = "sem"),
               selected = NULL
             )
           ),

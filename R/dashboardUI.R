@@ -17,26 +17,14 @@ dashboardUI <- function(id) {
         ),
         menuItemOutput("doseResponseMenu"),
         menuItemOutput("synergyMenu"),
-        # menuItem(
-        #   "Sensitivity Score",
-        #   tabName = "sensitivityTab",
-        #   selected = FALSE
-        # ),
-        # menuItem(
-        #   "Download Reports",
-        #   tabName = "reportTab",
-        #   selected = FALSE
-        # )
         menuItemOutput("sensitivityMenu"),
         menuItemOutput("reportMenu")
       )         
     ),
     dashboardBody(
-      # uiOutput(outputId='fillInput'),
       useToastr(),
       shinyjs::useShinyjs(),
       bsAlert("noPDdata"),
-      # uiOutput(outputId = 'exData'),
       uiOutput(outputId = 'errorTable'),
       fluidRow(
         column(
