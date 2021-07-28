@@ -357,19 +357,19 @@ server <- function(input, output, session){
                   ),
                   list(
                     targets = 2,
-                    width = '300px'
+                    width = '250px'
                   ),
-                  list(
-                    targets = 3,
-                    width = '500px'
-                  ),
+                  # list(
+                  #   targets = 3,
+                  #   width = '500px'
+                  # ),
                   list(
                     targets = 4,
-                    width = '100px'
+                    width = '140px'
                   ),
                   list(
                     targets = 5,
-                    width = '100px'
+                    width = '80px'
                   ),
                   list(
                     targets = 6,
