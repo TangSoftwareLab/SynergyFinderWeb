@@ -5,9 +5,4 @@ default:
     port: "5432"
     password: "F6XDctDx88hC"
     user: "shuyu"
-  dtc:
-    dbname: "compounds_20"
-    host: "128.214.64.122"
-    port: "6432"
-    user: "fimm"
-    password: "pxqgBsFLTwTzc"
+ 
