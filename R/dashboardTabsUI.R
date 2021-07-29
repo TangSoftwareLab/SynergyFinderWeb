@@ -91,7 +91,24 @@ inputDataTabUI <- function(id) {
           tags$h1("Drug Target Information"),
           br(),
           DTOutput(outputId = "drugAnnoTarget"),
-          tags$p("* Potent targets are defined as the targets displaying binding affinities <= 1,000 nM from the bioactivity databases, or targets recorded in the unary databases. The information comes from MICHA, which integrates the data from 6 databases: DTC, Chembl, BindingDB, DrugBank, Guide to pharmacology, DGiDB."),
+          tags$p(
+            "* Potent targets are defined as the targets displaying binding affinities <= 1,000 nM
+            from the bioactivity databases, or targets recorded in the unary databases.
+            The information comes from",
+            tags$a("MICHA", href = 'https://micha-protocol.org/', target = '_blank'),
+            ", which integrates the data from 6 databases: ",
+            tags$a("DTC", href = "https://drugtargetcommons.fimm.fi/", target = "_blank"),
+            ", ",
+            tags$a("chEMBL", href = "https://www.ebi.ac.uk/chembl/", target = "_blank"),
+            ", ",
+            tags$a("BindingDB", href = "https://www.bindingdb.org/bind/index.jsp", target = "_blank"),
+            ", ",
+            tags$a("DrugBank", href = "https://go.drugbank.com/", target = "_blank"),
+            ", ",
+            tags$a("Guide to Pharmacology", href = "https://www.guidetopharmacology.org/", target = "_blank"),
+            ", ",
+            tags$a("DGIdb", href = "https://www.dgidb.org/", target = "_blank"),
+            "."),
           downloadButton(outputId = "downloadTargetAnno", label = "Download Drug Target Information"),
           br()
         ),

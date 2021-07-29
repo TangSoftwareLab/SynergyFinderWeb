@@ -75,56 +75,8 @@ AnnotateDrug <- function(drug_names){
     stringsAsFactors = FALSE
   )
   
-  # DTC: get CID from drug name
-  message("\nQuerying DTC...")
-  
-  config <- config::get("dtc")
-  con <- DBI::dbConnect(
-    drv = RPostgres::Postgres(),
-    dbname = config$dbname,
-    host = config$host,
-    port = config$port,
-    password = config$password,
-    user = config$user)
-  
-  dtc <- DBI::dbGetQuery(
-    con,
-    paste0(
-      "SELECT DISTINCT compound_id, compound_synonym
-      FROM pubchem.compound_synonym
-      WHERE compound_synonym LIKE '",
-      paste(unique(drug$name_upper), collapse = "%' or compound_synonym like '"),
-      "%'
-      ORDER BY compound_synonym DESC"
-    )
-  )
-  
-  DBI::dbDisconnect(con)
-  dtc$name_upper <- regmatches(
-    dtc$compound_synonym,
-    regexpr(
-      paste0("(",paste(toupper(drug_names),collapse="|"), ")"),
-      dtc$compound_synonym
-    )
-  )
-  dtc <- dtc %>% 
-    unique() %>% 
-    dplyr::select(-"compound_synonym") %>% 
-    dplyr::group_by(compound_id) %>% 
-    dplyr::mutate(freq = n()) %>%
-    dplyr::group_by(name_upper) %>% 
-    dplyr::slice(which.max(freq)) %>%
-    dplyr::rename(CID = "compound_id")
-  
-  # PubChem
-  message("\nQuerying PubChem...")
-  pubchem <- GetPubchemPro(unique(na.omit(dtc$CID)))
-  pubchem$CID <- as.character(pubchem$CID)
-  
-  # MICHA
-  message("\nQuerying MICHA...")
-  
-  ## cross reference
+  # MICHA: get CID from drug name
+  message("\nQuerying MICHA for CIDs...")
   config <- config::get("micha")
   con <- DBI::dbConnect(
     drv = RPostgres::Postgres(),
@@ -133,6 +85,44 @@ AnnotateDrug <- function(drug_names){
     port = config$port,
     password = config$password,
     user = config$user)
+  
+  cid <- DBI::dbGetQuery(
+    con,
+    paste0(
+      "SELECT DISTINCT id, upper_synon
+      FROM public.compound_synonyms
+      WHERE upper_synon in ('",
+      paste(
+        unique(drug$name_upper),
+        collapse = "', '"
+      ),
+      "')"
+    )
+  )
+  
+  # DBI::dbDisconnect(con)
+
+  cid <- cid %>% 
+    unique() %>%
+    dplyr::rename(name_upper = upper_synon, CID = "id")
+  
+  # PubChem
+  message("\nQuerying PubChem...")
+  pubchem <- GetPubchemPro(unique(na.omit(cid$CID)))
+  pubchem$CID <- as.character(pubchem$CID)
+  
+  # MICHA
+  message("\nQuerying MICHA for drug info...")
+  
+  ## cross reference
+  # config <- config::get("micha")
+  # con <- DBI::dbConnect(
+  #   drv = RPostgres::Postgres(),
+  #   dbname = config$dbname,
+  #   host = config$host,
+  #   port = config$port,
+  #   password = config$password,
+  #   user = config$user)
   cross_ref <- DBI::dbGetQuery(
     con,
     paste0(
@@ -146,13 +136,13 @@ AnnotateDrug <- function(drug_names){
   )
   cross_ref <- cross_ref %>%
     dplyr::mutate(
-      cross_ref = 
+      cross_reference = 
         paste0(
           "<a href='", base_id_url, "' target='_blank'>", name_label, ":", compound_id, "</a><br>"
       )
     ) %>% 
     dplyr::group_by(standard_inchi_key) %>% 
-    summarise(cross_ref = paste(cross_ref, collapse = ""))
+    summarise(cross_reference = paste(cross_reference, collapse = ""))
   
   ## Max clinical phase
   phase <- DBI::dbGetQuery(
@@ -180,7 +170,7 @@ AnnotateDrug <- function(drug_names){
       "')"
     )
   )
-  
+  target$all_potent_target_names <- sub("^,", "",  target$all_potent_target_names)
   ## Disease
   disease <- DBI::dbGetQuery(
     con,
@@ -200,25 +190,38 @@ AnnotateDrug <- function(drug_names){
   DBI::dbDisconnect(con)
   
   # Assemble tables
+  pubchem$CID <- as.character(pubchem$CID)
+  cid$CID <- as.character(cid$CID)
   drug <- drug %>% 
-    dplyr::left_join(dtc, by = "name_upper") %>% 
+    dplyr::left_join(cid, by = "name_upper") %>% 
     dplyr::left_join(pubchem, by = "CID") %>%
     dplyr::left_join(cross_ref, by = c("InChIKey" = "standard_inchi_key")) %>%
     dplyr::left_join(disease, by = c("InChIKey" = "standard_inchi_key")) %>% 
     dplyr::left_join(target, by = c("InChIKey" = "standard_inchi_key")) %>% 
     dplyr::mutate(
-      cross_ref = paste0(
-        "<a href='https://pubchem.ncbi.nlm.nih.gov/compound/",
-        CID,
-        "' target='_blank'>PubChem:",
-        CID,
-        "</a><br>",
-        cross_ref
+      cross_reference = ifelse(
+        is.na(cross_reference), 
+        paste0(
+          "<a href='https://pubchem.ncbi.nlm.nih.gov/compound/",
+          CID,
+          "' target='_blank'>PubChem:",
+          CID,
+          "</a>"
+        ),
+        paste0(
+          "<a href='https://pubchem.ncbi.nlm.nih.gov/compound/",
+          CID,
+          "' target='_blank'>PubChem:",
+          CID,
+          "</a><br>",
+          cross_reference
+        )
       )
-    )
+    ) %>% 
+    dplyr::arrange(Name, desc(max_phase))
   
-  drug[which(drug == "NULL", arr.ind = TRUE)] <- NA
-  drug[which(drug == "", arr.ind = TRUE)] <- NA
+  drug[drug == "NULL"] <- NA
+  drug[drug == ""] <- NA
   
   target <- drug %>% 
     dplyr::select(
@@ -235,7 +238,7 @@ AnnotateDrug <- function(drug_names){
       "Isomeric SMILES" = "IsomericSMILES",
       "Molecular Formula" = "full_molformula",
       "Max Phase" = "max_phase",
-      "Cross Reference" = "cross_ref",
+      "Cross Reference" = "cross_reference",
       "Disease Indication" = "disease"
     )
   return(list(drug = drug, target = target))
