@@ -77,7 +77,7 @@ aboutUsUI <- function(id) {
               tags$br(),
               "R Package Development",
               tags$br(),
-              "PhD student"
+              "PhD Student"
             ),
             tags$p(
               class ="textCard left-light-orange",
@@ -85,15 +85,23 @@ aboutUsUI <- function(id) {
               tags$br(),
               "Method Development",
               tags$br(),
-              "PhD student"
+              "PhD Student"
             ),
             tags$p(
               class ="textCard left-light-orange",
-              tags$b("Alberto Pessia"),
+              tags$b("Ziaurrehman Tanoli"),
               tags$br(),
-              "Method Development",
+              "Database Manager",
               tags$br(),
-              "Former postdoc Researcher"
+              "Senior Researcher"
+            ),
+            tags$p(
+              class ="textCard left-light-orange",
+              tags$b("Liye He"),
+              tags$br(),
+              "Package Developer",
+              tags$br(),
+              "Former PhD student"
             )
           ),
           column(
@@ -104,7 +112,7 @@ aboutUsUI <- function(id) {
               tags$br(),
               "Software Development & R Package Maintainer",
               tags$br(),
-              "PhD student"
+              "PhD Student"
             ),
             tags$p(
               class ="textCard left-light-orange",
@@ -112,7 +120,7 @@ aboutUsUI <- function(id) {
               tags$br(),
               "Server Manager",
               tags$br(),
-              "PhD student"
+              "PhD Student"
             ),
             tags$p(
               class ="textCard left-light-orange",
@@ -120,15 +128,15 @@ aboutUsUI <- function(id) {
               tags$br(),
               "Method Development",
               tags$br(),
-              "Research assistant"
+              "Research Assistant"
             ),
             tags$p(
               class ="textCard left-light-orange",
-              tags$b("Liye He"),
+              tags$b("Alberto Pessia"),
               tags$br(),
-              "Package developer",
+              "Method Development",
               tags$br(),
-              "Former PhD student"
+              "Former Postdoc Researcher"
             )
           )
         )
