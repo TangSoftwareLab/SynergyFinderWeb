@@ -367,7 +367,6 @@ for (b in params$blocks) {
         plot_block = b,
         plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
         plot_value = paste0(m, "_synergy"),
-        dynamic = TRUE,
         high_value_color = syn_multi_high_value_color,
         low_value_color = syn_multi_low_value_color,
         show_data_points = syn_multi_point,
