@@ -1721,39 +1721,41 @@ server <- function(input, output, session){
           )
           output$syn_barometer_values <- renderDT(
             {
-              df <- bb_plot_param$selected_values %>% 
-                dplyr::select(
-                  dplyr::starts_with("conc"),
-                  "ZIP Synergy Score:" = "ZIP_synergy",
-                  "Loewe Synergy Score:" = "Loewe_synergy",
-                  "Bliss Synergy Score:" = "Bliss_synergy",
-                  "HSA Synergy Score:" = "HSA_synergy"
-                ) %>% 
-                round(digits = 2)
-              
-              for (i in 1:ncol(bb_plot_param$drug_pair)) {
-                df[, which(colnames(df) == paste0("conc", i))] <- paste(
-                  as.character(df[, which(colnames(df) == paste0("conc", i))]),
-                  bb_plot_param$conc_unit[, paste0("conc_unit", i)]
+              if (!is.null(bb_plot_param$selected_values)) {
+                df <- bb_plot_param$selected_values %>% 
+                  dplyr::select(
+                    dplyr::starts_with("conc"),
+                    "ZIP Synergy Score:" = "ZIP_synergy",
+                    "Loewe Synergy Score:" = "Loewe_synergy",
+                    "Bliss Synergy Score:" = "Bliss_synergy",
+                    "HSA Synergy Score:" = "HSA_synergy"
+                  ) %>% 
+                  round(digits = 2)
+                
+                for (i in 1:ncol(bb_plot_param$drug_pair)) {
+                  df[, which(colnames(df) == paste0("conc", i))] <- paste(
+                    as.character(df[, which(colnames(df) == paste0("conc", i))]),
+                    bb_plot_param$conc_unit[, paste0("conc_unit", i)]
+                  )
+                  colnames(df)[which(colnames(df) == paste0("conc", i))] <- paste0(
+                    bb_plot_param$drug_pair[1, paste0("drug", i)],
+                    ":")
+                }
+                DT::datatable(
+                  data = t(df),
+                  class = "compact",
+                  rownames = TRUE,
+                  colnames = c(""),
+                  callback = JS("$('table.dataTable.no-footer').css('border-bottom', 'none');"),
+                  options = list(
+                    dom = 't',
+                    ordering = FALSE,
+                    paging = FALSE,
+                    searching = FALSE,
+                    headerCallback = JS(headerCallback)
+                  )
                 )
-                colnames(df)[which(colnames(df) == paste0("conc", i))] <- paste0(
-                  bb_plot_param$drug_pair[1, paste0("drug", i)],
-                  ":")
               }
-              DT::datatable(
-                data = t(df),
-                class = "compact",
-                rownames = TRUE,
-                colnames = c(""),
-                callback = JS("$('table.dataTable.no-footer').css('border-bottom', 'none');"),
-                options = list(
-                  dom = 't',
-                  ordering = FALSE,
-                  paging = FALSE,
-                  searching = FALSE,
-                  headerCallback = JS(headerCallback)
-                )
-              )
             }
           )
         })
