@@ -72,8 +72,8 @@ options(tinytex.verbose = TRUE)
 ```{r include=FALSE}
 library(tidyverse)
 library(synergyfinder)
-library(TidyComb)
 library(kableExtra)
+library(synergyfinder)
 synergyfinder_obj <- params$data
 ndrug <- sum(grepl("drug", colnames(synergyfinder_obj$drug_pairs)))
 methods = c("ZIP", "Loewe", "Bliss", "HSA")
