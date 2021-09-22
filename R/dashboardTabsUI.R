@@ -16,7 +16,12 @@ inputDataTabUI <- function(id) {
             selected = "Table"
           ),
           br(),
-          downloadButton(outputId = "loadExData_small", label = "example data")
+          shinyWidgets::materialSwitch(
+            inputId = "annoSwitch",
+            label = "Annotate Data",
+            status = "primary",
+            right = TRUE
+          )
         ),
         column(
           width = 4,
@@ -52,11 +57,12 @@ inputDataTabUI <- function(id) {
             )
             # HTML('<div id = "spanpop" class="tooltip-item"></div>')
           ),
-          shinyWidgets::materialSwitch(
-            inputId = "annoSwitch",
-            label = "Annotate Data",
-            status = "primary",
-            right = TRUE
+          uiOutput(
+            outputId = "exDataSelectUI"
+          ),
+          downloadButton(
+            outputId = "downloadExData_small",
+            label = "Download all examples"
           ),
           bsAlert("alertannotfile")
         ),

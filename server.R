@@ -13,8 +13,9 @@ server <- function(input, output, session){
                      selected = "DASHBOARD")
   })
   
-  # # Define reactive variables ------------------------------------------------
+  # Define reactive variables --------------------------------------------------
   datannot <- reactiveValues(annot = NULL)
+  inputDataPath <- reactiveValues(path = NULL)
   dataReshaped <- reactiveValues(reshapeD = NULL)
   inputdatatype <- reactiveValues(type_ = "Table")
   switches <- reactiveValues(
@@ -42,14 +43,48 @@ server <- function(input, output, session){
   shinyjs::hide(selector = "a[data-value=\"downloadTab\"]")
   shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
   shinyjs::hide(id = "annoSwitch")
-  # Reset the input data file
+  
+  closeAll <- function() {
+    shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
+    shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
+    shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
+    shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
+    shinyjs::hide(id = "inputData")
+    shinyjs::hide(id = "annoSwitch")
+    bb_plots$bar_plot <- NULL
+    bb_plots$barometer <- NULL
+    bb_plot_param$conc_unit <- NULL
+    bb_plot_param$drug_pair <- NULL
+    bb_plot_param$selected_panel <- "response"
+    bb_plot_param$selected_conc <- NULL
+    bb_plot_param$selected_values <- NULL
+    dataReshaped$reshapeD <- NULL
+    datannot$annot <- NULL
+    # inputDataPath$path <- NULL
+    correct_baseline$correct_baseline <- NULL
+    updateSelectInput(session, inputId = "correct_baseline", selected = "non")
+    updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
+    updateSelectInput(session, "selectInhVia", selected = "")
+    switches$anno <- 0
+    switches$vizDR <- 0
+    switches$vizSyn <- 0
+    switches$vizSens <- 0
+    switches$report <- 1
+    switches$calSyn <- 0
+    nDrug$n <- 0
+    closeAlert(session, "alert1")
+    closeAlert(session, "alertPD")
+  }
+  
+  # Input Data Tab ------------------------------------------------------------
+  ## Reset the data uploading fields ------------------------------------------
   output$resettableInput <- renderUI({
     input$inputDatatype
     tagList(
       fileInput(
         inputId = 'annotfile',
         label = tags$p(
-          '2. Select a file',
+          '2. Upload a file',
           bsButton("q1", label = "",
                    icon = icon(
                      "fa-question-circle", lib = "font-awesome",
@@ -72,6 +107,46 @@ server <- function(input, output, session){
       }
     }
   )
+  
+  observeEvent(
+    eventExpr = input$inputDatatype,
+    handlerExpr = {
+      if (input$inputDatatype == "Table") {
+        output$exDataSelectUI <- renderUI({
+          div(
+            style = "margin-top: -20px;",
+            selectInput(
+              inputId = "exDataSelect",
+              label = "Or select an example data:",
+              width = '80%',
+              choices = list(
+                "",
+                "ONEIL Table (2 drugs, 3 replicates)" = "ONEILTable",
+                "NCATS Table (3 drugs)" = "NCATSTable"
+              ),
+              selected = ""
+            )
+          )
+        })
+      } else {
+        output$exDataSelectUI <- renderUI({
+          div(
+            style = "margin-top: -20px;",
+            selectInput(
+              inputId = "exDataSelect",
+              label = "Or select an example data:",
+              width = '80%',
+              choices = list(
+                "",
+                "ONEIL Matrix (2 drugs, 3 replicates)" = "ONEILMatrix"
+              ),
+              selected = ""
+            )
+          )
+        })
+      }
+    }
+  )
   # Check number of sessions
   # isolate(vals$users_ <- vals$users_ + 1)
   # session$onSessionEnded(function(){ 
@@ -81,42 +156,10 @@ server <- function(input, output, session){
   #   }
   # })
   # 
-  closeAll <- function() {
-    shinyjs::hide(selector = "a[data-value=\"doseResponseTab\"]")
-    shinyjs::hide(selector = "a[data-value=\"synergyTab\"]")
-    shinyjs::hide(selector = "a[data-value=\"sensitivityTab\"]")
-    shinyjs::hide(selector = "a[data-value=\"reportTab\"]")
-    shinyjs::hide(id = "inputData")
-    shinyjs::hide(id = "annoSwitch")
-    bb_plots$bar_plot <- NULL
-    bb_plots$barometer <- NULL
-    bb_plot_param$conc_unit <- NULL
-    bb_plot_param$drug_pair <- NULL
-    bb_plot_param$selected_panel <- "response"
-    bb_plot_param$selected_conc <- NULL
-    bb_plot_param$selected_values <- NULL
-    dataReshaped$reshapeD <- NULL
-    datannot$annot <- NULL
-    correct_baseline$correct_baseline <- NULL
-    updateSelectInput(session, inputId = "correct_baseline", selected = "non")
-    updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
-    updateSelectInput(session, "selectInhVia", selected = "")
-    switches$anno <- 0
-    switches$vizDR <- 0
-    switches$vizSyn <- 0
-    switches$vizSens <- 0
-    switches$report <- 1
-    switches$calSyn <- 0
-    nDrug$n <- 0
-    closeAlert(session, "alert1")
-    closeAlert(session, "alertPD")
-  }
-  
-  # Input Data Tab ------------------------------------------------------------
   
   ## Download example data -----------------------------------------------------
   
-  output$loadExData_small <- downloadHandler(
+  output$downloadExData <- downloadHandler(
     filename = "ExampleData.zip",
     content = function(fname) {
       zip(zipfile=fname, files="./ExampleData/")
@@ -124,18 +167,65 @@ server <- function(input, output, session){
     contentType = "application/zip"
   )
   
+  ## Upload example data -------------------------------------------------------
+  observeEvent(
+    eventExpr = input$exDataSelect,
+    handlerExpr = {
+      inputDataPath$path <- switch(
+        input$exDataSelect,
+        "ONEILTable" = "./ExampleData/exampleTable/ONEILTable.csv",
+        "ONEILMatrix" = "./ExampleData/exampleMatrix/ONEILMatrix.csv",
+        "NCATSTable" = "./ExampleData/exampleMultiDrug/NCATSTable.csv"
+      )
+      if (input$exDataSelect != ""){
+        output$resettableInput <- renderUI({
+          input$inputDatatype
+          tagList(
+            fileInput(
+              inputId = 'annotfile',
+              label = tags$p(
+                '2. Upload a file',
+                bsButton("q1", label = "",
+                         icon = icon(
+                           "fa-question-circle", lib = "font-awesome",
+                           class="fa fa-question-circle"
+                         ),
+                         style = "link",
+                         size = "extra-small")
+              ),
+              accept = c('.csv', '.xlsx', '.txt'),
+            )
+          )
+        })
+      }
+    }
+  )
+  
+  ## Upload data from client side ----------------------------------------------
+  observeEvent(
+    eventExpr = input$annotfile,
+    handlerExpr = {
+      inputDataPath$path <- input$annotfile$datapath
+      updateSelectInput(
+        inputId = "exDataSelect",
+        selected = ""
+      )
+    }
+  )
+  
   ## Input data type select box ------------------------------------------------
   observeEvent(
     eventExpr = input$inputDatatype,
     handlerExpr = {
       closeAll()
-      # inputdatatype$type_ <- input$inputDatatype
     }
   )
   
   ## File is loaded ------------------------------------------------------------
   observeEvent(
-    eventExpr = input$annotfile,
+    eventExpr = {
+      inputDataPath$path
+    },
     handlerExpr = {
       tryCatch({
         # If already loaded annotation table, drop all switches and vars
@@ -143,7 +233,7 @@ server <- function(input, output, session){
           closeAll()
         }
         # Check file extension
-        ext <- toupper(tools::file_ext(input$annotfile$name))
+        ext <- toupper(tools::file_ext(inputDataPath$path))
         annot <- NULL
         
         if (!(ext %in% c("TXT", "CSV","XLSX"))) {
@@ -163,18 +253,18 @@ server <- function(input, output, session){
           if (input$inputDatatype == "Table") {
             if (ext == 'XLSX') {
               annot <- openxlsx::read.xlsx(
-                input$annotfile$datapath
+                inputDataPath$path
               )
             } else if (ext == "CSV") {
               annot <- read.csv(
-                file = input$annotfile$datapath,
+                file = inputDataPath$path,
                 header = TRUE,
                 row.names = NULL,
                 fill = TRUE
               )
             } else if (ext == "TXT") {
               annot <- read.table(
-                file = input$annotfile$datapath,
+                file = inputDataPath$path,
                 header = TRUE,
                 sep = "\t",
                 row.names = NULL,
@@ -201,19 +291,19 @@ server <- function(input, output, session){
           } else if (input$inputDatatype == "Matrix") {
             if (ext == 'XLSX') {
               annot <- openxlsx::read.xlsx(
-                input$annotfile$datapath,
+                inputDataPath$path,
                 colNames = FALSE
               )
             } else if (ext == "CSV") {
               annot <- read.csv(
-                file = input$annotfile$datapath,
+                file = inputDataPath$path,
                 header = FALSE,
                 row.names = NULL,
                 fill = TRUE
               )
             } else if (ext == "TXT") {
               annot <- read.table(
-                file = input$annotfile$datapath,
+                file = inputDataPath$path,
                 header = FALSE,
                 sep = "\t",
                 row.names = NULL,
@@ -626,8 +716,7 @@ server <- function(input, output, session){
             hideMethod = "fadeOut"
           )
           }
-         
-          print(dataReshaped$reshapeD)
+          
           if (!is.null(dataReshaped$reshapeD)) {
             nDrug$n <- sum(
               grepl(
@@ -900,7 +989,6 @@ server <- function(input, output, session){
               record_plot = TRUE
             )
           )
-          # print(dataReshaped$reshapeD)
         } else {
           output$DRC_plot <- renderPlot(
             PlotDoseResponseCurve(

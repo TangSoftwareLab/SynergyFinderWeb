@@ -89,15 +89,14 @@ The "Upload Data" tab is designed for user to upload file. Figure 3 shows the us
 <p style="text-align: center;">Fig.3 User Interface of the "Upload Data" tab </p>
 
 1. Choose the data format used in the uploaded file. Please check section "1.1 Data Format" for more details.
-2. Select the file to upload from your local directory. Please check section "1 Prepare Input Data" for more details.
+2. Select the file to upload from your local directory. Please check section "1 Prepare Input Data" for more details. Alternatively you can select one of the example data tables from the dropdown list for analysis.
 3. Choose the phenotypic response metric of uploaded drug combinations. Available options in SynergyFinder are: 
 _inhibition_ (% inhibition to cell growth or other signals. Normalized by negative control.) 
 _viabillity_ (% cell viability after treatment. Normalized by negative control. In case of %viability response type, the provided %viability values will be converted to %inhibition by the formula: $\%inhibition = 100 - \%viability$.) 
 Once a response type is selected, a new tab "Dose Response Map" will be shown in the left sidebar. User could click it to visualize dose-response map (see the next page of the user guide).
-4. A button to download the example data. The example datasets include  2 drug combination screening data, 3 drug combination screening data.
-5. The overview for the input data in table format. It will be shown while the file is successfully uploaded and formatted.
-6. A switch for data annotation. It will be shown once the data is successfully uploaded.By turning it on, the program will query the external databases the annotate the drugs and cell lines in the input data table.
-
+4. A button to download the example data. The example data sets include  2 drug combination screening data, 3 drug combination screening data.
+5. A switch for data annotation. It will be shown once the data is successfully uploaded.By turning it on, the program will query the external databases the annotate the drugs and cell lines in the input data table.
+6. The overview for the input data in table format. It will be shown while the file is successfully uploaded and formatted.
 # 3. Annotation
 
 SynergyFinder provides three tables for annotation(Fig.4):
