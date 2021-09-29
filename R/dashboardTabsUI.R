@@ -28,43 +28,46 @@ inputDataTabUI <- function(id) {
           div(
             id = "annotfileid",
             uiOutput('resettableInput'),
-            shinyBS::bsPopover(#session,
-              id = "q1",
-              title = "Input data structure:",
-              content = paste0(
-                tags$p("Table format:"),
-                # tags$br(),
-                tags$image(
-                  src = 'images/exampleTab.png',
-                  width = '400', height = '200'
-                ),
-                tags$br(),
-                tags$br(),
-                tags$p("Matrix format:"),
-                # tags$br(),
-                tags$image(
-                  src = 'images/exampleMat.png',
-                  width = '400', height = '200'
-                ),
-                tags$br(),
-                tags$br(),
-                tags$p(
-                  "For more information about input file format please check the USER GUIDE."
-                )
-              ),
-              placement = "bottom",
-              trigger = "click"
-            )
+            uiOutput(
+              outputId = "exDataSelectUI"
+            ),
+            downloadButton(
+              outputId = "downloadExData",
+              label = "Download all examples"
+            ),
+            # shinyBS::bsPopover(#session,
+            #   id = "q1",
+            #   title = "Input data structure:",
+            #   content = paste0(
+            #     tags$p("Table format:"),
+            #     # tags$br(),
+            #     tags$image(
+            #       src = 'images/exampleTab.png',
+            #       width = '400', height = '200'
+            #     ),
+            #     tags$br(),
+            #     tags$br(),
+            #     tags$p("Matrix format:"),
+            #     # tags$br(),
+            #     tags$image(
+            #       src = 'images/exampleMat.png',
+            #       width = '400', height = '200'
+            #     ),
+            #     tags$br(),
+            #     tags$br(),
+            #     tags$p(
+            #       "For more information about input file format please check the USER GUIDE."
+            #     )
+            #   ),
+            #   placement = "bottom",
+            #   trigger = "click"
+            # )
             # HTML('<div id = "spanpop" class="tooltip-item"></div>')
           ),
-          uiOutput(
-            outputId = "exDataSelectUI"
-          ),
-          downloadButton(
-            outputId = "downloadExData_small",
-            label = "Download all examples"
-          ),
           bsAlert("alertannotfile")
+        ),
+        column(
+          width = 4
         ),
         column(
           width = 4,

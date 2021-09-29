@@ -85,18 +85,25 @@ server <- function(input, output, session){
         inputId = 'annotfile',
         label = tags$p(
           '2. Upload a file',
-          bsButton("q1", label = "",
-                   icon = icon(
-                     "fa-question-circle", lib = "font-awesome",
-                     class="fa fa-question-circle"
-                   ),
-                   style = "link",
-                   size = "extra-small")
+          actionButton("q1", label = "",
+                       icon = icon(
+                         "question-circle",
+                         lib = "font-awesome",
+                         class = "far fa-question-circle"
+                       ),
+                       style="color: #0477bd; background-color: #fff; border-color: #fff",
+                       size = "extra-small")
         ),
         accept = c('.csv', '.xlsx', '.txt'),
       )
     )
   })
+  observeEvent(
+    input$q1,
+    {
+      updateTabsetPanel(session, "topNavBar", selected = "USER GUIDE")
+    }
+  )
   observeEvent(
     input$annoSwitch,
     {
@@ -121,7 +128,7 @@ server <- function(input, output, session){
               width = '80%',
               choices = list(
                 "",
-                "ONEIL Table (2 drugs, 3 replicates)" = "ONEILTable",
+                "ONEIL Table (2 drugs, 4 replicates)" = "ONEILTable",
                 "NCATS Table (3 drugs)" = "NCATSTable"
               ),
               selected = ""
@@ -138,7 +145,7 @@ server <- function(input, output, session){
               width = '80%',
               choices = list(
                 "",
-                "ONEIL Matrix (2 drugs, 3 replicates)" = "ONEILMatrix"
+                "ONEIL Matrix (2 drugs)" = "ONEILMatrix"
               ),
               selected = ""
             )
@@ -185,12 +192,13 @@ server <- function(input, output, session){
               inputId = 'annotfile',
               label = tags$p(
                 '2. Upload a file',
-                bsButton("q1", label = "",
+                actionButton("q1", label = "",
                          icon = icon(
-                           "fa-question-circle", lib = "font-awesome",
-                           class="fa fa-question-circle"
+                           "question-circle",
+                           lib = "font-awesome",
+                           class = "far fa-question-circle"
                          ),
-                         style = "link",
+                         style="color: #0477bd; background-color: #fff; border-color: #fff",
                          size = "extra-small")
               ),
               accept = c('.csv', '.xlsx', '.txt'),
