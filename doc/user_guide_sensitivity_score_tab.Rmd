@@ -19,10 +19,10 @@ $$y = y_{min} + \frac{y_{max} - y_{min}}{1 + 10^{\lambda(log_{10}IC_{50} - x')}}
 where $y_{min}, y_{max}$ are minimal and maximal inhibition and $x' = log_{10}x$
 
 ## 1.2 Relative Inhibition (RI)
-RI is the abbreviation of “relative inhibition”. It is the proportion of the area under the dose-response curve (fitted by four parameter log logistic model), to the maximal area that one drug can achieve at the same dose range (Fig.1). For example, RI of 40 suggests that the drug is able to achieve 40% of the maximal of inhibition (e.g. a positive control where the cell is 100% inhibited in each dose that in the range). RI is comparable between 
-different scenarios, even for the same drug-cell pair but tested in different concentration ranges.
-![Fig.1 Concept of RI](../www/images/ri.png)
+RI is the abbreviation of “relative inhibition”. It is the proportion of the area under the dose-response curve (fitted by four parameter log logistic model), to the maximal area that one drug can achieve at the same dose range (Fig.1). For example, RI of 40 suggests that the drug is able to achieve 40% of the maximal of inhibition (e.g. a positive control where the cell is 100% inhibited in each dose that in the range). RI is comparable between different scenarios, even for the same drug-cell pair but tested in different concentration ranges.
 
+![Fig.1 Concept of RI](../www/images/ri.png)
+<p style="text-align: center;"> Fig.1 IC50 and area under the dose-response curve</p>
 ## 1.3 Combination Sensitivity Score (CSS)
 
 CSS - drug combination sensitivity score is derived using relative IC50 values of compounds and the area under their dose-response curves. CSS of a drug combination is calculated such that each of the compounds (background drug) is used at a fixed concentration (its relative IC50) and another is at varying concentrations (foreground drug) resulting in two CSS values, which are then averaged. Each drug's dose-response is modeled using 4-parameter log-logistic curve. The area under the log-scaled dose-response curve (AUC) is then determined according to:
