@@ -57,6 +57,10 @@ ui <- shinyUI(
               menuItem(
                 "DownloadReports",
                 tabName = "reportUserGuideTab"
+              ),
+              menuItem(
+                "VideoGuide",
+                tabName = "videoGuideTab"
               )
             )         
           ),
@@ -114,6 +118,30 @@ ui <- shinyUI(
                     includeMarkdown(
                       "./doc/user_guide_report_tab.Rmd"
                     )
+                  )
+                )
+              ),
+              tabItem(
+                tabName = "videoGuideTab",
+                tags$div(
+                  class = "userGuide",
+                  tags$h1("A Brief Introduction to SynergyFinder Plus"),
+                  tags$iframe(
+                    width="560",
+                    height="315",
+                    src="https://www.youtube.com/embed/2SFPLaSXj54",
+                    frameborder="0",
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",
+                    allowfullscreen=NA
+                  ),
+                  tags$h1("A Tour for SynergyFinder Plus Web Application"),
+                  tags$iframe(
+                    width="560",
+                    height="315",
+                    src="https://www.youtube.com/embed/KVnVvdCCUCo",
+                    frameborder="0",
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",
+                    allowfullscreen=NA
                   )
                 )
               )
