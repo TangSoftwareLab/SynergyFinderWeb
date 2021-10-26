@@ -48,8 +48,22 @@ $$
 $$
 y_{ZIP} = \frac{(\frac{x_1}{m_1}) ^ {\lambda_1}}{(1 + \frac{x_1}{m_1})^{\lambda_1}}+\frac{(\frac{x_2}{m_2})^{\lambda_2}}{(1 + \frac{x_2}{m_2})^{\lambda_2}} - \frac{(\frac{x_1}{m_1})^{\lambda_1}}{(1 + \frac{x_1}{m_1})^{\lambda_1}} \cdot \frac{(\frac{x_2}{m_2})^{\lambda_2}}{(1 + \frac{x_2}{m_2})^{\lambda_2}}
 $$
+# 2 Correct Baseline
 
-# 2 User Interface
+Typically, the models for estimating synergy or sensitivity of drug combinations expect that the drug's effect to be expressed as continuous values ranged between 0 and 1 (or between 0% and 100%). However, in practice the readouts from the drug combination screening could be negative. In this cases, the technical error might be introduced in the dose-response data. The base line correction function is designed to adjust the “baseline” of the dose-response data closer to 0. Following is the main steps for the process of “baseline correction”:
+
+1. Extract all the single drug treatment (monotherapy) dose-response data from the combination;
+2. Fit the four-parameter log logistic model for each monotherapy with the data table from step 1;
+3. Pick the minimum fitted response value from all the models fitted in step 2 as “baseline”;
+4. Adjusted response value = observed response value - ((100 – observed response value) / 100 * baseline).
+
+We provides 3 options for baseline correction:
+
+  * "non" - do not correct base line;
+  * "part" - correct base line but only adjust negative response values in matrix;
+  * "all" - correct base line with adjusting all values in matrix.
+  
+# 3 User Interface
 
 This tab visualizes the synergy scores for the inputted drug combination screening data. Figure 1 shows the user interface.
 
@@ -69,7 +83,7 @@ This tab visualizes the synergy scores for the inputted drug combination screeni
 Once the baseline correction method is selected, the calculation for synergy scores and sensitivity scores will be triggered. After the calculation, two new tabs ("Sensitivity Scores" and "Download Report") will be shown. Please check corresponding pages for more details.
 3. Plotting area. The customizable plots will be shown in this area. All of the plots are able to be downloaded. Please check sections below for more details.
 
-# 3 Synergy Map (2 Drugs Combination)
+# 4 Synergy Map (2 Drugs Combination)
 
 ![Fig.2 Synergy Map (2 Drugs Combination)](../www/images/userGuideSynergyMap.png)
 
@@ -89,7 +103,7 @@ SynergyFinder extracts the data for all the possible drug combination pairs from
 10. (Only for Heatmap) Select the color for the text Heatmap on the Heatmap.
 11. (For 3D surface and 2D contour plot) Whether to show the grids on the surface in the plot.
 
-# 4 Synergy Map (Multiple Drugs Combination)
+# 5 Synergy Map (Multiple Drugs Combination)
 
 ![Fig.4 Multiple drugs combination synergy map](../www/images/userGuideSynergyMapMulti.png)
 
@@ -103,7 +117,7 @@ This plot is designed for visualizing high-order drug combinations. The two-dime
 4. Select the color for the highest value in the surface plot.
 5. Select the color for the lowest value in the surface plot.
 
-# 5 Bar and Barometer Plots
+# 6 Bar and Barometer Plots
 
 ![Fig.3 Bar and Barometer Plots](../www/images/userGuideSynergyBar.png)
 
