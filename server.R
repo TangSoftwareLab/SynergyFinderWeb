@@ -1271,11 +1271,13 @@ server <- function(input, output, session){
           dataReshaped$reshapeD <- CalculateSynergy(
             dataReshaped$reshapeD,
             correct_baseline = correct_baseline$correct_baseline,
-            method = c("ZIP", "HSA", "Loewe", "Bliss")
+            method = c("ZIP", "HSA", "Loewe", "Bliss"),
+            seed = 123
           )
           dataReshaped$reshapeD <- CalculateSensitivity(
             dataReshaped$reshapeD,
-            correct_baseline = correct_baseline$correct_baseline
+            correct_baseline = correct_baseline$correct_baseline,
+            seed = 123
           )
         },
         message = function(m) {
