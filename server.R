@@ -1570,7 +1570,7 @@ server <- function(input, output, session){
                       choices = bar_values,
                       selected = "ZIP"
                     )
-                  )#,
+                  ),
                   # column(
                   #   width = 3,
                   #   selectInput(
@@ -1579,7 +1579,21 @@ server <- function(input, output, session){
                   #     choices = c("none", "left", "right", "bottom", "top"),
                   #     selected = "right"
                   #   )
-                  # )
+                  # ),
+                  column(
+                    width = 3,
+                    selectInput(
+                      inputId = "syn_multi_bar_color",
+                      label = "Synergy score",
+                      choices = c(
+                        "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral",
+                        "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3", "Blues",
+                        "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn",
+                        "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd" 
+                      ),
+                      selected = "RdYlBu"
+                    )
+                  )
                 ),
               )
             )
@@ -1671,6 +1685,7 @@ server <- function(input, output, session){
       switches$vizSyn
       switches$calSyn
       # input$syn_multi_bar_legend
+      input$syn_multi_bar_color
       input$syn_multi_bar_score
       nDrug$n
     },
@@ -1686,7 +1701,7 @@ server <- function(input, output, session){
             data = dataReshaped$reshapeD,
             plot_block = input$viz_block,
             plot_value = input$syn_multi_bar_score,
-            colors = NULL,
+            color_palette = input$syn_multi_bar_color,
             legend_position = "right" #input$syn_multi_bar_legend
           ))
         )

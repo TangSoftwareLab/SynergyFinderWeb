@@ -199,7 +199,7 @@ PlotAllDrugComboBar <- function(data,
                                 plot_value = "ZIP_synergy",
                                 plot_block = 1,
                                 legend_position = "right",
-                                colors = NULL) {
+                                color_palette = "RdYlBu") {
   avail_value <- c("response", "response_origin", "ZIP_ref", "ZIP_fit",
                    "ZIP_synergy", "HSA_ref", "HSA_synergy", "Bliss_ref",
                    "Bliss_synergy", "Loewe_ref", "Loewe_synergy")
@@ -263,6 +263,7 @@ PlotAllDrugComboBar <- function(data,
     geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                   position=position_dodge(.9)) +
     geom_hline(yintercept = 0) +
+    scale_fill_brewer(palette = color_palette) +
     theme_classic() +
     labs(
       x = "Drug combination",
@@ -276,9 +277,5 @@ PlotAllDrugComboBar <- function(data,
       panel.grid.major.y = element_line(),
       legend.box="vertical"
     )
-  if (!is.null(colors)){
-    p <- p + 
-      scale_fill_manual(values = colors)
-  }
   return(p)
 }
