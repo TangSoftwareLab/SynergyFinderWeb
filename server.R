@@ -1584,7 +1584,7 @@ server <- function(input, output, session){
                     width = 3,
                     selectInput(
                       inputId = "syn_multi_bar_color",
-                      label = "Synergy score",
+                      label = "Color palette",
                       choices = c(
                         "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral",
                         "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3", "Blues",
