@@ -1477,7 +1477,7 @@ server <- function(input, output, session){
             tagList(
               box(
                 id = "BoxMultiSynergyScorePlot",
-                title = "Synergy Map (Dimention Reduction)",
+                title = "Synergy Map (Multiple Drugs Combination)",
                 solidHeader = TRUE,
                 width = 12,
                 collapsible = TRUE,
@@ -1537,8 +1537,58 @@ server <- function(input, output, session){
               )
             )
           )
+          bar_values <- c(
+            "ZIP_synergy", "HSA_synergy", "Bliss_synergy",
+            "Loewe_synergy"
+          )
+          names(bar_values) <- c(
+            "ZIP",
+            "HSA",
+            "Bliss",
+            "Loewe"
+          )
+           
+          output$multi_2_drug_syn_bar <- renderUI(
+            tagList(
+              box(
+                id = "BoxMulti2DrugPlot",
+                title = "Synergy Bar Plot (Different Number of Drug Combinations)",
+                solidHeader = TRUE,
+                width = 12,
+                collapsible = TRUE,
+                fluidRow(
+                    plotlyOutput(outputId = "syn_multi_bar_plot") %>% 
+                      withSpinner(color="#D2D2D2")
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 3,
+                    selectInput(
+                      inputId = "syn_multi_bar_score",
+                      label = "Synergy score",
+                      choices = bar_values,
+                      selected = "ZIP"
+                    )
+                  )#,
+                  # column(
+                  #   width = 3,
+                  #   selectInput(
+                  #     inputId = "syn_multi_bar_legend",
+                  #     label = "Legend position",
+                  #     choices = c("none", "left", "right", "bottom", "top"),
+                  #     selected = "right"
+                  #   )
+                  # )
+                ),
+              )
+            )
+          )
         } else {
           output$multi_drug_syn_plots <- renderUI(
+            tags$div()
+          )
+          output$multi_2_drug_syn_bar <- renderUI(
             tags$div()
           )
         }
@@ -1555,10 +1605,14 @@ server <- function(input, output, session){
       input$syn_multi_point
       input$syn_multi_point_color
       switches$vizSyn
+      switches$calSyn
       nDrug$n
     },
     handlerExpr = {
-      if (switches$vizSyn == 1 & !is.null(input$viz_block) & nDrug$n > 2) {
+      if (switches$vizSyn == 1 &
+          switches$calSyn == 1 &
+          !is.null(input$viz_block) &
+          nDrug$n > 2) {
         output$syn_multi_ZIP_plot <- renderPlotly(
           PlotMultiDrugSurface(
             data = dataReshaped$reshapeD,
@@ -1606,6 +1660,35 @@ server <- function(input, output, session){
             show_data_points = input$syn_multi_point,
             point_color = input$syn_multi_point_color
           )
+        )
+      }
+    }
+  )
+  observeEvent(
+    eventExpr = {
+      correct_baseline$correct_baseline
+      input$viz_block
+      switches$vizSyn
+      switches$calSyn
+      # input$syn_multi_bar_legend
+      input$syn_multi_bar_score
+      nDrug$n
+    },
+    handlerExpr = {
+      if (switches$vizSyn == 1 &
+          switches$calSyn == 1 &
+          is.null(input$syn_multi_bar_score) &
+          is.null(input$syn_multi_bar_legend) &
+          !is.null(input$viz_block) & 
+          nDrug$n > 2) {
+        output$syn_multi_bar_plot <- renderPlotly(
+          plot(PlotAllDrugComboBar(
+            data = dataReshaped$reshapeD,
+            plot_block = input$viz_block,
+            plot_value = input$syn_multi_bar_score,
+            colors = NULL,
+            legend_position = "right" #input$syn_multi_bar_legend
+          ))
         )
       }
     }

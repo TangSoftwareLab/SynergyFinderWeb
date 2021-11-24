@@ -410,6 +410,9 @@ synergyTabUI <- function(id) {
           )
         )
       ),
+      fluidRow(
+        uiOutput(outputId = "multi_2_drug_syn_bar")
+      ),
       # Bar Barometer plot
       # box(
       #   id = "boxBarPlot",
