@@ -164,14 +164,16 @@ server <- function(input, output, session){
   # })
   # 
   
-  ## Download example data -----------------------------------------------------
+  ## Download example data Updated by: Jehad Aldahdooh -------------------------
   
   output$downloadExData <- downloadHandler(
-    filename = "ExampleData.zip",
-    content = function(fname) {
-      zip(zipfile=fname, files="./ExampleData/")
-    },
-    contentType = "application/zip"
+    filename <- function() {
+		  paste("ExampleData", "zip", sep=".")
+	  },
+	  content <- function(file) {
+		  file.copy("./www/ExampleData.zip", file)
+	  },
+	  contentType = "application/zip"
   )
   
   ## Upload example data -------------------------------------------------------
