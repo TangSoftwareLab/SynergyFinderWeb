@@ -413,23 +413,20 @@ for (b in params$blocks) {
 # 6. S-S plot
 
 ```{r ss_plot, fig.show="hold", out.width="100%"}
-for (b in params$blocks) {
-  # multi-drug dimension reduction surface
-  for (m in methods) {
-    p <- PlotSensitivitySynergy(
-      data = synergyfinder_obj,
-      plot_synergy = m,
-      plot_title = paste("Block", b, m, "- CSS", sep = " "),
-      point_color = params$ss_point_color,
-      point_size = 3,
-      show_labels = params$ss_show_label,
-      point_label_color = params$ss_label_color,
-      label_size = 14,
-      text_size_scale = 1.5,
-      dynamic = FALSE
-    )
-    print(p)
-  }
+for (m in methods) {
+  p <- PlotSensitivitySynergy(
+    data = synergyfinder_obj,
+    plot_synergy = m,
+    plot_title = paste("Block", b, m, "- CSS", sep = " "),
+    point_color = params$ss_point_color,
+    point_size = 3,
+    show_labels = params$ss_show_label,
+    point_label_color = params$ss_label_color,
+    label_size = 14,
+    text_size_scale = 1.5,
+    dynamic = FALSE
+  )
+  print(p)
 }
 ```
 

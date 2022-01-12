@@ -457,23 +457,20 @@ for (b in params$blocks) {
 
 ```{r ss_plot, results='asis'}
 plotlist <- list()
-for (b in params$blocks) {
-  plotlist[[length(plotlist) + 1]] <- paste0("## Block ", b, "\n\n")
-  # multi-drug dimension reduction surface
-  for (m in methods) {
-    plotlist[[length(plotlist) + 1]] <- PlotSensitivitySynergy(
-      data = synergyfinder_obj,
-      plot_synergy = m,
-      plot_title = paste("Block", b, m, "- CSS", sep = " "),
-      point_color = params$ss_point_color,
-      point_size = 3,
-      show_labels = params$ss_show_label,
-      point_label_color = params$ss_label_color,
-      label_size = 14,
-      text_size_scale = 2,
-      dynamic = TRUE
-    )
-  }
+# multi-drug dimension reduction surface
+for (m in methods) {
+  plotlist[[length(plotlist) + 1]] <- PlotSensitivitySynergy(
+    data = synergyfinder_obj,
+    plot_synergy = m,
+    plot_title = paste("Block", b, m, "- CSS", sep = " "),
+    point_color = params$ss_point_color,
+    point_size = 3,
+    show_labels = params$ss_show_label,
+    point_label_color = params$ss_label_color,
+    label_size = 14,
+    text_size_scale = 2,
+    dynamic = TRUE
+  )
 }
 
 for(j in 1:length(plotlist)){
