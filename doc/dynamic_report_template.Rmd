@@ -462,7 +462,7 @@ for (m in methods) {
   plotlist[[length(plotlist) + 1]] <- PlotSensitivitySynergy(
     data = synergyfinder_obj,
     plot_synergy = m,
-    plot_title = paste("Block", b, m, "- CSS", sep = " "),
+    plot_title = paste(m, "- CSS", sep = " "),
     point_color = params$ss_point_color,
     point_size = 3,
     show_labels = params$ss_show_label,
