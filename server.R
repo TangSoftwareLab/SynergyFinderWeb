@@ -1,18 +1,6 @@
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
-  # # Home page ----------------------------------------------------------------
-  # userCuide button
-  observeEvent(input$toGuide, {
-    updateNavbarPage(session, inputId = "topNavBar",
-                     selected = "USER GUIDE")
-  })
-  # GetStart button
-  observeEvent(input$getStart, {
-    updateNavbarPage(session, inputId = "topNavBar",
-                     selected = "DASHBOARD")
-  })
-  
   # Define reactive variables --------------------------------------------------
   datannot <- reactiveValues(annot = NULL)
   inputDataPath <- reactiveValues(path = NULL)
@@ -65,6 +53,7 @@ server <- function(input, output, session){
     updateSelectInput(session, inputId = "correct_baseline", selected = "non")
     updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
     updateSelectInput(session, "selectInhVia", selected = "")
+    updateSelectInput(session, "exDataSelect", selected = "")
     switches$anno <- 0
     switches$vizDR <- 0
     switches$vizSyn <- 0
@@ -76,8 +65,12 @@ server <- function(input, output, session){
     closeAlert(session, "alertPD")
   }
   
-  # Input Data Tab ------------------------------------------------------------
-  ## Reset the data uploading fields ------------------------------------------
+  # # Home page ----------------------------------------------------------------
+  # userCuide button
+  observeEvent(input$toGuide, {
+    updateNavbarPage(session, inputId = "topNavBar",
+                     selected = "USER GUIDE")
+  })
   output$resettableInput <- renderUI({
     input$inputDatatype
     tagList(
@@ -85,19 +78,77 @@ server <- function(input, output, session){
         inputId = 'annotfile',
         label = tags$p(
           '2. Upload a file',
-          actionButton("q1", label = "",
-                       icon = icon(
-                         "question-circle",
-                         lib = "font-awesome",
-                         class = "far fa-question-circle"
-                       ),
-                       style="color: #0477bd; background-color: #fff; border-color: #fff",
-                       size = "extra-small")
+          actionButton(
+            "q1",
+            label = "",
+            icon = icon(
+              "question-circle",
+              lib = "font-awesome",
+              class = "far fa-question-circle"
+            ),
+            style="color: #0477bd; background-color: #fff; border-color: #fff",
+            size = "extra-small"
+          )
         ),
         accept = c('.csv', '.xlsx', '.txt'),
       )
     )
   })
+  
+  # GetStart button
+  observeEvent(input$getStart, {
+    closeAll()
+    updateNavbarPage(session, inputId = "topNavBar", selected = "DASHBOARD")
+    updateTabsetPanel(session, "menu", selected = "inputDataTab")
+    updateSelectInput(session, inputId = "inputDatatype", selected = "Table")
+    output$resettableInput <- renderUI({
+      input$inputDatatype
+      tagList(
+        fileInput(
+          inputId = 'annotfile',
+          label = tags$p(
+            '2. Upload a file',
+            actionButton(
+              "q1",
+              label = "",
+              icon = icon(
+                "question-circle",
+                lib = "font-awesome",
+                class = "far fa-question-circle"
+              ),
+              style="color: #0477bd; background-color: #fff; border-color: #fff",
+              size = "extra-small"
+            )
+          ),
+          accept = c('.csv', '.xlsx', '.txt'),
+        )
+      )
+    })
+  })
+  
+  # Input Data Tab ------------------------------------------------------------
+  ## Reset the data uploading fields ------------------------------------------
+  # output$resettableInput <- renderUI({
+  #   input$inputDatatype
+  #   tagList(
+  #     fileInput(
+  #       inputId = 'annotfile',
+  #       label = tags$p(
+  #         '2. Upload a file',
+  #         actionButton("q1", label = "",
+  #                      icon = icon(
+  #                        "question-circle",
+  #                        lib = "font-awesome",
+  #                        class = "far fa-question-circle"
+  #                      ),
+  #                      style="color: #0477bd; background-color: #fff; border-color: #fff",
+  #                      size = "extra-small")
+  #       ),
+  #       accept = c('.csv', '.xlsx', '.txt'),
+  #     )
+  #   )
+  # })
+  
   observeEvent(
     input$q1,
     {
