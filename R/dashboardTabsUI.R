@@ -150,7 +150,7 @@ doseResponseTabUI <- function(id) {
       title = "Dose Response Curve",
       solidHeader = TRUE,
       width = 6,
-      height = 400,
+      height = NULL,
       collapsible = TRUE,
       fluidRow(
         plotOutput(outputId = "DRC_plot") %>% 
