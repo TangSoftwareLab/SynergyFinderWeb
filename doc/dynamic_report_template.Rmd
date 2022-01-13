@@ -175,7 +175,8 @@ df_synergy <- synergyfinder_obj$drug_pairs %>%
     "Bliss" = "Bliss_synergy"
     )
 names(df_synergy) <- gsub("_", " ", names(df_synergy))
-df_synergy %>% 
+df_synergy %>%
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "html",
     caption = "Synergy Score Summary Table",
@@ -200,6 +201,7 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
     )
 names(df_synergy_statistic) <- gsub("_", " ", names(df_synergy_statistic))
 df_synergy_statistic %>%
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "html",
     caption = "Synergy Score Statistic Table",
@@ -228,6 +230,7 @@ df_sensitive <- synergyfinder_obj$drug_pairs %>%
     "</sub>"
   )
 df_sensitive %>% 
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "html",
     caption = "Sensitivity Score Summary Table",
@@ -260,6 +263,7 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
     )
 
   df_sensitive_statistic %>%
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "html",
     caption = "Sensitivity Score Statistic Table",

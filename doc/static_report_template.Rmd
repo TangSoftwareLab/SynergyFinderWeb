@@ -152,6 +152,7 @@ names(meta_table)[startsWith(names(meta_table), "drug")] <- paste0(
 )
 names(meta_table)[names(meta_table) == "cell_line_name"] <- "Cell Line Name"
 meta_table %>%
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "latex",
     booktabs = TRUE,
@@ -173,6 +174,7 @@ df_synergy <- synergyfinder_obj$drug_pairs %>%
     )
 names(df_synergy) <- gsub("_", " ", names(df_synergy))
 df_synergy %>% 
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "latex",
     caption = "Synergy Score Summary Table",
@@ -193,6 +195,7 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
     )
 names(df_synergy_statistic) <- gsub("_", " ", names(df_synergy_statistic))
 df_synergy_statistic %>%
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "latex",
     caption = "Synergy Score Statistic Table",
@@ -218,6 +221,7 @@ names(df_sensitive)[startsWith(names(df_sensitive), "ri_")] <- paste0(
 )
 
 df_sensitive %>% 
+  mutate(across(where(is.numeric), round, 2)) %>% 
   kableExtra::kable(
     "latex",
     caption = "Sensitivity Score Summary Table",
@@ -246,6 +250,7 @@ if (any(synergyfinder_obj$drug_pairs$replicate)) {
      )
     )
   df_sensitive_statistic %>% 
+  mutate(across(where(is.numeric), round, 2)) %>% 
   # knitr::kable(caption = "Synergy Score Statistic Table", format = "latex")
   kableExtra::kable(
     "latex",
