@@ -976,8 +976,6 @@ server <- function(input, output, session){
   observeEvent(
     eventExpr = {
       input$DRC_drug
-      input$DRC_height
-      input$DRC_width
       input$DRC_dot_color
       input$DRC_curve_color
       input$DRC_grid
@@ -985,36 +983,20 @@ server <- function(input, output, session){
     },
     handlerExpr = {
       if (switches$vizDR == 1 & !is.null(input$viz_block)) {
-        if (input$DRC_grid){
-          output$DRC_plot <- renderPlot(
-            PlotDoseResponseCurve(
-              data = dataReshaped$reshapeD,
-              plot_block = input$viz_block,
-              drug_index = input$DRC_drug,
-              plot_title = "",
-              plot_subtitle = "",
-              point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color,
-              plot_new = TRUE,
-              record_plot = TRUE
-            )
+        output$DRC_plot <- renderPlot(
+          PlotDoseResponseCurve(
+            data = dataReshaped$reshapeD,
+            plot_block = input$viz_block,
+            drug_index = input$DRC_drug,
+            plot_title = "",
+            plot_subtitle = "",
+            point_color = input$DRC_dot_color,
+            curve_color = input$DRC_curve_color,
+            plot_new = TRUE,
+            record_plot = TRUE,
+            grid = input$DRC_grid
           )
-        } else {
-          output$DRC_plot <- renderPlot(
-            PlotDoseResponseCurve(
-              data = dataReshaped$reshapeD,
-              plot_block = input$viz_block,
-              drug_index = input$DRC_drug,
-              grid = NULL,
-              plot_title = "",
-              plot_subtitle = "",
-              point_color = input$DRC_dot_color,
-              curve_color = input$DRC_curve_color,
-              plot_new = TRUE,
-              record_plot = TRUE
-            )
-          )
-        }
+        )
       }
     }
   )
