@@ -1224,13 +1224,13 @@ server <- function(input, output, session){
       if (switches$vizSyn == 1 & switches$report == 1) {
 
         output$synergyMenu <- renderMenu({
-          menuItem("Synergy Score", tabName = "synergyTab",
+          menuItem("Synergy Map", tabName = "synergyTab",
                    selected = FALSE)
         })
         # if (switches$report == 1){
           output$sensitivityMenu <- renderMenu({
             menuItem(
-              "Sensitivity Score",
+              "Sensitivity Map",
               tabName = "sensitivityTab",
               selected = FALSE
             )
@@ -2390,7 +2390,7 @@ server <- function(input, output, session){
   output$download_synergy_table <- downloadHandler(
     filename <- function() {
       paste0(
-        "SynergyFinder_summary_table_", 
+        "SynergyFinder_synergy_score_table_", 
         Sys.Date(), 
         ".", 
         tolower(input$download_table_format)

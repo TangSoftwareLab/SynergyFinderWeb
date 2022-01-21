@@ -1,5 +1,5 @@
 ---
-title: "USER GUIDE: Sensitivity Score"
+title: "USER GUIDE: Sensitivity Map"
 date: 2021.4.7
 output: 
   html_document:
@@ -36,7 +36,7 @@ This tab visualizes the sensitivity scores for the inputted drug combination scr
 
 ![Fig.2 User Interface of the "Sensitive Score" tab](../www/images/userGuideSensitivity.png)
 
-<p style="text-align: center;"> Fig.2 User Interface of the "Sensitivity Score" tab </p>
+<p style="text-align: center;"> Fig.2 User Interface of the "Sensitivity Map" tab </p>
 
 1. Summary table for sensitivity scores. Please check section 2.1 below for more details.
 2. Plotting area for Synergy-Sensitivity plot(S-S plot).All of the plots can be customized and downloaded. Please check section 2.2 below for more details.

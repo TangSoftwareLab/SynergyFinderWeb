@@ -1,5 +1,5 @@
 ---
-title: "USER GUIDE: Synergy Score"
+title: "USER GUIDE: Synergy Map"
 date: 2021.4.7
 output: 
   html_document:

@@ -47,11 +47,11 @@ ui <- shinyUI(
                 tabName = "doseResponseUserGuideTab"
               ),
               menuItem(
-                "Synergy Score",
+                "Synergy Map",
                 tabName = "synergyUserGuideTab"
               ),
               menuItem(
-                "Sensitivity Score",
+                "Sensitivity Map",
                 tabName = "sensitivityUserGuideTab"
               ),
               menuItem(
