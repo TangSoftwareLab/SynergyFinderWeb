@@ -12,12 +12,12 @@ howToCiteUI <- function(id) {
         ),
         tags$h3("For use of SynergyFinder R package or web application:"),
         tags$p(
-          "Zheng, S.; Wang, W.; Aldahdooh, J.; Malyutina, A.; Shadbahr, T.; Pessia, A.; Jing, T. ",
-          "SynergyFinder Plus: towards a better interpretation and annotation of drug combination screening datasets. ",
-          "bioRxiv 2021.06.01.446564 (2021) ",
+          "Zheng, S.; Wang, W.; Aldahdooh, J.; Malyutina, A.; Shadbahr, T.; Tanoli Z; Pessia, A.; Jing, T. ",
+          "SynergyFinder Plus: Toward Better Interpretation and Annotation of Drug Combination Screening Datasets. ",
+          "Genomics, Proteomics & Bioinformatics 2022, in press. ",
           tags$a(
-            "doi:10.1101/2021.06.01.446564",
-            href = "https://doi.org/10.1101/2021.06.01.446564",
+            "doi:10.1016/j.gpb.2022.01.004",
+            href = "https://doi.org/10.1016/j.gpb.2022.01.004",
             target = "_blank"
           )
         ),
