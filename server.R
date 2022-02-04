@@ -1745,6 +1745,15 @@ server <- function(input, output, session){
   )
   ## Plot: Bar barometer plots -------------------------------------------------
   observeEvent(
+    eventExpr = input$viz_block,
+    handlerExpr = {
+      if (!is.null(bb_plot_param$selected_conc)){
+        bb_plot_param$selected_conc <- NULL
+        bb_plot_param$selected_values <- NULL
+      }
+    }
+  )
+  observeEvent(
     eventExpr = {
       switches$vizSyn
       dataReshaped$reshapeD
@@ -1785,6 +1794,7 @@ server <- function(input, output, session){
             )
           ]
         }
+        
         bb_plots$bar_plot <- PlotMultiDrugBar(
           data,
           plot_block = input$viz_block,
@@ -1820,9 +1830,17 @@ server <- function(input, output, session){
           ]
         }
         if (is.null(bb_plot_param$selected_conc)) {
-          bb_plot_param$selected_conc <- unlist(bb_plot_param$selected_values[,
-                                                                              sort(grep("conc", colnames(bb_plot_param$selected_values), value = TRUE))
-          ])
+          bb_plot_param$selected_conc <- unlist(
+            bb_plot_param$selected_values[,
+                                          sort(
+                                            grep(
+                                              "conc",
+                                              colnames(bb_plot_param$selected_values),
+                                              value = TRUE
+                                            )
+                                          )
+            ]
+          )
         }
         bb_plots$barometer <- PlotBarometer(
           data,
