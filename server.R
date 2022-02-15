@@ -727,7 +727,8 @@ server <- function(input, output, session){
             synergyfinder::ReshapeData(
               datannot$annot,
               data_type = input$selectInhVia,
-              impute = TRUE
+              impute = TRUE,
+              seed = 123
             )
           }, error = function(e) {
             closeAll()
