@@ -233,6 +233,61 @@ body{
   padding-left: 80px;
 }
 
+/*faq*/
+.faq {
+  padding-top: 20px;
+  padding-right: 0px;
+  padding-left: 0px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.faq h1 {
+  border-bottom: 3px solid #0277bd;
+}
+.faq p{
+  padding-left: 0px;
+}
+.faq ul, #faq ol{
+  padding-left: 0px;
+}
+.faq .title {
+  text-align: 'center';
+}
+.faq img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+}
+
+.faq table {
+  display: block;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+.faq th {
+  background-color: #0277bd;
+  color: #FFFFFF;
+  /*border: 1px solid #e4e4e4;*/
+  padding: 5px;
+}
+
+.faq td{
+  padding: 5px;
+  min-width: 116px;
+  border: 1px solid #e4e4e4;
+   font-size:13px
+}
+.faq ol, ul {
+  padding-left: 0px;
+}
+
 .textCard {
   background-color: #ffffffd2;
   border-radius: 3px;

@@ -149,6 +149,7 @@ ui <- shinyUI(
           )
         )
       ),
+      tabPanel("FAQ", useShinyjs(), faqUI("faq")),
       # USER CITATION ----------------------------------------------------------
       tabPanel("HOW TO CITE", howToCiteUI("howToCite")),
       # ABOUT US ---------------------------------------------------------------

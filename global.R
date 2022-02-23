@@ -21,3 +21,9 @@ sapply(
 # Path to temporarily store pdf reports.
 reportspath <- "tem_folder/"
 cellosauruspath <- "cellosaurus.xml"
+
+jscode <- "
+shinyjs.collapse = function(boxid) {
+$('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+}
+"

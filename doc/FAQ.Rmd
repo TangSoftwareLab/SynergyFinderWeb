@@ -1,0 +1,117 @@
+---
+title: "Mathematical modelling in SynergyFinderPlus and SynergyFinder2"
+author: "Jing Tang, Faculty of Medicine, University of Helsinki"
+date: 2022.2.22
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+**Author**: Jing Tang, Faculty of Medicine, University of Helsinki
+
+---
+
+There are substantial differences between SynergyFinder2 and SynergyFinderPlus. For assessing the degree of synergy for higher-order drug combinations, SynergyFinderPlus develops novel mathematical models for BLISS, LOEWE and ZIP, which are distinct from those developed in SynergyFinder2 (Table 1). **In fact, we found that mathematical models used in SynergyFinder2 are incompatible with the assumptions of BLISS, LOEWE and ZIP. Therefore, it might be suboptimal to use SynergyFinder2 for the analysis of high-order drug combination data.** Please find the detailed explanations as below, using the three-drug combination data as an example:
+
+Table 1. Differences in mathematical modelling for higher-order drug combinations
+
+|     | SynergyFinderPlus                                                              | SynergyFinder2                                                                  |
+| :---| :----------------------------------------------------------------------------- | :------------------------------------------------------------------------------ |
+|BLISS| $$S_{BLISS}=E_{A,B,C}-(E_A + E_b + E_c - E_AE_B - E_AE_C - E_BE_C + E_AE_BE_C)$$ | $$S_{BLISS}=E_{A,B,C}-(E_A + E_b + E_c - E_AE_B - E_AE_C - E_BE_C - E_AE_BE_C)$$ |
+|LOEWE| $S_{LOEWE}=E_{A,B,C}-E_{LOEWE},$<br>$s.t.\sum_{i\in \{A,B,C\}}(\frac{x_i}{f_i^{-1}(E_{LOEWE})}) = 1$ | $S_{LOEWE}=\frac{a}{A} + \frac{b}{B} + \frac{c}{C}$|
+|ZIP  | $S_{ZIP} = \hat{E}_{A,B,C} - (\hat{E}_A + \hat{E}_B + \hat{E}_C - \hat{E}_A\hat{E}_B - \hat{E}_A\hat{E}_C - \hat{E}_B\hat{E}_C + \hat{E}_A\hat{E}_B\hat{E}_C)$<br>$\hat{E}_{A,B,C} = \frac{1}{3}(\frac{\hat{E}_{-A} + (\frac{x_A}{\hat{m}_A})^{\hat{\lambda}_A}}{1+(\frac{x_A}{\hat{m}_A})^{\hat{\lambda}_A}}+\frac{\hat{E}_{-B} + (\frac{x_B}{\hat{m}_B})^{\hat{\lambda}_B}}{1+(\frac{x_B}{\hat{m}_B})^{\hat{\lambda}_B}} + \frac{\hat{E}_{-C} + (\frac{x_C}{\hat{m}_C})^{\hat{\lambda}_C}}{1+(\frac{x_C}{\hat{m}_C})^{\hat{\lambda}_C}})$|$S_{ZIP} = E_{A,B,C} - (\hat{E}_A + \hat{E}_B + \hat{E}_C - \hat{E}_A\hat{E}_B - \hat{E}_A\hat{E}_C - \hat{E}_B\hat{E}_C - \hat{E}_A\hat{E}_B\hat{E}_C)$|
+|Website|[www.synergyfinderplus.org](www.synergyfinderplus.org) or [www.synergyfinder.org](www.synergyfinder.org)| [https://synergyfinder.fimm.fi](https://synergyfinder.fimm.fi)|
+|Source code|[https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html](https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html) | Not available |
+|Publication|Zheng, S.; Wang, W.; Aldahdooh, J.; Malyutina, A.; Shadbahr, T.; Tanoli Z; Pessia, A.; __Jing, T*__. SynergyFinder Plus: Toward Better Interpretation and Annotation of Drug Combination Screening Datasets. Genomics, Proteomics & Bioinformatics 2022. [doi:10.1016/j.gpb.2022.01.004](https://doi.org/10.1016/j.gpb.2022.01.004) | Ianevski, A.; Giri, A. K.; Aittokallio, T. SynergyFinder 2.0: Visual Analytics of Multi-Drug Combination Synergies. Nucleic Acids Research 2020, 48 (W1), W488–W493. [doi:10.1093/nar/gkaa216](https://doi.org/10.1093/nar/gkaa216) |
+
+# The BLISS model
+
+For the BLISS model, SynergyFinder2 used the Equation (1) to determine the expected drug combination response:
+
+$$S_{BLISS}=E_{A,B,\dots,N}-(E_A + E_b + \dots + E_N - E_AE_B - E_AE_N - E_BE_N - \dots - E_AE_B...E_C)\ \ \ \ (1)$$
+
+where $E_{A, B,...,N}$ is the combination response and $E_A,E_B,… E_N$ are the single drug responses (i.e. % inhibitions) for drug $A,B,…N$, respectively.
+
+However, equation (1) does not converge to the BLISS model which assumes the probabilistic independence. For example, in the case of three drugs ($A,B,C$), according to (1):
+
+$$S_{BLISS}=E_{A,B,C}-(E_A + E_b + E_c - E_AE_B - E_AE_C - E_BE_C - E_AE_BE_C)\ \ \ \ (2)$$
+
+while the correct BLISS model should be:
+
+$$S_{BLISS}=E_{A,B,C}-(E_A + E_b + E_c - E_AE_B - E_AE_C - E_BE_C + E_AE_BE_C)\ \ \ \ (3)$$
+
+Equation (2) and (3) differs only at the last term but mathematically they are different. If we assume the probabilistic independence as defined in the BLISS model, then (3) should be the correct formula.
+
+For example, in a scenario where $E_{A,B,C}=E_A=E_B=E_C=1$, that all the single drugs and their combination reach 100% inhibition, no BLISS synergy should be detected. However, we found inflated synergy score of $S_{BLISS}=2$ if using (2). Instead, (3) leads to correct synergy score of $S_{BLISS}=0$.
+In SynergyFinderPlus, we used the formula that leads to (3), and thus provides a more compatible BLISS model for higher-order drug combinations. 
+
+# The LOEWE model
+
+For the LOEWE model, SynergyFinder2 used the Equation (4):
+
+$$S_{LOEWE} = \frac{a}{A} + \frac{b}{B} + \dots + \frac{n}{N}\ \ \ \ (4)$$
+
+where $a,b,…n$ are the doses of the single drugs required to produce the combination effect $E_{A,B,…,N}$. By such a definition, $S_{LOEWE}$ takes the values from $(0,+\infty)$ and it can never be negative. This is incompatible with the other scores such as $S_{BLISS}$, for which a positive score implies synergy, and a negative score implies antagonism. In fact, (4) is the Combination Index that takes a value of 1 for non-interaction, a value in $(0,1)$ for synergy and a value in $(1,+\infty)$ for antagonism, which is totally in opposite direction as the other types of synergy scores.
+
+In contrast, in SynergyFinderPlus we have utilized a different formula as
+
+$$S_{LOEWE}=E_{A,B,...,N}-E_{LOEWE},\\ s.t.\sum_{i= A,B,...,N}(\frac{x_i}{f_i^{-1}(E_{LOEWE})}) = 1\ \ \ \ (5)$$
+
+Our implementation makes sure that the LOEWE score for multiple drug combinations is well defined with zero as the reference point, i.e. $E_{A,B,…,N}=E_{LOEWE}$ lead to $S_{LOEWE}=0$.
+
+# The ZIP model
+
+Take again the three-drug scenario for example, SynergyFinder2 uses the following formula for $S_{ZIP}$:
+$$S_{ZIP} = E_{A,B,C} - (\hat{E}_A + \hat{E}_B + \hat{E}_C - \hat{E}_A\hat{E}_B - \hat{E}_A\hat{E}_C - \hat{E}_B\hat{E}_C - \hat{E}_A\hat{E}_B\hat{E}_C)\ \ \ \ (6)$$
+where $\hat{E}_A, \hat{E}_B, ..., \hat{E}_N$ are fitted response using four-parameter log-logistic model for the single drugs, e.g.
+
+$$\hat{E}_{A} = \frac{(\frac{x_A}{m_A})^{\lambda_A}}{1+(\frac{x_A}{m_A})^{\lambda_A}} \ \ \ \ (7)$$
+
+There are two limitations in Equation (6):
+a)	Similar to Equation (1), the signs of the multiplicative terms in Equation (6) should be flipped. 
+b)	Equation (6) is inconsistent, as it is using fitted drug response only for the reference model but not for the observed response
+The ZIP model should also fit the combination response with the four-parameter log-logistic model, i.e.
+
+$$\hat{E}_{A,B,...,N} = \frac{1}{n}\sum_{i = A, B,..., N}\frac{(\hat{E}_{-i} + \frac{x_i}{\hat{m}_i})^{\hat{\lambda}_i}}{1+(\frac{x_i}{\hat{m_i}})^{\hat{\lambda}_i}} \ \ \ \ (8)$$
+
+where $\hat{E}_{-i}$ is the combination response while drug $i$ is absent.
+
+Therefore, the correct formula for S_ZIP, which is proposed in SynergyFinderPlus is
+
+$$S_{ZIP} = \hat{E}_{A,B,C} - (\hat{E}_A + \hat{E}_B + \hat{E}_C - \hat{E}_A\hat{E}_B - \hat{E}_A\hat{E}_C - \hat{E}_B\hat{E}_C + \hat{E}_A\hat{E}_B\hat{E}_C)\ \ \ \ (9)$$
+
+where
+
+$$\hat{E}_{A,B,C} = \frac{1}{3}(\frac{\hat{E}_{-A} + (\frac{x_A}{\hat{m}_A})^{\hat{\lambda}_A}}{1+(\frac{x_A}{\hat{m}_A})^{\hat{\lambda}_A}}+\frac{\hat{E}_{-B} + (\frac{x_B}{\hat{m}_B})^{\hat{\lambda}_B}}{1+(\frac{x_B}{\hat{m}_B})^{\hat{\lambda}_B}} + \frac{\hat{E}_{-C} + (\frac{x_C}{\hat{m}_C})^{\hat{\lambda}_C}}{1+(\frac{x_C}{\hat{m}_C})^{\hat{\lambda}_C}}) \ \ \ \ (10)$$
+
+
+In summary, we provided new mathematical formulation for the BLISS, LOEWE and ZIP models that are compatible with their assumptions. **The new formulation in SynergyFinderPLus overcomes the limitation of the models that were proposed in SynergyFinder2.**
+
+# Reference
+
+[1] SynergyFinderPlus website: [www.synergyfinder.org]{www.synergyfinder.org}; [www.synergyfinderplus.org](www.synergyfinderplus.org)
+
+[2] SynergyFinderPlus R package: [https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html](https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html)
+
+[3] SynergyFinder2 website: [www.synergyfinder.fimm.fi](www.synergyfinder.fimm.fi)
+
+[4] SynergyFinderPlus publication: 
+
+Zheng S., Wang W., Aldahdooh J., Malyutina A., Shadbahr T., Pessia A., __Tang J.*__ (2022). SynergyFinder Plus: towards a better interpretation and annotation of drug combination screening datasets. Genomics Proteomics Bioinformatics. [https://doi.org/10.1016/j.gpb.2022.01.004](https://doi.org/10.1016/j.gpb.2022.01.004). 
+
+[5] SynergyFinder2 publication: 
+
+Ianevski A, Giri, ZK, and Aittokallio T. (2020) SynergyFinder 2.0: visual analytics of multi-drug combination synergies. Nucleic Acids Res. 48(W1):W488-W493. doi: 10.1093/nar/gkaa216.
+
+[6] Mathematical modelling of HSA, BLISS, LOEWE and ZIP:
+
+Yadav, B., Wennerberg, K., Aittokallio T., __Tang J.*__ (2015) Searching for drug synergy in complex dose–response landscapes using an interaction potency model. Comput Struct Biotechnol J. 13:504-13. doi: 10.1016/j.csbj.2015.09.001
+
+[7] SynergyFinder1 publication:
+
+Ianevski A., He L., Aittokallio T., __Tang J.*__ (2017) SynergyFinder: a web application for analyzing drug combination dose-response matrix data. Bioinformatics 33(15):2413-2415.
+
+He L., Kulesskiy E, Saarela J., Turunen L., Wennerberg, K., Aittokallio T., __Tang J.*__ (2018) Methods for high-throughput drug combination screening and synergy scoring. Methods Mol Biol. 1711:351-398. doi: 10.1007/978-1-4939-7493-1_17 
+
+

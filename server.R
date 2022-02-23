@@ -65,6 +65,27 @@ server <- function(input, output, session){
     closeAlert(session, "alertPD")
   }
   
+  showModal(modalDialog(
+    title = HTML("<b>SynergyFinder2 and SynergyFinderPlus are different</b>"),
+    fade = FALSE,
+    HTML(
+    'For assessing the degree of synergy for higher-order drug combinations, 
+    SynergyFinderPlus develops novel mathematical models for BLISS, LOEWE and ZIP, 
+    which are distinct from those developed in SynergyFinder2. 
+    It might be suboptimal to use SynergyFinder2 for the analysis of high-order drug combination data.'),
+    easyClose = TRUE,
+    footer = tagList(
+      actionButton("more", "Learn more"),
+      modalButton("Close")
+    )
+  ))
+  
+  observeEvent(input$more, {
+    removeModal(session = getDefaultReactiveDomain())
+    updateTabItems(session, inputId = "topNavBar",
+                   selected = "FAQ")
+  })
+  
   # # Home page ----------------------------------------------------------------
   # userCuide button
   observeEvent(input$toGuide, {
