@@ -90,7 +90,7 @@ In summary, we provided new mathematical formulation for the BLISS, LOEWE and ZI
 
 # Reference
 
-[1] SynergyFinderPlus website: [www.synergyfinder.org]{https://synergyfinder.org/}; [www.synergyfinderplus.org](https://synergyfinderplus.org/)
+[1] SynergyFinderPlus website: [www.synergyfinder.org](https://synergyfinder.org/); [www.synergyfinderplus.org](https://synergyfinderplus.org/)
 
 [2] SynergyFinderPlus R package: [https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html](https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html)
 
