@@ -21,7 +21,7 @@ Table 1. Differences in mathematical modelling for higher-order drug combination
 |BLISS| $$S_{BLISS}=E_{A,B,C}-(E_A + E_b + E_c - E_AE_B - E_AE_C - E_BE_C + E_AE_BE_C)$$ | $$S_{BLISS}=E_{A,B,C}-(E_A + E_b + E_c - E_AE_B - E_AE_C - E_BE_C - E_AE_BE_C)$$ |
 |LOEWE| $S_{LOEWE}=E_{A,B,C}-E_{LOEWE},$<br>$s.t.\sum_{i\in \{A,B,C\}}(\frac{x_i}{f_i^{-1}(E_{LOEWE})}) = 1$ | $S_{LOEWE}=\frac{a}{A} + \frac{b}{B} + \frac{c}{C}$|
 |ZIP  | $S_{ZIP} = \hat{E}_{A,B,C} - (\hat{E}_A + \hat{E}_B + \hat{E}_C - \hat{E}_A\hat{E}_B - \hat{E}_A\hat{E}_C - \hat{E}_B\hat{E}_C + \hat{E}_A\hat{E}_B\hat{E}_C)$<br>$\hat{E}_{A,B,C} = \frac{1}{3}(\frac{\hat{E}_{-A} + (\frac{x_A}{\hat{m}_A})^{\hat{\lambda}_A}}{1+(\frac{x_A}{\hat{m}_A})^{\hat{\lambda}_A}}+\frac{\hat{E}_{-B} + (\frac{x_B}{\hat{m}_B})^{\hat{\lambda}_B}}{1+(\frac{x_B}{\hat{m}_B})^{\hat{\lambda}_B}} + \frac{\hat{E}_{-C} + (\frac{x_C}{\hat{m}_C})^{\hat{\lambda}_C}}{1+(\frac{x_C}{\hat{m}_C})^{\hat{\lambda}_C}})$|$S_{ZIP} = E_{A,B,C} - (\hat{E}_A + \hat{E}_B + \hat{E}_C - \hat{E}_A\hat{E}_B - \hat{E}_A\hat{E}_C - \hat{E}_B\hat{E}_C - \hat{E}_A\hat{E}_B\hat{E}_C)$|
-|Website|[www.synergyfinderplus.org](www.synergyfinderplus.org) or [www.synergyfinder.org](www.synergyfinder.org)| [https://synergyfinder.fimm.fi](https://synergyfinder.fimm.fi)|
+|Website|[www.synergyfinderplus.org](https://synergyfinderplus.org/) or [www.synergyfinder.org](https://synergyfinder.org/)| [https://synergyfinder.fimm.fi](https://synergyfinder.fimm.fi)|
 |Source code|[https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html](https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html) | Not available |
 |Publication|Zheng, S.; Wang, W.; Aldahdooh, J.; Malyutina, A.; Shadbahr, T.; Tanoli Z; Pessia, A.; __Jing, T*__. SynergyFinder Plus: Toward Better Interpretation and Annotation of Drug Combination Screening Datasets. Genomics, Proteomics & Bioinformatics 2022. [doi:10.1016/j.gpb.2022.01.004](https://doi.org/10.1016/j.gpb.2022.01.004) | Ianevski, A.; Giri, A. K.; Aittokallio, T. SynergyFinder 2.0: Visual Analytics of Multi-Drug Combination Synergies. Nucleic Acids Research 2020, 48 (W1), W488–W493. [doi:10.1093/nar/gkaa216](https://doi.org/10.1093/nar/gkaa216) |
 
@@ -90,11 +90,11 @@ In summary, we provided new mathematical formulation for the BLISS, LOEWE and ZI
 
 # Reference
 
-[1] SynergyFinderPlus website: [www.synergyfinder.org]{www.synergyfinder.org}; [www.synergyfinderplus.org](www.synergyfinderplus.org)
+[1] SynergyFinderPlus website: [www.synergyfinder.org]{https://synergyfinder.org/}; [www.synergyfinderplus.org](https://synergyfinderplus.org/)
 
 [2] SynergyFinderPlus R package: [https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html](https://www.bioconductor.org/packages/release/bioc/html/synergyfinder.html)
 
-[3] SynergyFinder2 website: [www.synergyfinder.fimm.fi](www.synergyfinder.fimm.fi)
+[3] SynergyFinder2 website: [www.synergyfinder.fimm.fi](https://synergyfinder.fimm.fi)
 
 [4] SynergyFinderPlus publication: 
 
