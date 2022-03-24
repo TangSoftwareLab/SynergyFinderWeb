@@ -311,9 +311,11 @@ synergyTabUI <- function(id) {
         hr(),
         fluidRow(
           column(
-            width = 6,
+            width = 12,
             uiOutput(outputId = "syn_2_drugs_ui"),
-          ),
+          )
+        ),
+        fluidRow(
           column(
             width = 6,
             shinyWidgets::radioGroupButtons(
@@ -325,6 +327,22 @@ synergyTabUI <- function(id) {
                 "2D Contour" = "2D"),
               status = "primary",
               selected = "3D"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "syn_high_value_color",
+              label = "Synergy effect color",
+              value = "#FF0000"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "syn_low_value_color",
+              label = "Antagnositic effect color",
+              value = "#00FF00"
             )
           )
         ),
@@ -354,24 +372,6 @@ synergyTabUI <- function(id) {
           ),
           column(
             width = 3,
-            colourpicker::colourInput(
-              inputId = "syn_high_value_color",
-              label = "Synergy effect color",
-              value = "#FF0000"
-            )
-          ),
-          column(
-            width = 3,
-            colourpicker::colourInput(
-              inputId = "syn_low_value_color",
-              label = "Antagnositic effect color",
-              value = "#00FF00"
-            )
-          )
-        ),
-        fluidRow(
-          column(
-            width = 3,
             shinyWidgets::materialSwitch(
               inputId = "syn_grid",
               value = TRUE,
@@ -399,7 +399,9 @@ synergyTabUI <- function(id) {
               min = 0.1,
               max = 2
             )
-          ),
+          )
+        ),
+        fluidRow(
           column(
             width = 3,
             colourpicker::colourInput(

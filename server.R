@@ -1002,40 +1002,43 @@ server <- function(input, output, session){
           )
         })
         
-        # All possible 2-drug combos
-        tmp <- combn(1:length(drugs), 2)
-        two_drug_comb <- apply(tmp, 2, paste0, collapse = "-")
-        names(two_drug_comb) <- apply(
-          tmp, 
-          2,
-          function(x) paste(
-            drug_pairs[
-              as.character(drug_pairs$block_id) == input$viz_block,
-              paste0("drug", x, sep = "")
-            ],
-            collapse = " - "
+        if (length(drugs) > 2) {
+          # All possible 2-drug combos
+          tmp <- combn(1:length(drugs), 2)
+          two_drug_comb <- apply(tmp, 2, paste0, collapse = "-")
+          names(two_drug_comb) <- apply(
+            tmp, 
+            2,
+            function(x) paste(
+              drug_pairs[
+                as.character(drug_pairs$block_id) == input$viz_block,
+                paste0("drug", x, sep = "")
+              ],
+              collapse = " - "
+            )
           )
-        )
-        
-        # render UI DR_2_drugs_ui
-        output$DR_2_drugs_ui <- renderUI({
-          selectInput(
-            inputId = "DR_2_drugs",
-            label = "Drug pair for plot",
-            choices = two_drug_comb,
-            selected = two_drug_comb[1]
-          )
-        })
-        
-        # render UI syn_2_drugs_ui
-        output$syn_2_drugs_ui <- renderUI({
-          selectInput(
-            inputId = "syn_2_drugs",
-            label = "Drug pair for plot",
-            choices = two_drug_comb,
-            selected = two_drug_comb[1]
-          )
-        })
+          
+          # render UI DR_2_drugs_ui
+          output$DR_2_drugs_ui <- renderUI({
+            selectInput(
+              inputId = "DR_2_drugs",
+              label = "Drug pair for plot",
+              choices = two_drug_comb,
+              selected = two_drug_comb[1]
+            )
+          })
+          
+          # render UI syn_2_drugs_ui
+          output$syn_2_drugs_ui <- renderUI({
+            selectInput(
+              inputId = "syn_2_drugs",
+              label = "Drug pair for plot",
+              choices = two_drug_comb,
+              selected = two_drug_comb[1]
+            )
+          })
+        }
+       
         # switches$vizSyn <- 1
       } else {
         removeUI("syn_2_drugs")
