@@ -34,7 +34,7 @@ dashboardUI <- function(id) {
         column(
           width = 6,
           selectInput(
-            inputId = "correct_baseline", label = "Correct baseline",
+            inputId = "correct_baseline", label = "Baseline correction",
             choices = list(
               # "",
               "Non: No correction" = "non",

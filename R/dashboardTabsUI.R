@@ -191,7 +191,7 @@ doseResponseTabUI <- function(id) {
     uiOutput(outputId = "multi_drug_DR_plot"),
     box(
       id = "boxDoseResponseMatrix",
-      title = "Dose Response Map (2 Drugs Combination)",
+      title = "Dose Response Map",
       solidHeader = TRUE,
       width = 6, 
       height = 400,
@@ -288,7 +288,7 @@ synergyTabUI <- function(id) {
       uiOutput(outputId = "multi_drug_syn_plots"),
       box(
         id = "BoxSynergyScorePlot",
-        title = "Synergy Map (2 Drugs Combination)",
+        title = "Synergy Map",
         solidHeader = TRUE,
         width = 12, 
         collapsible = TRUE,

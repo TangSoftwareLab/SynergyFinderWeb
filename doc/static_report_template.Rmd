@@ -274,10 +274,15 @@ if (params$DR_plot_type == "heatmap"){
   for (b in params$blocks) {
     comb <- combn(1:ndrug, 2)
     for (c in 1:ncol(comb)) {
+      drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          paste0("drug", comb[, c])],
+        collapse = " & ")
       p <- Plot2DrugHeatmap(
         data = synergyfinder_obj,
         plot_block = b,
-        plot_title = paste0("Block ", b, " Dose Response Matrix"),
+        plot_title = paste("Dose Response Matrix", "\n", "Block", b, ":", drugs),
         drugs = c(comb[1, c], comb[2, c]),
         dynamic = FALSE,
         statistic = params$DR_rep_statistic,
@@ -295,16 +300,21 @@ if (params$DR_plot_type == "heatmap"){
 
 ```
 
-```{r dose_response_map, fig.show="hold", out.width="50%"}
+```{r dose_response_map, results = "asis"}
 if (params$DR_plot_type != "heatmap") {
   for (b in params$blocks) {
     comb <- combn(1:ndrug, 2)
     for (c in 1:ncol(comb)) {
+      drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          paste0("drug", comb[, c])],
+        collapse = " & ")
       p <- Plot2DrugSurface(
         data = synergyfinder_obj,
         drugs = c(comb[1, c], comb[2, c]),
         plot_block = b,
-        plot_title = paste0("Block ", b, " Dose Response Matrix"),
+        plot_title = paste0("Dose Response Matrix", "\n", "Block ", b, ":", drugs),
         dynamic = FALSE,
         summary_statistic = params$DR_summary_statistic,
         high_value_color = params$DR_high_value_color,
@@ -314,6 +324,8 @@ if (params$DR_plot_type != "heatmap") {
         # text_size_scale = params$DR_text_size
       )
       print(p)
+      cat("\\linebreak")
+      cat("\\linebreak")
     }
   }
 }
@@ -328,11 +340,16 @@ if (params$syn_plot_type == "heatmap") {
     comb <- combn(1:ndrug, 2)
     # 2-drug synergy surface
     for (c in 1:ncol(comb)) {
+      drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          paste0("drug", comb[, c])],
+        collapse = " & ")
       for (m in methods) {
       p <- PlotSynergy(
         data = synergyfinder_obj,
         block_ids = b,
-        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        plot_title = paste(m, "Synergy Score", "\n", "Block", b,":", drugs, sep = " "),
         drugs = c(comb[1, c], comb[2, c]),
         type = params$syn_plot_type,
         method = m,
@@ -355,17 +372,22 @@ if (params$syn_plot_type == "heatmap") {
 }
 ```
 
-```{r, synergy_plots, fig.show="hold", out.width="50%"}
+```{r, synergy_plots, results = "asis"}
 if (params$syn_plot_type != "heatmap") {
   for (b in params$blocks) {
     comb <- combn(1:ndrug, 2)
     # 2-drug synergy surface
     for (c in 1:ncol(comb)) {
+      drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          paste0("drug", comb[, c])],
+        collapse = " & ")
       for (m in methods) {
       p <- PlotSynergy(
         data = synergyfinder_obj,
         block_ids = b,
-        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        plot_title = paste(m, "Synergy Score", "\n", "Block", b, ":", drugs, sep = " "),
         drugs = c(comb[1, c], comb[2, c]),
         type = params$syn_plot_type,
         method = m,
@@ -382,6 +404,8 @@ if (params$syn_plot_type != "heatmap") {
         display = FALSE
       )
       print(p[[1]])
+      cat("\\linebreak")
+      cat("\\linebreak")
       }
     }
   }

@@ -868,7 +868,7 @@ server <- function(input, output, session){
           output$plot_block <- renderUI({
             selectInput(
               inputId = "viz_block",
-              label = "Block ID for plots",
+              label = "Drug combination",
               choices = blocks,
               selected = drug_pairs$block_id[1]
             )

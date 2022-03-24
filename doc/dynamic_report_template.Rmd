@@ -288,11 +288,23 @@ knitr::include_graphics(params$DRC_plots)
 plotlist <- list()
 for (b in params$blocks) {
   if (ndrug > 2) {
+     drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          startsWith(
+            colnames(synergyfinder_obj$drug_pairs),
+            "drug"
+          )
+        ],
+        collapse = " & ")
     plotlist[[length(plotlist) + 1]] <- PlotMultiDrugSurface(
       data = synergyfinder_obj,
       plot_block = b,
       plot_value = "response",
-      plot_title = paste0("Block ", b, " Dose Response Matrix"),
+      plot_title = paste(
+        "Dose Response Matrix", "\n",
+        "Block", b, ":", drugs
+      ),
       high_value_color = DR_multi_high_value_color,
       low_value_color = DR_multi_low_value_color,
       show_data_points = DR_multi_point,
@@ -301,11 +313,19 @@ for (b in params$blocks) {
   }
   comb <- combn(1:ndrug, 2)
   for (c in 1:ncol(comb)) {
+    drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          paste0("drug", comb[, c])],
+        collapse = " & ")
     if (params$DR_plot_type == "heatmap") {
       plotlist[[length(plotlist) + 1]] <- Plot2DrugHeatmap(
         data = synergyfinder_obj,
         plot_block = b,
-        plot_title = paste0("Block ", b, " Dose Response Matrix"),
+        plot_title = paste(
+          "Dose Response Matrix", "\n",
+          "Block", b, ":", drugs
+        ),
         drugs = c(comb[1, c], comb[2, c]),
         dynamic = TRUE,
         statistic = params$DR_rep_statistic,
@@ -319,7 +339,10 @@ for (b in params$blocks) {
         data = synergyfinder_obj,
         drugs = c(comb[1, c], comb[2, c]),
         plot_block = b,
-        plot_title = paste0("Block ", b, " Dose Response Matrix"),
+        plot_title = paste(
+          "Dose Response Matrix", "\n",
+          "Block", b, ":", drugs
+        ),
         dynamic = TRUE,
         summary_statistic = params$DR_summary_statistic,
         high_value_color = params$DR_high_value_color,
@@ -365,11 +388,24 @@ for (b in params$blocks) {
   plotlist[[length(plotlist) + 1]] <- paste0("## Block ", b, "\n\n")
   # multi-drug dimension reduction surface
   if (ndrug > 2) {
+    drugs <- paste0(
+      synergyfinder_obj$drug_pairs[
+        synergyfinder_obj$drug_pairs$block_id == b,
+        startsWith(
+          colnames(synergyfinder_obj$drug_pairs),
+          "drug"
+        )
+      ],
+      collapse = " & "
+    )
     for (m in methods) {
       plotlist[[length(plotlist) + 1]] <- PlotMultiDrugSurface(
         data = synergyfinder_obj,
         plot_block = b,
-        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        plot_title = paste(
+          m, "Synergy Score", "\n",
+          "Block", b, ":", drugs, sep = " "
+        ),
         plot_value = paste0(m, "_synergy"),
         high_value_color = syn_multi_high_value_color,
         low_value_color = syn_multi_low_value_color,
@@ -380,11 +416,19 @@ for (b in params$blocks) {
   }
   # 2-drug synergy surface
   for (c in 1:ncol(comb)) {
+    drugs <- paste0(
+        synergyfinder_obj$drug_pairs[
+          synergyfinder_obj$drug_pairs$block_id == b,
+          paste0("drug", comb[, c])],
+        collapse = " & ")
     for (m in methods) {
       plotlist[[length(plotlist) + 1]] <- PlotSynergy(
         data = synergyfinder_obj,
         block_ids = b,
-        plot_title = paste("Block", b, m, "Synergy Score", sep = " "),
+        plot_title = paste(
+          m, "Synergy Score", "\n",
+          "Block", b, ":", drugs, sep = " "
+        ),
         drugs = c(comb[1, c], comb[2, c]),
         type = params$syn_plot_type,
         method = m,
