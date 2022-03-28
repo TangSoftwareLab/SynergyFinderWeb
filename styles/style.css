@@ -177,6 +177,13 @@ body{
   margin-bottom: -5px;
 }
 
+#annotfileid {
+  margin-top: -5px;
+}
+
+#annotfileid .input-group {
+    margin-top: -5px;
+}
 
 /*userGuide*/
 .userGuide {
