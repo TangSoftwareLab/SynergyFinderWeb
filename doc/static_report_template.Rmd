@@ -36,6 +36,8 @@ params:
   DR_low_value_color: NA
   DR_heatmap_label_color: NA
   DR_grid: NA
+  DR_text_size: NA
+  DR_heatmap_label_size: NA
   syn_multi_high_value_color: NA
   syn_multi_low_value_color: NA
   syn_multi_point: NA
@@ -286,6 +288,8 @@ if (params$DR_plot_type == "heatmap"){
         drugs = c(comb[1, c], comb[2, c]),
         dynamic = FALSE,
         statistic = params$DR_rep_statistic,
+        text_label_size_scale = params$DR_heatmap_label_size,
+        title_text_size_scale = params$DR_text_size,
         summary_statistic = params$DR_summary_statistic,
         high_value_color = params$DR_high_value_color,
         low_value_color = params$DR_low_value_color,
