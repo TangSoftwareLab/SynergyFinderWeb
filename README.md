@@ -8,7 +8,7 @@
 <br/>
 ## A web application for analyzing drug combination dose-response matrix data.
 
-**Article**: 
+**Articles**: 
 Zheng S., Wang W., Aldahdooh J., Malyutina A., Shadbahr T., Pessia A., Tang J.* (2022). SynergyFinder Plus: towards a better interpretation and annotation of drug combination screening datasets. Genomics Proteomics Bioinformatics. https://doi.org/10.1016/j.gpb.2022.01.004.
 
 Ianevski A., He L., Aittokallio T., Tang J.* (2017) SynergyFinder: a web application for analyzing drug combination dose-response matrix data. Bioinformatics 33(15):2413-2415.
