@@ -31,4 +31,4 @@ For any questions please contact **Jing Tang** [@JingTang](jing.tang@helsinki.fi
 
 Code copyright 2021 SynergyFinder
 
-Code released under the [BSD 3-clause license] (https://github.com/AleksandrIanevski/SynergyFinder/blob/master/LICENSE)
+Code released under the [BSD 3-clause license] (https://github.com/TangSoftwareLab/SynergyFinderWeb/blob/master/LICENSE)
