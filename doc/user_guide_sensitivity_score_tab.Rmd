@@ -58,7 +58,7 @@ The table contains following columns:
 
 <p style="text-align: center;"> Fig.3 Synergy-Sensitivity Plots </p>
 
-SynergyFinder plots the CSS together with different synergy scores for each combination in the input data as Synergy-Sensitivity Plot (Fig.3). It helps user to explore the combinations that not only have synergistic effect but also have high sensitivity on tested cells. SynergyFinder provides various widgets to help user customize the plot:
+SynergyFinder plots the CSS together with different synergy scores for each combination in the input data as Synergy-Sensitivity Plot (Fig.3). It helps user to explore the combinations that not only have synergistic effect but also have high sensitivity on tested cells. The synergy scores or CSS scores shown in this plot are the summarized scores for whole combination matrix. SynergyFinder provides various widgets to help user customize the plot:
 
 1.  Interactive plotting area powered by [plotly](https://plotly.com/r/). Several buttons will be shown at the top-right corner while hovering to help user modify the plotting view and download the plot as "SVG" file.
 2. Select the color for the data points.
