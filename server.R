@@ -1,6 +1,19 @@
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
+  # Router for different tabs --------------------------------------------------
+  observeEvent(input$topNavBar, {
+    newURL <- paste0(
+      session$clientData$url_protocol,
+      "//",
+      session$clientData$url_hostname,
+      ":",
+      session$clientData$url_port,
+      session$clientData$url_pathname,
+      tolower(gsub(" ", "_", input$topNavBar))
+    )
+    updateQueryString(newURL, mode = "replace", session)
+  })
   # Define reactive variables --------------------------------------------------
   datannot <- reactiveValues(annot = NULL)
   inputDataPath <- reactiveValues(path = NULL)
