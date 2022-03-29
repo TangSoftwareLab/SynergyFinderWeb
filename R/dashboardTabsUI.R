@@ -416,130 +416,150 @@ synergyTabUI <- function(id) {
         uiOutput(outputId = "multi_2_drug_syn_bar")
       ),
       # Bar Barometer plot
-      # box(
-      #   id = "boxBarPlot",
-      #   title = "Bar and Barometer Plot",
-      #   solidHeader = TRUE,
-      #   width = 12, 
-      #   collapsible = TRUE,
-      fluidRow(
-        column(
-          width = 3,
-          offset = 1,
-          align = "center",
-          br(),
-          tags$h3("Selected Data Point"),
-          hr(),
-          DTOutput(outputId = "syn_barometer_values")
-        ),
-        column(
-          width = 4,
-          # offset = 4,
-          plotOutput(outputId = "syn_barometer") %>% 
-            withSpinner(color="#D2D2D2")
-        )
-      ),
-      fluidRow(
-        column(
-          width = 12,
-          uiOutput(outputId = "syn_bar_plot_ui")
-        )
-      ),
-      hr(),
-      fluidRow(
-        column(
-          width = 3,
-          sliderInput(
-            inputId = "bb_panel_title_size",
-            label = "Panel title size",
-            value = 10,
-            min = 0,
-            max = 20
+      box(
+        id = "boxBarPlot",
+        title = "Synergy Barometer and Bar Plot",
+        solidHeader = TRUE,
+        width = 12,
+        collapsible = TRUE,
+        fluidRow(
+          column(
+            width = 3,
+            offset = 1,
+            align = "center",
+            br(),
+            tags$h3("Selected Data Point"),
+            hr(),
+            DTOutput(outputId = "syn_barometer_values")
+          ),
+          column(
+            width = 4,
+            # offset = 4,
+            plotOutput(outputId = "syn_barometer") %>% 
+              withSpinner(color="#D2D2D2")
+          ),
+          column(
+            width = 4,
+            tags$h2("Tips:"),
+            tags$ol(
+              tags$li(
+                paste0(
+                  "Clicking on a specific row in the bar plot will change the ",
+                  "highlighted row. Meanwhile the barometer and the table will",
+                  " show the information about the highlighted row."
+                )
+              ),
+              tags$li(
+                paste0(
+                  "Double clicking on certain panel in the bar plot will sort ",
+                  "the bars according to the values of that panel."
+                )
+                
+              )
+            )
           )
         ),
-        column(
-          width = 3,
-          sliderInput(
-            inputId = "bb_axis_text_size",
-            label = "Axis text size",
-            value = 10,
-            min = 0,
-            max = 20
+        fluidRow(
+          column(
+            width = 12,
+            uiOutput(outputId = "syn_bar_plot_ui")
           )
         ),
-        column(
-          width = 3,
-          sliderInput(
-            inputId = "bb_highlight_label_size",
-            label = "Highlited label size",
-            value = 10,
-            min = 0,
-            max = 20
+        hr(),
+        fluidRow(
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "bb_panel_title_size",
+              label = "Panel title size",
+              value = 10,
+              min = 0,
+              max = 20
+            )
+          ),
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "bb_axis_text_size",
+              label = "Axis text size",
+              value = 10,
+              min = 0,
+              max = 20
+            )
+          ),
+          column(
+            width = 3,
+            sliderInput(
+              inputId = "bb_highlight_label_size",
+              label = "Highlited label size",
+              value = 10,
+              min = 0,
+              max = 20
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_barometer_color",
+              label = "Barometer color",
+              value = "#CC3311"
+            )
+            
           )
         ),
-        column(
-          width = 3,
-          colourpicker::colourInput(
-            inputId = "bb_barometer_color",
-            label = "Barometer color",
-            value = "#CC3311"
-          )
-          
-        )
-      ),
-      fluidRow(
-        column(
-          width = 3,
-          colourpicker::colourInput(
-            inputId = "bb_pos_value_color",
-            label = "Positive bar color",
-            value = "#FF0000"
-          )
-        ),
-        column(
-          width = 3,
-          colourpicker::colourInput(
-            inputId = "bb_neg_value_color",
-            label = "Negative bar color",
-            value = "#00FF00"
-          )
-        ),
-        column(
-          width = 3,
-          colourpicker::colourInput(
-            inputId = "bb_highlight_pos_color",
-            label = "Highlighted positive bar color",
-            value = "#BB0000"
-          )
-        ),
-        column(
-          width = 3,
-          colourpicker::colourInput(
-            inputId = "bb_highlight_neg_color",
-            label = "Highlighted negative bar color",
-            value = "#00BB00"
-          )
-        )
-      ),
-      fluidRow(
-        column(
-          width = 3,
-          downloadButton(
-            outputId = "downloadBar",
-            label = "Download Bar Plot (SVG)",
-            icon =shiny::icon("download")
+        fluidRow(
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_pos_value_color",
+              label = "Positive bar color",
+              value = "#FF0000"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_neg_value_color",
+              label = "Negative bar color",
+              value = "#00FF00"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_highlight_pos_color",
+              label = "Highlighted positive bar color",
+              value = "#BB0000"
+            )
+          ),
+          column(
+            width = 3,
+            colourpicker::colourInput(
+              inputId = "bb_highlight_neg_color",
+              label = "Highlighted negative bar color",
+              value = "#00BB00"
+            )
           )
         ),
-        column(
-          width = 3,
-          downloadButton(
-            outputId = "downloadBarometer",
-            label = "Download Barometer (SVG)",
-            icon =shiny::icon("download")
+        fluidRow(
+          column(
+            width = 3,
+            downloadButton(
+              outputId = "downloadBar",
+              label = "Download Bar Plot (SVG)",
+              icon =shiny::icon("download")
+            )
+          ),
+          column(
+            width = 3,
+            downloadButton(
+              outputId = "downloadBarometer",
+              label = "Download Barometer (SVG)",
+              icon =shiny::icon("download")
+            )
           )
         )
       )
-      # )
     )
   )
 }
