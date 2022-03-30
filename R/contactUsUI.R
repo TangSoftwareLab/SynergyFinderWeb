@@ -27,6 +27,13 @@ contactUsUI <- function(id) {
         column(
           width = 6,
           tags$a(
+            icon("github"),
+            "TangSoftwareLab",
+            target = "_blank",
+            href = "https://github.com/TangSoftwareLab/SynergyFinderWeb"
+          ),
+          tags$br(),
+          tags$a(
             icon("users"),
             "Network Pharmacology for Precision Medicine (Tang Lab)",
             href = "https://www.helsinki.fi/en/researchgroups/network-pharmacology-for-precision-medicine",
@@ -43,8 +50,8 @@ contactUsUI <- function(id) {
           tags$p(
             icon("envelope"), style = "color:#0277bd",
             "jing(dot)tang(at)helsinki(dot)fi"
-          ),
-        ),
+          )
+        )
       ),
       fluidRow(
         style = "text-align: center;",
