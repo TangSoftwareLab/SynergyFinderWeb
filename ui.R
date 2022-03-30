@@ -5,6 +5,7 @@ ui <- #shinyUI(
       includeCSS("./styles/style.css"),
       # includeCSS("./styles/tooltip-curved.css"),
       # tags$script(src = "feedback_source.js"),
+      tags$script(src = "./menu9.js"),
       singleton(tags$script(src = "correctBaselineSetting.js")),
       # tags$script(src = "feedback.js"), #also to top button
       tags$script(src = "https://d3js.org/d3.v4.min.js"),
