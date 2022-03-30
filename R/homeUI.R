@@ -19,7 +19,8 @@ homeUI <- function(id) {
             label = "Analyze",
             type="primary",
             class = "btn-lg shadow lift mr-1",
-            style="color: #fff"
+            style="color: #fff",
+            onclick = "location.href='./#!/dashboard';"
           ),
           actionButton(
             inputId = "toGuide",

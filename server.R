@@ -54,7 +54,7 @@ server <- function(input, output, session){
     updateSelectInput(session, inputId = "correct_baseline", selected = "non")
     updateSwitchInput(session, inputId = "annoSwitch", value = FALSE)
     updateSelectInput(session, "selectInhVia", selected = "")
-    updateSelectInput(session, "exDataSelect", selected = "")
+    # updateSelectInput(session, "exDataSelect", selected = "")
     switches$anno <- 0
     switches$vizDR <- 0
     switches$vizSyn <- 0
@@ -120,7 +120,7 @@ server <- function(input, output, session){
   # GetStart button
   observeEvent(input$getStart, {
     closeAll()
-    updateNavbarPage(session, inputId = "topNavBar", selected = "DASHBOARD")
+    # updateNavbarPage(session, inputId = "topNavBar", selected = "DASHBOARD")
     updateTabsetPanel(session, "menu", selected = "inputDataTab")
     updateSelectInput(session, inputId = "inputDatatype", selected = "Table")
     output$resettableInput <- renderUI({
@@ -273,6 +273,7 @@ server <- function(input, output, session){
     }
   )
   
+  
   ## Input data type select box ------------------------------------------------
   observeEvent(
     eventExpr = input$inputDatatype,
@@ -289,9 +290,9 @@ server <- function(input, output, session){
     handlerExpr = {
       tryCatch({
         # If already loaded annotation table, drop all switches and vars
-        if (!is.null(datannot$annot)) {
+        # if (!is.null(datannot$annot)) {
           closeAll()
-        }
+        # }
         # Check file extension
         ext <- toupper(tools::file_ext(inputDataPath$path))
         annot <- NULL
@@ -1930,10 +1931,14 @@ server <- function(input, output, session){
           bb_plot_param$selected_values <- bb_plots$bar_plot$data_table[
             bb_plots$bar_plot$data_table$id == round(input$syn_bar_plot_click$y),
           ]
-          bb_plot_param$selected_conc <- unlist(bb_plot_param$selected_values[,
-                                                                              sort(grep("conc", colnames(bb_plot_param$selected_values), value = TRUE))
+          bb_plot_param$selected_conc <- unlist(
+            bb_plot_param$selected_values[,
+              sort(
+                grep("conc", colnames(bb_plot_param$selected_values),
+                     value = TRUE)
+              )
           ])
-          
+          data <- dataReshaped$reshapeD
           bb_plots$bar_plot <- PlotMultiDrugBar(
             data,
             plot_block = input$viz_block,
@@ -1982,7 +1987,7 @@ server <- function(input, output, session){
                     "Bliss Synergy Score:" = "Bliss_synergy",
                     "HSA Synergy Score:" = "HSA_synergy"
                   ) %>% 
-                  round(digits = 2)
+                  signif(digits = 4)
                 
                 for (i in 1:ncol(bb_plot_param$drug_pair)) {
                   df[, which(colnames(df) == paste0("conc", i))] <- paste(
