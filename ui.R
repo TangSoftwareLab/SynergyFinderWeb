@@ -22,18 +22,18 @@ ui <- #shinyUI(
       windowTitle = "SynergyFinder",
       id = "topNavBar",
       # HOME -------------------------------------------------------------------
-      nav_item(a(href = route_link("/"), "HOME"), value = "HOME"),
+      nav_item(a(class="item1",href = route_link("/"), "HOME"), value = "HOME"),
       # DASHBOARD --------------------------------------------------------------
-      nav_item(a(href = route_link("dashboard"), "DASHBOARD"), value = "DASHBOARD"),
+      nav_item(a(class="item2",href = route_link("dashboard"), "DASHBOARD"), value = "DASHBOARD"),
       # USER GUIDE -------------------------------------------------------------
-      nav_item(a(href = route_link("userGuide"), "USER GUIDE"), value = "USER GUIDE"),
-      nav_item(a(href = route_link("faq"), "FAQ"), value = "FAQ", useShinyjs()),
+      nav_item(a(class="item3",href = route_link("userGuide"), "USER GUIDE"), value = "USER GUIDE"),
+      nav_item(a(class="item4",href = route_link("faq"), "FAQ"), value = "FAQ", useShinyjs()),
       # USER CITATION ----------------------------------------------------------
-      nav_item(a(href = route_link("cite"), "HOW TO CITE"), value = "HOW TO CITE"),
+      nav_item(a(class="item5",href = route_link("cite"), "HOW TO CITE"), value = "HOW TO CITE"),
       # ABOUT US ---------------------------------------------------------------
-      nav_item(a(href = route_link("aboutUs"), "ABOUT US"), value = "ABOUT US"),
+      nav_item(a(class="item6",href = route_link("aboutUs"), "ABOUT US"), value = "ABOUT US"),
       # CONTACT ----------------------------------------------------------------
-      nav_item(a(href = route_link("contact"), "CONTACT"), value = "CONTACT")
+      nav_item(a(class="item7",href = route_link("contact"), "CONTACT"), value = "CONTACT")
     ),
     router$ui
   )
