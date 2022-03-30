@@ -1,4 +1,4 @@
-ui <- shinyUI(
+ui <- #shinyUI(
   fluidPage(
     # custom css for buttons and slider input               
     tags$head( 
@@ -22,140 +22,19 @@ ui <- shinyUI(
       windowTitle = "SynergyFinder",
       id = "topNavBar",
       # HOME -------------------------------------------------------------------
-      tabPanel("HOME", homeUI("home")),
+      nav_item(a(href = route_link("/"), "HOME"), value = "HOME"),
       # DASHBOARD --------------------------------------------------------------
-      tabPanel("DASHBOARD", dashboardUI("dashboard")),
+      nav_item(a(href = route_link("dashboard"), "DASHBOARD"), value = "DASHBOARD"),
       # USER GUIDE -------------------------------------------------------------
-      tabPanel(
-        "USER GUIDE",
-        dashboardPage(
-          # dash board header
-          dashboardHeader(disable = TRUE),
-          # sidebar content
-          dashboardSidebar(
-            width = "200px",
-            # Menu elements
-            sidebarMenu(
-              id = "menuUserGuide",
-              menuItem(
-                "Upload Data",
-                tabName = "inputDataUserGuideTab",
-                selected = T
-              ),
-              menuItem(
-                "Dose Response Map",
-                tabName = "doseResponseUserGuideTab"
-              ),
-              menuItem(
-                "Synergy Map",
-                tabName = "synergyUserGuideTab"
-              ),
-              menuItem(
-                "Sensitivity Map",
-                tabName = "sensitivityUserGuideTab"
-              ),
-              menuItem(
-                "DownloadReports",
-                tabName = "reportUserGuideTab"
-              ),
-              menuItem(
-                "VideoGuide",
-                tabName = "videoGuideTab"
-              )
-            )         
-          ),
-          dashboardBody(
-            tabItems(
-              tabItem(
-                tabName = "inputDataUserGuideTab",
-                    tags$div(
-                      class = "userGuide",
-                      withMathJax(
-                        includeMarkdown(
-                          "./doc/user_guide_upload_data_tab.Rmd"
-                        )
-                      )
-                    )
-              ),
-              tabItem(
-                tabName = "doseResponseUserGuideTab",
-                tags$div(
-                  class = "userGuide",
-                  withMathJax(
-                    includeMarkdown(
-                      "./doc/user_guide_dose_response_tab.Rmd"
-                    )
-                  )
-                )
-              ),
-              tabItem(
-                tabName = "synergyUserGuideTab",
-                tags$div(
-                  class = "userGuide",
-                  withMathJax(
-                    includeMarkdown(
-                      "./doc/user_guide_synergy_score_tab.Rmd"
-                    )
-                  )
-                )
-              ),
-              tabItem(
-                tabName = "sensitivityUserGuideTab",
-                tags$div(
-                  class = "userGuide",
-                  withMathJax(
-                    includeMarkdown(
-                      "./doc/user_guide_sensitivity_score_tab.Rmd"
-                    )
-                  )
-                )
-              ),
-              tabItem(
-                tabName = "reportUserGuideTab",
-                tags$div(
-                  class = "userGuide",
-                  withMathJax(
-                    includeMarkdown(
-                      "./doc/user_guide_report_tab.Rmd"
-                    )
-                  )
-                )
-              ),
-              tabItem(
-                tabName = "videoGuideTab",
-                tags$div(
-                  class = "userGuide",
-                  tags$h1("A Brief Introduction to SynergyFinder Plus"),
-                  tags$iframe(
-                    width="560",
-                    height="315",
-                    src="https://www.youtube.com/embed/2SFPLaSXj54",
-                    frameborder="0",
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",
-                    allowfullscreen=NA
-                  ),
-                  tags$h1("A Tour for SynergyFinder Plus Web Application"),
-                  tags$iframe(
-                    width="560",
-                    height="315",
-                    src="https://www.youtube.com/embed/KVnVvdCCUCo",
-                    frameborder="0",
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",
-                    allowfullscreen=NA
-                  )
-                )
-              )
-            )
-          )
-        )
-      ),
-      tabPanel("FAQ", useShinyjs(), faqUI("faq")),
+      nav_item(a(href = route_link("userGuide"), "USER GUIDE"), value = "USER GUIDE"),
+      nav_item(a(href = route_link("faq"), "FAQ"), value = "FAQ", useShinyjs()),
       # USER CITATION ----------------------------------------------------------
-      tabPanel("HOW TO CITE", howToCiteUI("howToCite")),
+      nav_item(a(href = route_link("cite"), "HOW TO CITE"), value = "HOW TO CITE"),
       # ABOUT US ---------------------------------------------------------------
-      tabPanel("ABOUT US", aboutUsUI("aboutUs")),
+      nav_item(a(href = route_link("aboutUs"), "ABOUT US"), value = "ABOUT US"),
       # CONTACT ----------------------------------------------------------------
-      tabPanel("CONTACT", contactUsUI("contactUs"))
-    )
+      nav_item(a(href = route_link("contact"), "CONTACT"), value = "CONTACT")
+    ),
+    router$ui
   )
-)
+#)

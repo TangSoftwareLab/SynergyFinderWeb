@@ -1,19 +1,7 @@
 vals <- reactiveValues(users_ = 0)
 
 server <- function(input, output, session){
-  # Router for different tabs --------------------------------------------------
-  observeEvent(input$topNavBar, {
-    newURL <- paste0(
-      session$clientData$url_protocol,
-      "//",
-      session$clientData$url_hostname,
-      ":",
-      session$clientData$url_port,
-      session$clientData$url_pathname,
-      tolower(gsub(" ", "_", input$topNavBar))
-    )
-    updateQueryString(newURL, mode = "replace", session)
-  })
+  router$server(input, output, session)
   # Define reactive variables --------------------------------------------------
   datannot <- reactiveValues(annot = NULL)
   inputDataPath <- reactiveValues(path = NULL)
@@ -88,15 +76,14 @@ server <- function(input, output, session){
     It might be suboptimal to use SynergyFinder2 for the analysis of high-order drug combination data.'),
     easyClose = TRUE,
     footer = tagList(
-      actionButton("more", "Learn more"),
+      actionButton("more", "Learn more",
+                   onclick = "location.href='./#!/faq';"),
       modalButton("Close")
     )
   ))
   
   observeEvent(input$more, {
     removeModal(session = getDefaultReactiveDomain())
-    updateTabItems(session, inputId = "topNavBar",
-                   selected = "FAQ")
   })
   
   # # Home page ----------------------------------------------------------------
@@ -121,7 +108,8 @@ server <- function(input, output, session){
               class = "far fa-question-circle"
             ),
             style="color: #0477bd; background-color: #fff; border-color: #fff",
-            size = "extra-small"
+            size = "extra-small",
+            onclick = "location.href='./#!/userGuide';"
           )
         ),
         accept = c('.csv', '.xlsx', '.txt'),
@@ -151,7 +139,8 @@ server <- function(input, output, session){
                 class = "far fa-question-circle"
               ),
               style="color: #0477bd; background-color: #fff; border-color: #fff",
-              size = "extra-small"
+              size = "extra-small",
+              onclick = "location.href='./#!/userGuide';"
             )
           ),
           accept = c('.csv', '.xlsx', '.txt'),
@@ -162,33 +151,7 @@ server <- function(input, output, session){
   
   # Input Data Tab ------------------------------------------------------------
   ## Reset the data uploading fields ------------------------------------------
-  # output$resettableInput <- renderUI({
-  #   input$inputDatatype
-  #   tagList(
-  #     fileInput(
-  #       inputId = 'annotfile',
-  #       label = tags$p(
-  #         '2. Upload a file',
-  #         actionButton("q1", label = "",
-  #                      icon = icon(
-  #                        "question-circle",
-  #                        lib = "font-awesome",
-  #                        class = "far fa-question-circle"
-  #                      ),
-  #                      style="color: #0477bd; background-color: #fff; border-color: #fff",
-  #                      size = "extra-small")
-  #       ),
-  #       accept = c('.csv', '.xlsx', '.txt'),
-  #     )
-  #   )
-  # })
   
-  observeEvent(
-    input$q1,
-    {
-      updateTabsetPanel(session, "topNavBar", selected = "USER GUIDE")
-    }
-  )
   observeEvent(
     input$annoSwitch,
     {
@@ -286,7 +249,9 @@ server <- function(input, output, session){
                            class = "far fa-question-circle"
                          ),
                          style="color: #0477bd; background-color: #fff; border-color: #fff",
-                         size = "extra-small")
+                         size = "extra-small",
+                         onclick = "location.href='./#!/userGuide';"
+                         )
               ),
               accept = c('.csv', '.xlsx', '.txt'),
             )
